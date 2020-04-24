@@ -8,22 +8,48 @@ export class CombinationService {
   constructor() {
     this.strengthRows = null;
     this.columns = null;
-  
-    axios.get(strengthTableUrl).then(strengthTableTextRes => {
-      axios.get(strategiesUrl).then(strategiesTextRes => {
-        axios.get(usageUrl).then(usageTextRes => {
-          const loadStrTableResult = this.loadStrengthTable(strengthTableTextRes.data);
-          this.strengthRows = loadStrTableResult.strengthRows;
-          this.columns = loadStrTableResult.columns;
-          console.log(`strength table is successfully loaded`);
-          this.loadStrategyInfoToStrTable(strategiesTextRes.data, this.strengthRows);
-          console.log(`strategy information is successfully loaded`);
-          this.loadUsageInfo(usageTextRes.data, this.columns, this.strengthRows)
-          
-          this.constructTeamByIngenMethod(this.strengthRows, 18);
-        });
-      });
+  }
+
+  async loadMasterData() {
+    const loadStrTablePromise = new Promise(async (resolve, reject) => {
+      try {
+        const strengthTableTextRes = await axios.get(strengthTableUrl);
+        const loadStrTableResult = this.loadStrengthTable(strengthTableTextRes.data);
+        this.strengthRows = loadStrTableResult.strengthRows;
+        this.columns = loadStrTableResult.columns;
+        console.log(`strength table was successfully loaded`);
+        resolve();
+      } catch (error) {
+        reject(error);
+        throw new Error('Error: failed to get strength table data from URL')
+      }
     });
+
+    const loadStrategiesPromise = new Promise(async (resolve, reject) => {
+      try {
+        const strategiesTextRes = await axios.get(strategiesUrl);
+        this.loadStrategyInfoToStrTable(strategiesTextRes.data, this.strengthRows);
+        console.log(`strategy information was successfully loaded`);
+        resolve();
+      } catch (error) {
+        reject(error);
+        throw new Error('Error: failed to get strategy data from URL')
+      }
+    });
+
+    const loadUsageInfoPromise = new Promise(async (resolve, reject) => {
+      try {
+        const usageTextRes = await axios.get(usageUrl);
+        this.loadUsageInfo(usageTextRes.data, this.columns, this.strengthRows);
+        console.log(`usage information was successfully loaded`);
+        resolve();
+      } catch (error) {
+        reject(error);
+        throw new Error('Error: failed to get usage data from URL')
+      }
+    });
+
+    await Promise.all([loadStrTablePromise, loadStrategiesPromise, loadUsageInfoPromise]);
   }
 
   loadStrengthTable(tableText) {
@@ -375,7 +401,24 @@ export class CombinationService {
     return strengthRows.filter(x => acceptableTypes.indexOf(x.strategyType) >= 0);
   }
 
-  strValuesOfTeam() {
+  getAllTargetPokemonNames() {
+    return this.columns;
+  }
 
+  strValuesOfTeam(teamPokemonIndices) {
+    // is it needed to remove duplications about team members?
+
+    const pokemonVectors = teamPokemonIndices.map(pokeIndex => {
+      if (!(0 <= pokeIndex && pokeIndex <= this.strengthRows.length - 1)) {
+        throw new Error ('Error: pokemon index is out of the range');
+      }
+
+      const row = this.strengthRows[pokeIndex];
+      return row.vector;
+    });
+
+    const combinedVector = this.addVectors(...pokemonVectors);
+
+    return combinedVector;
   }
 }
