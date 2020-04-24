@@ -4,7 +4,7 @@ import React from 'react';
 import { Container, Row, Col } from 'react-bootstrap'
 import { SearchComponent } from './searchComponent';
 import { GraphComponent } from './graphComponent';
-import { MyTeamComponent } from './myTeamComponent';
+import { TeamComponent } from './TeamComponent';
 
 export class TeamBuilderComponent extends React.Component {
   constructor(props) {
@@ -12,13 +12,22 @@ export class TeamBuilderComponent extends React.Component {
     this.state = {};
   }
 
+
   render() {
+    const labelsMock = [
+      "Aegislash"	,"Cinderace"	,"Cloyster"	,"Conkeldurr"	,"Corsola"	,"Corviknight"	,"Corviknight"	,"Darmanitan"	,"Diggersby"	,"Dracovish"	,"Dragapult"	,"Dragapult"	,"Durant"	,"Eiscue"
+    ]
+
+    const strengthValuesMock = [
+        10	,238	,751	,496	,-15	,332	,164	,239	,-323	,81	,111	,179	,792	,859
+    ];
+
     return (
     <>
       <Container fluid className="mt-5">
         <Row>
           <Col md={3}>
-            <MyTeamComponent num={6}></MyTeamComponent>
+            <TeamComponent num={6}></TeamComponent>
           </Col>
           <Col md={3}>
             <SearchComponent></SearchComponent>
@@ -32,30 +41,10 @@ export class TeamBuilderComponent extends React.Component {
 
           </Col>
           <Col>
-          {/* <Form>
-            <Form.Group controlId="formBasicEmail">
-              <Form.Label>Email address</Form.Label>
-              <Form.Control type="email" placeholder="Enter email" />
-              <Form.Text className="text-muted">
-                We'll never share your email with anyone else.
-              </Form.Text>
-            </Form.Group>
-
-            <Form.Group controlId="formBasicPassword">
-              <Form.Label>Password</Form.Label>
-              <Form.Control type="password" placeholder="Password" />
-            </Form.Group>
-            <Form.Group controlId="formBasicCheckbox">
-              <Form.Check type="checkbox" label="Check me out" />
-            </Form.Group>
-            <Button variant="primary" type="submit">
-              Submit
-            </Button>
-          </Form> */}
           </Col>
         </Row>
       </Container>
-      <GraphComponent/>
+      <GraphComponent labels={labelsMock} values={strengthValuesMock}/>
     </>
     )};
 }

@@ -3,7 +3,7 @@ import React from 'react';
 // import { combinationCalculator } from './combination-calculator';
 import { Container, Row, Col, InputGroup, FormControl } from 'react-bootstrap'
 
-export class MyTeamComponent extends React.Component {
+export class TeamComponent extends React.Component {
   constructor(props) {
     super(props);
     this.num = props.num;
@@ -42,7 +42,7 @@ export class MyTeamComponent extends React.Component {
           <Col>
             <Row>
               <Col>
-                <h1>My Team</h1>
+                <h1>Your Team</h1>
               </Col>
             </Row>
             <Row>
