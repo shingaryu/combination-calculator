@@ -1,33 +1,36 @@
-import strengthTableUrl from './strength-table.csv';
-import strategiesUrl from './strategies.csv';
-import usageUrl from './usage.csv';
+import strengthTableUrl from '../assets/strength-table.csv';
+import strategiesUrl from '../assets/strategies.csv';
+import usageUrl from '../assets/usage.csv';
 import axios from 'axios';
 
-export function combinationCalculator() {
-  let strengthRows = null;
-  let columns = null;
+export class CombinationService {
 
-  axios.get(strengthTableUrl).then(strengthTableTextRes => {
-    axios.get(strategiesUrl).then(strategiesTextRes => {
-      axios.get(usageUrl).then(usageTextRes => {
-        const loadStrTableResult = loadStrengthTable(strengthTableTextRes.data);
-        strengthRows = loadStrTableResult.strengthRows;
-        columns = loadStrTableResult.columns;
-        console.log(`strength table is successfully loaded`);
-        loadStrategyInfoToStrTable(strategiesTextRes.data, strengthRows);
-        console.log(`strategy information is successfully loaded`);
-        loadUsageInfo(usageTextRes.data, columns, strengthRows)
-        
-        constructTeamByIngenMethod(strengthRows, 18);
+  constructor() {
+    this.strengthRows = null;
+    this.columns = null;
+  
+    axios.get(strengthTableUrl).then(strengthTableTextRes => {
+      axios.get(strategiesUrl).then(strategiesTextRes => {
+        axios.get(usageUrl).then(usageTextRes => {
+          const loadStrTableResult = this.loadStrengthTable(strengthTableTextRes.data);
+          this.strengthRows = loadStrTableResult.strengthRows;
+          this.columns = loadStrTableResult.columns;
+          console.log(`strength table is successfully loaded`);
+          this.loadStrategyInfoToStrTable(strategiesTextRes.data, this.strengthRows);
+          console.log(`strategy information is successfully loaded`);
+          this.loadUsageInfo(usageTextRes.data, this.columns, this.strengthRows)
+          
+          this.constructTeamByIngenMethod(this.strengthRows, 18);
+        });
       });
     });
-  });
+  }
 
-  function loadStrengthTable(tableText) {
+  loadStrengthTable(tableText) {
     tableText = tableText.replace('\r\n', '\n');
     let tableRows = tableText.split('\n');
       
-    const columns = tableRows[0].split(',').slice(1).filter(x => !isEmptyString(x));
+    const columns = tableRows[0].split(',').slice(1).filter(x => !this.isEmptyString(x));
     console.log(`${columns.length} columns exist`);
     
     let strengthRows = []; 
@@ -37,14 +40,14 @@ export function combinationCalculator() {
         return;
       }
     
-      if (row.split(',').every(x => isEmptyString(x))) {
+      if (row.split(',').every(x => this.isEmptyString(x))) {
         return;
       }
       const records = row.split(',');
       const strengthRow = {};
       strengthRow['index'] = index++;
       strengthRow['name'] = records[0].trim();
-      const values = records.slice(1).filter(x => !isEmptyString(x));
+      const values = records.slice(1).filter(x => !this.isEmptyString(x));
       if (columns.length !== values.length) {
         throw new Error('error: the number of column is not same among all rows');
       }
@@ -60,12 +63,12 @@ export function combinationCalculator() {
   }
   
   // load strategy info from text and add params to strength table
-  function loadStrategyInfoToStrTable(strategiesText, strengthRows) {
+  loadStrategyInfoToStrTable(strategiesText, strengthRows) {
     strategiesText = strategiesText.replace('\r\n', '\n');
     const strategiesRows = strategiesText.split('\n');
   
     strategiesRows.slice(1).forEach(strategiesRow => {
-      if (strategiesRow.split(',').every(x => isEmptyString(x))) {
+      if (strategiesRow.split(',').every(x => this.isEmptyString(x))) {
         return;
       }
   
@@ -112,7 +115,7 @@ export function combinationCalculator() {
     });
   }
   
-  function loadUsageInfo(usageText, columns, strengthRows) {
+  loadUsageInfo(usageText, columns, strengthRows) {
     usageText = usageText.replace('\r\n', '\n');
   
     const usageRows = usageText.split('\n');
@@ -123,7 +126,7 @@ export function combinationCalculator() {
         return;
       }
     
-      if (row.split(',').every(x => isEmptyString(x))) {
+      if (row.split(',').every(x => this.isEmptyString(x))) {
         return;
       }
     
@@ -155,28 +158,28 @@ export function combinationCalculator() {
       }
     })
   }
-  
-  function constructTeamByIngenMethod(strengthRows, firstPokemonIndex) {
+
+  constructTeamByIngenMethod(strengthRows, firstPokemonIndex) {
     // (1) select the first pokemon
     const firstPoke = strengthRows[firstPokemonIndex];
     console.log(`firstPoke: ${firstPoke.name}\n`);
     strengthRows = strengthRows.filter(x => x.index != firstPoke.index);
-    const compatibleStrTypes = compatibleTypes(firstPoke.strategyType);
+    const compatibleStrTypes = this.compatibleTypes(firstPoke.strategyType);
   
     // (2) search the second pokemon which complements the first pokemon
-    const resultStep2 = searchMinimumRow(firstPoke.vector, 
-      filterStrengthRows(compatibleStrTypes, strengthRows), (v1, v2) => cosineSimilarity(v1, v2));
+    const resultStep2 = this.searchMinimumRow(firstPoke.vector, 
+      this.filterStrengthRows(compatibleStrTypes, strengthRows), (v1, v2) => this.cosineSimilarity(v1, v2));
     const secondPoke = resultStep2.row;
     console.log(`secondPoke: ${secondPoke.name}\n`);
     strengthRows = strengthRows.filter(x => x.index != secondPoke.index);
   
     // (3)(4) search the third and fourth pokemon which cover weak slots of the first and second
-    const vectorFirstAndSecond = addVector(firstPoke.vector, secondPoke.vector);
+    const vectorFirstAndSecond = this.addVector(firstPoke.vector, secondPoke.vector);
     console.log(JSON.stringify(vectorFirstAndSecond))
     let maximumValueStep34 = Number.MIN_SAFE_INTEGER;
     let thirdPoke = null;
     let fourthPoke = null;
-    const filteredStrRows34 = filterStrengthRows(compatibleStrTypes, strengthRows);
+    const filteredStrRows34 = this.filterStrengthRows(compatibleStrTypes, strengthRows);
     // temporary search all combinations
     for (let i = 0; i < filteredStrRows34.length; i++) {
       for (let j = i + 1; j < filteredStrRows34.length; j++) {
@@ -189,10 +192,10 @@ export function combinationCalculator() {
           }
         }
   
-        const combinedVector = addVector(cropedV1, cropedV2);
-        const cos = cosineSimilarity(cropedV1, cropedV2);
+        const combinedVector = this.addVector(cropedV1, cropedV2);
+        const cos = this.cosineSimilarity(cropedV1, cropedV2);
         const absSin = Math.sqrt(1 - cos * cos);
-        const product = dotProduct(combinedVector, combinedVector.map(x => 1.0));
+        const product = this.dotProduct(combinedVector, combinedVector.map(x => 1.0));
         const value = product * absSin;
   
         console.log(`${filteredStrRows34[i].name} + ${filteredStrRows34[j].name}: ${value}(${product} * ${absSin})`);
@@ -211,7 +214,7 @@ export function combinationCalculator() {
   
   
     // (5) search fifth boost attacker pokemon which leverages weak slots of above 4 pokemons
-    const vector4Pokemons = addVectors(firstPoke.vector, secondPoke.vector, thirdPoke.vector, fourthPoke.vector);
+    const vector4Pokemons = this.addVectors(firstPoke.vector, secondPoke.vector, thirdPoke.vector, fourthPoke.vector);
     console.log(JSON.stringify(vector4Pokemons))
     let maximumValueStep5 = Number.MIN_SAFE_INTEGER;
     const filteredStrRows5 = strengthRows.filter(x => x.hasBoost);
@@ -224,7 +227,7 @@ export function combinationCalculator() {
         }
       }
   
-      const product = dotProduct(cropedV1, cropedV1.map(x => 1.0));
+      const product = this.dotProduct(cropedV1, cropedV1.map(x => 1.0));
       const value = product;
   
       console.log(`${filteredStrRows5[i].name}: ${value}`);
@@ -238,7 +241,7 @@ export function combinationCalculator() {
     strengthRows = strengthRows.filter(x => x.index != fifthPoke.index);
   
     // (6) search sixth pokemon which covers the weakest pokemon of 5
-    const vector5Pokemons = addVectors(firstPoke.vector, secondPoke.vector, thirdPoke.vector, fourthPoke.vector, fifthPoke.vector);
+    const vector5Pokemons = this.addVectors(firstPoke.vector, secondPoke.vector, thirdPoke.vector, fourthPoke.vector, fifthPoke.vector);
     console.log(JSON.stringify(vector5Pokemons))
     let weakestSlot = -1;
     let weakestValue = Number.MAX_VALUE;
@@ -250,25 +253,25 @@ export function combinationCalculator() {
       }
     }
   
-    console.log(`weakest slot is ${weakestSlot}(${columns[weakestSlot]}): ${weakestValue}`);
+    console.log(`weakest slot is ${weakestSlot}(${this.columns[weakestSlot]}): ${weakestValue}`);
   
-    const resultStep6 = searchMaximumRow(null, strengthRows, (v1, v2) => v2[weakestSlot]);
+    const resultStep6 = this.searchMaximumRow(null, strengthRows, (v1, v2) => v2[weakestSlot]);
     const sixthPoke = resultStep6.row;
     console.log(`sixthPoke: ${sixthPoke.name}\n`);
   
-    console.log(`${firstPoke.name} (norm: ${dotProduct(firstPoke.vector, firstPoke.vector.map(x => 1))})`);
-    console.log(`${secondPoke.name} (norm: ${dotProduct(secondPoke.vector, secondPoke.vector.map(x => 1))})`);
-    console.log(`${thirdPoke.name} (norm: ${dotProduct(thirdPoke.vector, thirdPoke.vector.map(x => 1))})`);
-    console.log(`${fourthPoke.name} (norm: ${dotProduct(fourthPoke.vector, fourthPoke.vector.map(x => 1))})`);
-    console.log(`${fifthPoke.name} (norm: ${dotProduct(fifthPoke.vector, fifthPoke.vector.map(x => 1))})`);
-    console.log(`${sixthPoke.name} (norm: ${dotProduct(sixthPoke.vector, sixthPoke.vector.map(x => 1))})`);
+    console.log(`${firstPoke.name} (norm: ${this.dotProduct(firstPoke.vector, firstPoke.vector.map(x => 1))})`);
+    console.log(`${secondPoke.name} (norm: ${this.dotProduct(secondPoke.vector, secondPoke.vector.map(x => 1))})`);
+    console.log(`${thirdPoke.name} (norm: ${this.dotProduct(thirdPoke.vector, thirdPoke.vector.map(x => 1))})`);
+    console.log(`${fourthPoke.name} (norm: ${this.dotProduct(fourthPoke.vector, fourthPoke.vector.map(x => 1))})`);
+    console.log(`${fifthPoke.name} (norm: ${this.dotProduct(fifthPoke.vector, fifthPoke.vector.map(x => 1))})`);
+    console.log(`${sixthPoke.name} (norm: ${this.dotProduct(sixthPoke.vector, sixthPoke.vector.map(x => 1))})`);
   
-    const finalVector = addVectors(firstPoke.vector, secondPoke.vector, thirdPoke.vector, fourthPoke.vector, fifthPoke.vector, sixthPoke.vector);
+    const finalVector = this.addVectors(firstPoke.vector, secondPoke.vector, thirdPoke.vector, fourthPoke.vector, fifthPoke.vector, sixthPoke.vector);
     console.log(JSON.stringify(finalVector));
   }
   
   // search the row which has the minimum value on the evaluation function
-  function searchMinimumRow(targetVector, strengthRows, evaluationFunc) {
+  searchMinimumRow(targetVector, strengthRows, evaluationFunc) {
     let minimumValue = Number.MAX_VALUE;
     let minimumRow = null;
     strengthRows.forEach(strRow => {
@@ -283,13 +286,13 @@ export function combinationCalculator() {
     return { row: minimumRow, value: minimumValue };
   }
   
-  function searchMaximumRow(targetVector, strengthRows, evaluationFunc) {
+  searchMaximumRow(targetVector, strengthRows, evaluationFunc) {
     const inverseEvalFunc = (v1, v2) => -1 * evaluationFunc(v1, v2);
-    return searchMinimumRow(targetVector, strengthRows, inverseEvalFunc);
+    return this.searchMinimumRow(targetVector, strengthRows, inverseEvalFunc);
   }
   
   
-  function addVectors() {
+  addVectors() {
     const length = arguments[0].length;
     for (let i = 0; i < arguments.length; i++) {
       if (length !== arguments[i].length) {
@@ -310,7 +313,7 @@ export function combinationCalculator() {
     return newVec;
   }
   
-  function addVector(vector1, vector2) {
+  addVector(vector1, vector2) {
     if (vector1.length !== vector2.length) {
       throw new Error('the number of elements is not same');
     }
@@ -323,11 +326,11 @@ export function combinationCalculator() {
     return newVec;
   }
   
-  function cosineSimilarity(v1, v2) {
-    return dotProduct(v1, v2) / (l2norm(v1) * l2norm(v2));
+  cosineSimilarity(v1, v2) {
+    return this.dotProduct(v1, v2) / (this.l2norm(v1) * this.l2norm(v2));
   }
   
-  function dotProduct(vector1, vector2) {
+  dotProduct(vector1, vector2) {
     if (vector1.length !== vector2.length) {
       throw new Error('the number of elements is not same');
     }
@@ -340,7 +343,7 @@ export function combinationCalculator() {
     return sum;
   }
   
-  function l2norm(vector) {
+  l2norm(vector) {
     let sum = 0;
     vector.forEach(x => {
       sum += x * x;
@@ -350,11 +353,11 @@ export function combinationCalculator() {
     return sum;
   }
   
-  function isEmptyString(x) {
+  isEmptyString(x) {
     return (x === '' || x === '\n' || x === '\r');
   }
   
-  function compatibleTypes(strategyType) {
+  compatibleTypes(strategyType) {
     let compatibleTypes = [];
   
     if (strategyType === 'Sweeper') {
@@ -368,7 +371,11 @@ export function combinationCalculator() {
     return compatibleTypes;
   }
   
-  function filterStrengthRows(acceptableTypes, strengthRows) {
+  filterStrengthRows(acceptableTypes, strengthRows) {
     return strengthRows.filter(x => acceptableTypes.indexOf(x.strategyType) >= 0);
+  }
+
+  strValuesOfTeam() {
+
   }
 }

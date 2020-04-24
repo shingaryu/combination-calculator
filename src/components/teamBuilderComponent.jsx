@@ -5,10 +5,12 @@ import { Container, Row, Col } from 'react-bootstrap'
 import { SearchComponent } from './searchComponent';
 import { GraphComponent } from './graphComponent';
 import { TeamComponent } from './TeamComponent';
+import { CombinationService } from '../services/combination-service';
 
 export class TeamBuilderComponent extends React.Component {
   constructor(props) {
     super(props);
+    this.combinationService = new CombinationService();
     this.state = {};
   }
 
