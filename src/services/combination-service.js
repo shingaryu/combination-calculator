@@ -401,6 +401,13 @@ export class CombinationService {
     return strengthRows.filter(x => acceptableTypes.indexOf(x.strategyType) >= 0);
   }
 
+  getAllTeamPokemonNames() {
+    // we can get all team (candidate) pokemon names also from the strategy info
+    // which is better?
+
+    return this.strengthRows.map(row => row.name);
+  }
+
   getAllTargetPokemonNames() {
     return this.columns;
   }
@@ -408,7 +415,9 @@ export class CombinationService {
   strValuesOfTeam(teamPokemonIndices) {
     // is it needed to remove duplications about team members?
 
-    const pokemonVectors = teamPokemonIndices.map(pokeIndex => {
+    const pokemonVectors = teamPokemonIndices.map(pokeIndexStr => {
+      const pokeIndex = parseInt(pokeIndexStr);
+
       if (!(0 <= pokeIndex && pokeIndex <= this.strengthRows.length - 1)) {
         throw new Error ('Error: pokemon index is out of the range');
       }

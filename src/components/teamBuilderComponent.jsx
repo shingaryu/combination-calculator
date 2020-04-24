@@ -1,6 +1,4 @@
 import React from 'react';
-// import './App.css';
-// import { combinationCalculator } from './combination-calculator';
 import { Container, Row, Col } from 'react-bootstrap'
 import { SearchComponent } from './searchComponent';
 import { GraphComponent } from './graphComponent';
@@ -11,9 +9,18 @@ export class TeamBuilderComponent extends React.Component {
   constructor(props) {
     super(props);
     this.combinationService = new CombinationService();
-    this.state = { loading: true };
+    this.state = { 
+      loading: true,
+      teamPokemonIndices: [ "4", "12", "2", "7", "0", "23" ] // sample
+    };
     this.combinationService.loadMasterData().then(data => {
-      this.setState({ loading: false });
+      const allTeamPokemonNames = this.combinationService.getAllTeamPokemonNames();
+      const teamPokemonNameMap = allTeamPokemonNames.map((name, index) => ({id: index.toString(), name: name}));
+      this.setState({ 
+        loading: false, 
+        strVectorColumns: this.combinationService.getAllTargetPokemonNames(),
+        teamPokemonNameMap: teamPokemonNameMap 
+      });
     }, error => {
       this.setState({ loading: false });
       console.log(error);
@@ -21,19 +28,22 @@ export class TeamBuilderComponent extends React.Component {
     });
   }
 
+  onChangeTeamPokemons(indices) {
+    this.setState({ teamPokemonIndices: indices });
+  }
+
   render() {
     if (this.state.loading) {
       return <span>Loading...</span>
     } else {  
-      const strVectorColumns = this.combinationService.getAllTargetPokemonNames();
-      const strengthValuesMock = this.combinationService.strValuesOfTeam([0, 13, 4, 2, 23, 8])
+      const teamStrengthValues = this.combinationService.strValuesOfTeam(this.state.teamPokemonIndices);
 
       return (
         <>
           <Container fluid className="mt-5">
             <Row>
               <Col md={3}>
-                <TeamComponent num={6}></TeamComponent>
+                <TeamComponent num={6} pokemonList={this.state.teamPokemonNameMap} onChange={(indices) => this.onChangeTeamPokemons(indices)}></TeamComponent>
               </Col>
               <Col md={3}>
                 <SearchComponent></SearchComponent>
@@ -50,7 +60,7 @@ export class TeamBuilderComponent extends React.Component {
               </Col>
             </Row>
           </Container>
-          <GraphComponent labels={strVectorColumns} values={strengthValuesMock}/>
+          <GraphComponent labels={this.state.strVectorColumns} values={teamStrengthValues}/>
         </>
     )};    
   }

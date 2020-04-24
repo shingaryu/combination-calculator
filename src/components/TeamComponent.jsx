@@ -1,37 +1,38 @@
 import React from 'react';
-// import './App.css';
-// import { combinationCalculator } from './combination-calculator';
 import { Container, Row, Col, InputGroup, FormControl } from 'react-bootstrap'
 
 export class TeamComponent extends React.Component {
   constructor(props) {
     super(props);
     this.num = props.num;
+    this.pokemonList = props.pokemonList;
     this.onChange = props.onChange;
     if (!this.num || this.num < 1) {
       throw new Error ('Error: team length must be more than 0');
     }
 
-    const pokemons = [];
+    const pokemonSlots = [];
     for (let i = 0; i < this.num; i++) {
-      pokemons[i] = {
-        name: 'Dracovish',
-        enabled: false
+      pokemonSlots[i] = {
+        id: this.pokemonList[i].id,
+        enabled: true
       }
     }
 
     this.state = {
-      pokemons: pokemons
+      pokemonSlots: pokemonSlots
     }
   }
 
   onInputChange(num, event) {
-    const pokemons = this.state.pokemons.concat();
-    pokemons[num].name = event.target.value;
+    const pokemons = this.state.pokemonSlots.concat();
+    pokemons[num].id = event.target.value;
 
     this.setState({
       pokemons: pokemons
     });
+
+    this.onChange(this.state.pokemonSlots.filter(x => x.enabled).map(y => y.id));
   }
 
   render() {
@@ -49,12 +50,14 @@ export class TeamComponent extends React.Component {
               <Col>
                 <div>
                     {
-                      this.state.pokemons && this.state.pokemons.map((poke, index) => 
+                      this.state.pokemonSlots && this.state.pokemonSlots.map((poke, index) => 
                         <InputGroup className="mb-2" key={index}>
                           <InputGroup.Prepend>
                             <InputGroup.Checkbox/>
                           </InputGroup.Prepend>
-                          <FormControl value={poke.name} onChange={(e) => this.onInputChange(index, e)}/>
+                          <FormControl as="select" value={poke.id} onChange={(e) => this.onInputChange(index, e)}>
+                            {this.pokemonList.map(listPoke => (<option key={listPoke.id} value={listPoke.id}>{listPoke.name}</option>))}
+                          </FormControl>
                         </InputGroup>
                       )
                     }
