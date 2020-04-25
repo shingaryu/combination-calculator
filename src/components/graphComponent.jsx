@@ -1,6 +1,7 @@
 import React from 'react';
 import { Row, Col, Container } from "react-bootstrap";
-import {Bar} from 'react-chartjs-2';
+import {Bar, HorizontalBar} from 'react-chartjs-2';
+import MediaQuery from "react-responsive";
 
 export const GraphComponent = (props) => {
   const labels = props.labels;
@@ -26,21 +27,35 @@ export const GraphComponent = (props) => {
       <Container fluid className="mt-5">
         <Row>
           <Col>
-            <h1>Strength Values of Your Team</h1>
+            <h2>Your Team's Strength</h2>
           </Col>
         </Row>
         <Row>
           <Col>
+          <MediaQuery query="(max-width: 767px)">
+            <div style={{height: 500}}>
+              <HorizontalBar
+                data={data}
+                width={1000}
+                height={500}
+                options={{
+                  maintainAspectRatio: false,
+                }}
+              />
+            </div>          
+          </MediaQuery>
+          <MediaQuery query="(min-width: 768px)">
             <div style={{height: 500}}>
               <Bar
                 data={data}
                 width={100}
                 height={50}
                 options={{
-                  maintainAspectRatio: false
+                  maintainAspectRatio: false,
                 }}
               />
             </div>
+          </MediaQuery>
           </Col>
         </Row>
       </Container>

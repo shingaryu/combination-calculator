@@ -45,12 +45,12 @@ export class TeamBuilderComponent extends React.Component {
               <Col md={3}>
                 <TeamComponent num={6} pokemonList={this.state.teamPokemonNameMap} onChange={(indices) => this.onChangeTeamPokemons(indices)}></TeamComponent>
               </Col>
-              <Col md={3}>
+              {/* <Col md={3}>
                 <SearchComponent></SearchComponent>
               </Col>
               <Col md={6}>
                 <SearchComponent></SearchComponent>
-              </Col>
+              </Col> */}
             </Row>
             <Row>
               <Col>

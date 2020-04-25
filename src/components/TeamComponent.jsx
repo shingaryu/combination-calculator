@@ -43,7 +43,7 @@ export class TeamComponent extends React.Component {
           <Col>
             <Row>
               <Col>
-                <h1>Your Team</h1>
+                <h2>Your Team</h2>
               </Col>
             </Row>
             <Row>
@@ -51,7 +51,7 @@ export class TeamComponent extends React.Component {
                 <div>
                     {
                       this.state.pokemonSlots && this.state.pokemonSlots.map((poke, index) => 
-                        <InputGroup className="mb-2" key={index}>
+                        <InputGroup className="mb-2" key={index} style={{width: 200}}>
                           <InputGroup.Prepend>
                             <InputGroup.Checkbox/>
                           </InputGroup.Prepend>
