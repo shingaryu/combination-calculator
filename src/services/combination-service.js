@@ -418,6 +418,14 @@ export class CombinationService {
   strValuesOfTeam(teamPokemonIndices) {
     // is it needed to remove duplications about team members?
 
+    if (!teamPokemonIndices || teamPokemonIndices.length === 0) {
+      const allZero = [];
+      for (let i = 0; i < this.columns; i++) {
+        allZero.push(0);
+      }
+      return allZero;
+    }
+
     const pokemonVectors = teamPokemonIndices.map(pokeIndexStr => {
       const pokeIndex = parseInt(pokeIndexStr);
 

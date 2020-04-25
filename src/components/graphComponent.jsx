@@ -11,7 +11,7 @@ export const GraphComponent = (props) => {
     labels: labels,
     datasets: [
       {
-        label: 'Strength value',
+        label: 'Team strength value to each target Pokemon',
         backgroundColor: 'rgba(255,99,132,0.2)',
         borderColor: 'rgba(255,99,132,1)',
         borderWidth: 1,
@@ -21,6 +21,28 @@ export const GraphComponent = (props) => {
       }
     ]
   };
+
+  const strengthValueAxisOption = [{
+    ticks: {
+      min: -1024*4,
+      max: 1024*4,
+      stepSize: 1024
+    }
+  }];
+
+  const chartOptionsBar = {
+    maintainAspectRatio: false,
+    scales: {
+      yAxes: strengthValueAxisOption
+    }
+  }  
+
+  const chartOptionsHorizontal = {
+    maintainAspectRatio: false,
+    scales: {
+      xAxes: strengthValueAxisOption
+    }
+  }  
 
   return (
     <>
@@ -38,9 +60,7 @@ export const GraphComponent = (props) => {
                 data={data}
                 width={1000}
                 height={500}
-                options={{
-                  maintainAspectRatio: false,
-                }}
+                options={chartOptionsHorizontal}
               />
             </div>          
           </MediaQuery>
@@ -50,9 +70,7 @@ export const GraphComponent = (props) => {
                 data={data}
                 width={100}
                 height={50}
-                options={{
-                  maintainAspectRatio: false,
-                }}
+                options={chartOptionsBar}
               />
             </div>
           </MediaQuery>

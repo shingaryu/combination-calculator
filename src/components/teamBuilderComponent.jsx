@@ -11,7 +11,7 @@ export class TeamBuilderComponent extends React.Component {
     this.combinationService = new CombinationService();
     this.state = { 
       loading: true,
-      teamPokemonIndices: [ "4", "12", "2", "7", "0", "23" ] // sample
+      teamPokemonIndices: ["18", "11", "23", "25", "2", "21"] // default in teamComponent
     };
     this.combinationService.loadMasterData().then(data => {
       const allTeamPokemonNames = this.combinationService.getAllTeamPokemonNames();
@@ -40,7 +40,7 @@ export class TeamBuilderComponent extends React.Component {
 
       return (
         <>
-          <Container fluid className="mt-5">
+          <Container fluid className="mt-3">
             <Row>
               <Col md={3}>
                 <TeamComponent num={6} pokemonList={this.state.teamPokemonNameMap} onChange={(indices) => this.onChangeTeamPokemons(indices)}></TeamComponent>

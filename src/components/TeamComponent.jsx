@@ -12,9 +12,10 @@ export class TeamComponent extends React.Component {
     }
 
     const pokemonSlots = [];
+    const defaultTeamIndices = ["18", "11", "23", "25", "2", "21"];
     for (let i = 0; i < this.num; i++) {
       pokemonSlots[i] = {
-        id: this.pokemonList[i].id,
+        id: defaultTeamIndices[i],
         enabled: true
       }
     }
@@ -22,6 +23,17 @@ export class TeamComponent extends React.Component {
     this.state = {
       pokemonSlots: pokemonSlots
     }
+  }
+
+  onCheckboxChange(num, event) {
+    const pokemons = this.state.pokemonSlots.concat();
+    pokemons[num].enabled = event.target.checked;
+
+    this.setState({
+      pokemons: pokemons
+    });
+
+    this.onChange(this.validTeamPokemonIndices());
   }
 
   onInputChange(num, event) {
@@ -32,7 +44,18 @@ export class TeamComponent extends React.Component {
       pokemons: pokemons
     });
 
-    this.onChange(this.state.pokemonSlots.filter(x => x.enabled).map(y => y.id));
+    this.onChange(this.validTeamPokemonIndices());
+  }
+
+  teamPokemonOptions() {
+    const options = [];
+    options.push(<option key={-1} value={-1}> </option>); // empty
+    this.pokemonList.forEach(listPoke => options.push(<option key={listPoke.id} value={listPoke.id}>{listPoke.name}</option>));
+    return options;
+  }
+
+  validTeamPokemonIndices() {
+    return this.state.pokemonSlots.filter(x => x.enabled && x.id !== "-1").map(y => y.id);
   }
 
   render() {
@@ -53,10 +76,10 @@ export class TeamComponent extends React.Component {
                       this.state.pokemonSlots && this.state.pokemonSlots.map((poke, index) => 
                         <InputGroup className="mb-2" key={index} style={{width: 200}}>
                           <InputGroup.Prepend>
-                            <InputGroup.Checkbox/>
+                            <InputGroup.Checkbox checked={poke.enabled} onChange={(e) => this.onCheckboxChange(index, e)}/>
                           </InputGroup.Prepend>
                           <FormControl as="select" value={poke.id} onChange={(e) => this.onInputChange(index, e)}>
-                            {this.pokemonList.map(listPoke => (<option key={listPoke.id} value={listPoke.id}>{listPoke.name}</option>))}
+                            {this.teamPokemonOptions()}
                           </FormControl>
                         </InputGroup>
                       )
