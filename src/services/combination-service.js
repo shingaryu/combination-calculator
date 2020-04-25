@@ -39,19 +39,20 @@ export class CombinationService {
       }
     });
 
-    const loadUsageInfoPromise = new Promise(async (resolve, reject) => {
-      try {
-        const usageTextRes = await axios.get(usageUrl);
-        this.loadUsageInfo(usageTextRes.data, this.columns, this.strengthRows);
-        console.log(`usage information was successfully loaded`);
-        resolve();
-      } catch (error) {
-        reject(error);
-        throw new Error('Error: failed to get usage data from URL')
-      }
-    });
+    // const loadUsageInfoPromise = new Promise(async (resolve, reject) => {
+    //   try {
+    //     const usageTextRes = await axios.get(usageUrl);
+    //     this.loadUsageInfo(usageTextRes.data, this.columns, this.strengthRows);
+    //     console.log(`usage information was successfully loaded`);
+    //     resolve();
+    //   } catch (error) {
+    //     reject(error);
+    //     throw new Error('Error: failed to get usage data from URL')
+    //   }
+    // });
 
-    await Promise.all([loadStrategiesPromise, loadUsageInfoPromise]);
+    // await Promise.all([loadStrategiesPromise, loadUsageInfoPromise]);
+    await Promise.all([loadStrategiesPromise]);
   }
 
   loadStrengthTable(tableText) {
