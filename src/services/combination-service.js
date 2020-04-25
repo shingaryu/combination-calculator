@@ -441,4 +441,26 @@ export class CombinationService {
 
     return combinedVector;
   }
+
+  searchSmallCosineSimilarity(teamPokemonIndices, compatibleStrTypes) {
+    const combinedVector = this.strValuesOfTeam(teamPokemonIndices);
+
+    let targetStrengthRows = this.strengthRows.filter(x => teamPokemonIndices.indexOf(x.index.toString()) < 0);
+    targetStrengthRows = this.filterStrengthRows(compatibleStrTypes, targetStrengthRows);
+
+    console.log(targetStrengthRows)
+    const results = [];
+    targetStrengthRows.forEach(row => {
+      results.push({
+        pokemonIds: [ row.index ],
+        pokemonNames: [ row.name ],
+        value: this.cosineSimilarity(combinedVector, row.vector)
+      })
+    });
+
+    console.log(results);
+    results.sort((a, b) => a.value - b.value);
+
+    return results;
+  }
 }

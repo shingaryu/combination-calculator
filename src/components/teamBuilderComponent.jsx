@@ -4,6 +4,7 @@ import { SearchComponent } from './searchComponent';
 import { GraphComponent } from './graphComponent';
 import { TeamComponent } from './TeamComponent';
 import { CombinationService } from '../services/combination-service';
+import { SearchResultComponent } from './searchResultComponent';
 
 export class TeamBuilderComponent extends React.Component {
   constructor(props) {
@@ -37,6 +38,7 @@ export class TeamBuilderComponent extends React.Component {
       return <span>Loading...</span>
     } else {  
       const teamStrengthValues = this.combinationService.strValuesOfTeam(this.state.teamPokemonIndices);
+      const results = this.combinationService.searchSmallCosineSimilarity(this.state.teamPokemonIndices, ['Sweeper', 'Tank', 'Wall']);
 
       return (
         <>
@@ -47,10 +49,10 @@ export class TeamBuilderComponent extends React.Component {
               </Col>
               {/* <Col md={3}>
                 <SearchComponent></SearchComponent>
-              </Col>
-              <Col md={6}>
-                <SearchComponent></SearchComponent>
               </Col> */}
+              <Col md={6}>
+                <SearchResultComponent searchResult={results}/>
+              </Col>
             </Row>
             <Row>
               <Col>
