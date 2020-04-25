@@ -25,6 +25,8 @@ export class CombinationService {
       }
     });
 
+    await Promise.resolve(loadStrTablePromise);
+
     const loadStrategiesPromise = new Promise(async (resolve, reject) => {
       try {
         const strategiesTextRes = await axios.get(strategiesUrl);
@@ -49,7 +51,7 @@ export class CombinationService {
       }
     });
 
-    await Promise.all([loadStrTablePromise, loadStrategiesPromise, loadUsageInfoPromise]);
+    await Promise.all([loadStrategiesPromise, loadUsageInfoPromise]);
   }
 
   loadStrengthTable(tableText) {
