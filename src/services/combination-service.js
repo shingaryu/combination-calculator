@@ -442,7 +442,7 @@ export class CombinationService {
     return combinedVector;
   }
 
-  searchSmallCosineSimilarity(teamPokemonIndices, compatibleStrTypes) {
+  calcTargetStrengthsComplement(teamPokemonIndices, compatibleStrTypes) {
     if (!teamPokemonIndices || teamPokemonIndices.length === 0) {
       return [];
     }
@@ -457,11 +457,11 @@ export class CombinationService {
       results.push({
         pokemonIds: [ row.index ],
         pokemonNames: [ row.name ],
-        value: this.cosineSimilarity(combinedVector, row.vector)
+        value: -1 * this.cosineSimilarity(combinedVector, row.vector) // smaller cosine similarities have bigger complements
       })
     });
 
-    results.sort((a, b) => a.value - b.value);
+    results.sort((a, b) => b.value - a.value); // higher values comes first
 
     return results;
   }

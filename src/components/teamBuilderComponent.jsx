@@ -13,6 +13,7 @@ export class TeamBuilderComponent extends React.Component {
     this.state = { 
       loading: true,
       teamPokemonIndices: ["18", "11", "23", "25", "2", "21"], // default in teamComponent
+      searchSettings: { evaluationMethod: 0 },
       selectedSearchResultPokemonIndices: null
     };
     this.combinationService.loadMasterData().then(data => {
@@ -34,6 +35,10 @@ export class TeamBuilderComponent extends React.Component {
     this.setState({ teamPokemonIndices: indices });
   }
 
+  onSearchSettingsChange(settings) {
+    this.setState({ searchSettings: settings, selectedSearchResultPokemonIndices: null });
+  }
+
   onSelectSearchResultRow(indices) {
     this.setState({ selectedSearchResultPokemonIndices: indices });
   }
@@ -43,8 +48,6 @@ export class TeamBuilderComponent extends React.Component {
       return <span>Loading...</span>
     } else {  
       const teamStrengthValues = this.combinationService.strValuesOfTeam(this.state.teamPokemonIndices);
-      const results = this.combinationService.searchSmallCosineSimilarity(this.state.teamPokemonIndices, ['Sweeper', 'Tank', 'Wall']);
-
       const graphDatasets = [
         {
           dataLabel: 'Team strength value',
@@ -52,6 +55,11 @@ export class TeamBuilderComponent extends React.Component {
           colorRGB: [255, 99, 132]
         }
       ]
+
+      let results = [];
+      if (this.state.searchSettings.evaluationMethod === 0) {
+        results = this.combinationService.calcTargetStrengthsComplement(this.state.teamPokemonIndices, ['Sweeper', 'Tank', 'Wall']);
+      }
 
       if (this.state.selectedSearchResultPokemonIndices) {
         const searchResultPokemonStrengthValues = this.combinationService.strValuesOfTeam(this.state.selectedSearchResultPokemonIndices);
@@ -69,9 +77,9 @@ export class TeamBuilderComponent extends React.Component {
               <Col md={3}>
                 <TeamComponent num={6} pokemonList={this.state.teamPokemonNameMap} onChange={(indices) => this.onChangeTeamPokemons(indices)}></TeamComponent>
               </Col>
-              {/* <Col md={3}>
-                <SearchComponent></SearchComponent>
-              </Col> */}
+              <Col md={3}>
+                <SearchComponent onChange={(settings) => this.onSearchSettingsChange(settings)}></SearchComponent>
+              </Col>
               <Col md={6}>
                 <SearchResultComponent searchResult={results} onSelectChange={(indices) => this.onSelectSearchResultRow(indices)}/>
               </Col>
