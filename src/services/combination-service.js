@@ -443,6 +443,10 @@ export class CombinationService {
   }
 
   searchSmallCosineSimilarity(teamPokemonIndices, compatibleStrTypes) {
+    if (!teamPokemonIndices || teamPokemonIndices.length === 0) {
+      return [];
+    }
+
     const combinedVector = this.strValuesOfTeam(teamPokemonIndices);
 
     let targetStrengthRows = this.strengthRows.filter(x => teamPokemonIndices.indexOf(x.index.toString()) < 0);

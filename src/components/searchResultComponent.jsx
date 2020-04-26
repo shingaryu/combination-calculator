@@ -36,7 +36,10 @@ export class SearchResultComponent extends React.Component {
             <thead>
               <tr>
                 <th key='h-i'>#</th>
-                {this.props.searchResult[0].pokemonIds.map((x, i) => <th key={`h-p${i}`}>Pokemon</th>)}
+                {this.props.searchResult.length===0?
+                  <th key={`h-p0`}>Pokemon</th>:
+                  this.props.searchResult[0].pokemonIds.map((x, i) => <th key={`h-p${i}`}>Pokemon</th>)
+                }
                 <th key='h-v'>Value</th>
               </tr>
             </thead>
