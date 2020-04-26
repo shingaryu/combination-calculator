@@ -4,16 +4,13 @@ import { Container, Row, Col, InputGroup, FormControl } from 'react-bootstrap'
 export class TeamComponent extends React.Component {
   constructor(props) {
     super(props);
-    this.num = props.num;
-    this.pokemonList = props.pokemonList;
-    this.onChange = props.onChange;
-    if (!this.num || this.num < 1) {
+    if (!this.props.num || this.props.num < 1) {
       throw new Error ('Error: team length must be more than 0');
     }
 
     const pokemonSlots = [];
     const defaultTeamIndices = ["18", "11", "23", "25", "2", "21"];
-    for (let i = 0; i < this.num; i++) {
+    for (let i = 0; i < this.props.num; i++) {
       pokemonSlots[i] = {
         id: defaultTeamIndices[i],
         enabled: true
@@ -33,7 +30,7 @@ export class TeamComponent extends React.Component {
       pokemons: pokemons
     });
 
-    this.onChange(this.validTeamPokemonIndices());
+    this.props.onChange(this.validTeamPokemonIndices());
   }
 
   onInputChange(num, event) {
@@ -44,13 +41,13 @@ export class TeamComponent extends React.Component {
       pokemons: pokemons
     });
 
-    this.onChange(this.validTeamPokemonIndices());
+    this.props.onChange(this.validTeamPokemonIndices());
   }
 
   teamPokemonOptions() {
     const options = [];
     options.push(<option key={-1} value={-1}> </option>); // empty
-    this.pokemonList.forEach(listPoke => options.push(<option key={listPoke.id} value={listPoke.id}>{listPoke.name}</option>));
+    this.props.pokemonList.forEach(listPoke => options.push(<option key={listPoke.id} value={listPoke.id}>{listPoke.name}</option>));
     return options;
   }
 

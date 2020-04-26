@@ -448,7 +448,6 @@ export class CombinationService {
     let targetStrengthRows = this.strengthRows.filter(x => teamPokemonIndices.indexOf(x.index.toString()) < 0);
     targetStrengthRows = this.filterStrengthRows(compatibleStrTypes, targetStrengthRows);
 
-    console.log(targetStrengthRows)
     const results = [];
     targetStrengthRows.forEach(row => {
       results.push({
@@ -458,7 +457,6 @@ export class CombinationService {
       })
     });
 
-    console.log(results);
     results.sort((a, b) => a.value - b.value);
 
     return results;

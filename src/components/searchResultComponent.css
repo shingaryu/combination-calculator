@@ -1,0 +1,12 @@
+.table-area {
+  height: 300px;
+  overflow-y: auto;
+}
+
+.cursor-pointer {
+  cursor: pointer;
+}
+
+.selected-row, .table-striped tbody tr:nth-of-type(odd).selected-row, .table-hover tbody tr:hover.selected-row {
+  background-color: lightblue;
+}

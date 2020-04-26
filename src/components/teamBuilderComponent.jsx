@@ -12,7 +12,8 @@ export class TeamBuilderComponent extends React.Component {
     this.combinationService = new CombinationService();
     this.state = { 
       loading: true,
-      teamPokemonIndices: ["18", "11", "23", "25", "2", "21"] // default in teamComponent
+      teamPokemonIndices: ["18", "11", "23", "25", "2", "21"], // default in teamComponent
+      selectedSearchResultPokemonIndices: null
     };
     this.combinationService.loadMasterData().then(data => {
       const allTeamPokemonNames = this.combinationService.getAllTeamPokemonNames();
@@ -33,12 +34,33 @@ export class TeamBuilderComponent extends React.Component {
     this.setState({ teamPokemonIndices: indices });
   }
 
+  onSelectSearchResultRow(indices) {
+    this.setState({ selectedSearchResultPokemonIndices: indices });
+  }
+
   render() {
     if (this.state.loading) {
       return <span>Loading...</span>
     } else {  
       const teamStrengthValues = this.combinationService.strValuesOfTeam(this.state.teamPokemonIndices);
       const results = this.combinationService.searchSmallCosineSimilarity(this.state.teamPokemonIndices, ['Sweeper', 'Tank', 'Wall']);
+
+      const graphDatasets = [
+        {
+          dataLabel: 'Team strength value',
+          values: teamStrengthValues,
+          colorRGB: [255, 99, 132]
+        }
+      ]
+
+      if (this.state.selectedSearchResultPokemonIndices) {
+        const searchResultPokemonStrengthValues = this.combinationService.strValuesOfTeam(this.state.selectedSearchResultPokemonIndices);
+        graphDatasets.push({
+            dataLabel: 'Selected pokemon strength value',
+            values: searchResultPokemonStrengthValues,
+            colorRGB: [0, 99, 132]
+        })
+      }
 
       return (
         <>
@@ -51,7 +73,7 @@ export class TeamBuilderComponent extends React.Component {
                 <SearchComponent></SearchComponent>
               </Col> */}
               <Col md={6}>
-                <SearchResultComponent searchResult={results}/>
+                <SearchResultComponent searchResult={results} onSelectChange={(indices) => this.onSelectSearchResultRow(indices)}/>
               </Col>
             </Row>
             <Row>
@@ -62,7 +84,7 @@ export class TeamBuilderComponent extends React.Component {
               </Col>
             </Row>
           </Container>
-          <GraphComponent labels={this.state.strVectorColumns} values={teamStrengthValues}/>
+          <GraphComponent labels={this.state.strVectorColumns} datasets={graphDatasets}/>
         </>
     )};    
   }

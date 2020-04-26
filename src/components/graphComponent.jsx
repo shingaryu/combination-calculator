@@ -5,21 +5,19 @@ import MediaQuery from "react-responsive";
 
 export const GraphComponent = (props) => {
   const labels = props.labels;
-  const values = props.values;
+  const datasets = props.datasets;
 
   const data = {
     labels: labels,
-    datasets: [
-      {
-        label: 'Team strength value to each target Pokemon',
-        backgroundColor: 'rgba(255,99,132,0.2)',
-        borderColor: 'rgba(255,99,132,1)',
-        borderWidth: 1,
-        hoverBackgroundColor: 'rgba(255,99,132,0.4)',
-        hoverBorderColor: 'rgba(255,99,132,1)',
-        data: values
-      }
-    ]
+    datasets: datasets.map(arg => ({
+      label: arg.dataLabel,
+      backgroundColor: `rgba(${arg.colorRGB[0]},${arg.colorRGB[1]},${arg.colorRGB[2]},0.2)`,
+      borderColor: `rgba(${arg.colorRGB[0]},${arg.colorRGB[1]},${arg.colorRGB[2]},1)`,
+      borderWidth: 1,
+      hoverBackgroundColor: `rgba(${arg.colorRGB[0]},${arg.colorRGB[1]},${arg.colorRGB[2]},0.4)`,
+      hoverBorderColor: `rgba(${arg.colorRGB[0]},${arg.colorRGB[1]},${arg.colorRGB[2]},1)`,
+      data: arg.values
+    }))
   };
 
   const strengthValueAxisOption = [{
@@ -49,7 +47,7 @@ export const GraphComponent = (props) => {
       <Container fluid className="mt-5">
         <Row>
           <Col>
-            <h2>Your Team's Strength</h2>
+            <h2>Strength Values to Targets</h2>
           </Col>
         </Row>
         <Row>
