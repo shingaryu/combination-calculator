@@ -1,19 +1,19 @@
 {
   "files": {
     "main.css": "/combination-calculator/static/css/main.69eda509.chunk.css",
-    "main.js": "/combination-calculator/static/js/main.6838be6e.chunk.js",
-    "main.js.map": "/combination-calculator/static/js/main.6838be6e.chunk.js.map",
+    "main.js": "/combination-calculator/static/js/main.cc003ea0.chunk.js",
+    "main.js.map": "/combination-calculator/static/js/main.cc003ea0.chunk.js.map",
     "runtime-main.js": "/combination-calculator/static/js/runtime-main.3e513783.js",
     "runtime-main.js.map": "/combination-calculator/static/js/runtime-main.3e513783.js.map",
     "static/css/2.47e06e2e.chunk.css": "/combination-calculator/static/css/2.47e06e2e.chunk.css",
-    "static/js/2.d265944a.chunk.js": "/combination-calculator/static/js/2.d265944a.chunk.js",
-    "static/js/2.d265944a.chunk.js.map": "/combination-calculator/static/js/2.d265944a.chunk.js.map",
+    "static/js/2.ac0daa83.chunk.js": "/combination-calculator/static/js/2.ac0daa83.chunk.js",
+    "static/js/2.ac0daa83.chunk.js.map": "/combination-calculator/static/js/2.ac0daa83.chunk.js.map",
     "index.html": "/combination-calculator/index.html",
-    "precache-manifest.31cba15930505fa9ae8c603be2bad600.js": "/combination-calculator/precache-manifest.31cba15930505fa9ae8c603be2bad600.js",
+    "precache-manifest.46d160517efff5756621441d47bb5157.js": "/combination-calculator/precache-manifest.46d160517efff5756621441d47bb5157.js",
     "service-worker.js": "/combination-calculator/service-worker.js",
     "static/css/2.47e06e2e.chunk.css.map": "/combination-calculator/static/css/2.47e06e2e.chunk.css.map",
     "static/css/main.69eda509.chunk.css.map": "/combination-calculator/static/css/main.69eda509.chunk.css.map",
-    "static/js/2.d265944a.chunk.js.LICENSE.txt": "/combination-calculator/static/js/2.d265944a.chunk.js.LICENSE.txt",
+    "static/js/2.ac0daa83.chunk.js.LICENSE.txt": "/combination-calculator/static/js/2.ac0daa83.chunk.js.LICENSE.txt",
     "static/media/strategies.csv": "/combination-calculator/static/media/strategies.b4b7486a.csv",
     "static/media/strength-table.csv": "/combination-calculator/static/media/strength-table.d04147c7.csv",
     "static/media/usage.csv": "/combination-calculator/static/media/usage.706fcf81.csv"
@@ -21,8 +21,8 @@
   "entrypoints": [
     "static/js/runtime-main.3e513783.js",
     "static/css/2.47e06e2e.chunk.css",
-    "static/js/2.d265944a.chunk.js",
+    "static/js/2.ac0daa83.chunk.js",
     "static/css/main.69eda509.chunk.css",
-    "static/js/main.6838be6e.chunk.js"
+    "static/js/main.cc003ea0.chunk.js"
   ]
 }
