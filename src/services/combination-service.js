@@ -7,16 +7,18 @@ export class CombinationService {
 
   constructor() {
     this.strengthRows = null;
-    this.columns = null;
+    this.targetPokeNames = null;
+    this.targetPokeIds = null;
   }
 
   async loadMasterData() {
     const loadStrTablePromise = new Promise(async (resolve, reject) => {
       try {
-        const strengthTableTextRes = await getStrengthVectorsByStrategies();
-        const loadStrTableResult = this.loadStrengthTable(strengthTableTextRes.data);
+        const strengthVectorsRes = await getStrengthVectorsByStrategies();
+        const loadStrTableResult = this.loadStrengthTable(strengthVectorsRes.data);
         this.strengthRows = loadStrTableResult.strengthRows;
-        this.columns = loadStrTableResult.columns;
+        this.targetPokeNames = loadStrTableResult.targetPokeNames;
+        this.targetPokeIds = loadStrTableResult.targetPokeIds;
         console.log(`strength table was successfully loaded`);
         resolve();
       } catch (error) {
@@ -26,6 +28,8 @@ export class CombinationService {
     });
 
     await Promise.resolve(loadStrTablePromise);
+
+    console.log(this.strengthRows)
 
     const loadStrategiesPromise = new Promise(async (resolve, reject) => {
       try {
@@ -54,43 +58,39 @@ export class CombinationService {
     // await Promise.all([loadStrategiesPromise, loadUsageInfoPromise]);
     await Promise.all([loadStrategiesPromise]);
   }
+  
+  loadStrengthTable(json) {
+    const targetPokeNames = json.columns.map(x => x.species);
+    const targetPokeIds = json.columns.map(x => x.strategyId);
+    console.log(`${targetPokeNames.length} columns exist`);
 
-  loadStrengthTable(tableText) {
-    tableText = tableText.replace('\r\n', '\n');
-    let tableRows = tableText.split('\n');
-      
-    const columns = tableRows[0].split(',').slice(1).filter(x => !this.isEmptyString(x));
-    console.log(`${columns.length} columns exist`);
-    
     let strengthRows = []; 
     let index = 0;
-    tableRows.slice(1).forEach(row => {
+    json.rows.forEach(row => {
       if (!row) {
         return;
       }
-    
-      if (row.split(',').every(x => this.isEmptyString(x))) {
-        return;
-      }
-      const records = row.split(',');
+
       const strengthRow = {};
       strengthRow['index'] = index++;
-      strengthRow['name'] = records[0].trim();
-      const values = records.slice(1).filter(x => !this.isEmptyString(x));
-      if (columns.length !== values.length) {
+      strengthRow['id'] = row.strategyId;
+      strengthRow['name'] = row.species;
+
+      const values = row.values;
+      if (targetPokeNames.length !== values.length) {
         throw new Error('error: the number of column is not same among all rows');
       }
-      strengthRow['originalVector'] = values.map(v => parseFloat(v.trim()));
-      strengthRow['vector'] = values.map(v => parseFloat(v.trim()));
-      
+
+      strengthRow['originalVector'] = values;
+      strengthRow['vector'] = values;
       strengthRows.push(strengthRow);
     });
   
     console.log(`${strengthRows.length} rows are loaded`);
   
-    return { columns, strengthRows};
+    return { targetPokeNames, targetPokeIds, strengthRows};
   }
-  
+
   // load strategy info from text and add params to strength table
   loadStrategyInfoToStrTable(strategiesText, strengthRows) {
     strategiesText = strategiesText.replace('\r\n', '\n');
@@ -282,7 +282,7 @@ export class CombinationService {
       }
     }
   
-    console.log(`weakest slot is ${weakestSlot}(${this.columns[weakestSlot]}): ${weakestValue}`);
+    console.log(`weakest slot is ${weakestSlot}(${this.targetPokeNames[weakestSlot]}): ${weakestValue}`);
   
     const resultStep6 = this.searchMaximumRow(null, strengthRows, (v1, v2) => v2[weakestSlot]);
     const sixthPoke = resultStep6.row;
@@ -412,7 +412,7 @@ export class CombinationService {
   }
 
   getAllTargetPokemonNames() {
-    return this.columns;
+    return this.targetPokeNames;
   }
 
   strValuesOfTeam(teamPokemonIndices) {
@@ -420,7 +420,7 @@ export class CombinationService {
 
     if (!teamPokemonIndices || teamPokemonIndices.length === 0) {
       const allZero = [];
-      for (let i = 0; i < this.columns; i++) {
+      for (let i = 0; i < this.targetPokeNames; i++) {
         allZero.push(0);
       }
       return allZero;
