@@ -1,7 +1,7 @@
-import strengthTableUrl from '../assets/strength-table.csv';
 import strategiesUrl from '../assets/strategies.csv';
 import usageUrl from '../assets/usage.csv';
 import axios from 'axios';
+import { getStrengthVectorsByStrategies } from '../api/strengthVectorsApi';
 
 export class CombinationService {
 
@@ -13,7 +13,7 @@ export class CombinationService {
   async loadMasterData() {
     const loadStrTablePromise = new Promise(async (resolve, reject) => {
       try {
-        const strengthTableTextRes = await axios.get(strengthTableUrl);
+        const strengthTableTextRes = await getStrengthVectorsByStrategies();
         const loadStrTableResult = this.loadStrengthTable(strengthTableTextRes.data);
         this.strengthRows = loadStrTableResult.strengthRows;
         this.columns = loadStrTableResult.columns;
