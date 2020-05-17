@@ -5,6 +5,7 @@ import { GraphComponent } from './graphComponent';
 import { TeamComponent } from './TeamComponent';
 import { CombinationService } from '../services/combination-service';
 import { SearchResultComponent } from './searchResultComponent';
+import { getPokemonStrategies } from '../api/pokemonStrategiesApi';
 
 export class TeamBuilderComponent extends React.Component {
   constructor(props) {
@@ -16,18 +17,21 @@ export class TeamBuilderComponent extends React.Component {
       searchSettings: { evaluationMethod: 0 },
       selectedSearchResultPokemonIndices: null
     };
-    this.combinationService.loadMasterData().then(data => {
-      const allTeamPokemonNames = this.combinationService.getAllTeamPokemonNames();
-      const teamPokemonNameMap = allTeamPokemonNames.map((name, index) => ({id: index.toString(), name: name}));
+
+    Promise.all([
+      this.combinationService.loadMasterData(),
+      getPokemonStrategies()
+    ]).then(returns => {
+      const pokemonStrategies = returns[1].data;
       this.setState({ 
         loading: false, 
         strVectorColumns: this.combinationService.getAllTargetPokemonNames(),
-        teamPokemonNameMap: teamPokemonNameMap 
-      });
+        teamPokemonList: pokemonStrategies,
+      });      
     }, error => {
       this.setState({ loading: false });
       console.log(error);
-      throw new Error('Error: failed to init combinationService');
+      throw new Error('Error: failed to init teamBuilderComponent');
     });
   }
 
@@ -75,7 +79,7 @@ export class TeamBuilderComponent extends React.Component {
           <Container fluid className="mt-3">
             <Row>
               <Col md={3}>
-                <TeamComponent num={6} pokemonList={this.state.teamPokemonNameMap} onChange={(indices) => this.onChangeTeamPokemons(indices)}></TeamComponent>
+                <TeamComponent num={6} pokemonList={this.state.teamPokemonList} onChange={(indices) => this.onChangeTeamPokemons(indices)}></TeamComponent>
               </Col>
               <Col md={3}>
                 <SearchComponent onChange={(settings) => this.onSearchSettingsChange(settings)}></SearchComponent>

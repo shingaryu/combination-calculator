@@ -1,0 +1,21 @@
+.inputgroup-container {
+  display: flex;
+}
+
+.details-line {
+  line-height: 32px;
+}
+
+.details-row {
+  display: table-row;
+}
+
+.details-param {
+  display: table-cell;
+  font-weight: 600;
+  padding-right: 10px;
+}
+
+.details-value {
+  display: table-cell;
+}
