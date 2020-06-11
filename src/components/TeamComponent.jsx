@@ -1,5 +1,5 @@
 import React from 'react';
-import { Container, Row, Col, InputGroup, FormControl, Popover, OverlayTrigger, Button } from 'react-bootstrap'
+import { Container, Row, Col, InputGroup, FormControl, Popover, OverlayTrigger, Button, Modal } from 'react-bootstrap'
 import './teamComponent.css'
 
 export class TeamComponent extends React.Component {
@@ -19,7 +19,10 @@ export class TeamComponent extends React.Component {
     }
 
     this.state = {
-      pokemonSlots: pokemonSlots
+      pokemonSlots: pokemonSlots,
+      showModal: false,
+      editingSlot: null,
+      selectedPokeIndex: null
     }
   }
 
@@ -45,6 +48,42 @@ export class TeamComponent extends React.Component {
     this.props.onChange(this.validTeamPokemonIndices());
   }
 
+  onModalOpen(slotToBeEdited) {
+    this.setState({
+      modalShow: true,
+      editingSlot: slotToBeEdited,
+      selectedPokeIndex: this.state.pokemonSlots[slotToBeEdited].id
+    });    
+  }
+
+  onModalCancel() {
+    this.setState({
+      modalShow: false,
+      editingSlot: null,
+      selectedPokeIndex: null
+    });
+  }
+
+  onModalApply() {
+    const pokemons = this.state.pokemonSlots.concat();
+    pokemons[this.state.editingSlot].id = this.state.selectedPokeIndex;
+
+    this.setState({
+      pokemons: pokemons,
+      modalShow: false,
+      editingSlot: null,
+      selectedPokeIndex: null
+    });
+
+    this.props.onChange(this.validTeamPokemonIndices());
+  }
+
+  onClickPokemonCard(index) {
+    this.setState({
+      selectedPokeIndex: index
+    });
+  }
+
   teamPokemonOptions() {
     const options = [];
     options.push(<option key={-1} value={-1}> </option>); // empty
@@ -56,50 +95,24 @@ export class TeamComponent extends React.Component {
     return this.state.pokemonSlots.filter(x => x.enabled && x.id !== "-1").map(y => y.id);
   }
 
-  pokemonDetailsPopover(index) {
-    const poke = this.props.pokemonList[index];
+  pokemonStrategyCard(poke, isSelected) {
+    const card = (
+      <>
+        <div className={isSelected? "str-card selected-card": "str-card" }>
+          <div className='name-line'>
+            {poke.species} {poke.gender ? poke.gender + ' ': ''} {poke.item ? '@ ' + poke.item: ''}
+          </div>
+          <div>
+            {poke.ability}, {poke.nature}, {poke.ev_hp}-{poke.ev_atk}-{poke.ev_def}-{poke.ev_spa}-{poke.ev_spd}-{poke.ev_spe}
+          </div>
+          <div>
+            {poke.move1}, {poke.move2}, {poke.move3}, {poke.move4}
+          </div>
+        </div>
+      </>
+    )
 
-    const popover = (
-      <Popover id="popover-basic">
-        <Popover.Title as="h3">{poke.species}</Popover.Title>
-        <Popover.Content>
-          <div className="details-row">
-            <span className="details-param">Item </span>
-            <span className="details-value">{poke.item}</span>
-          </div>
-          <div className="details-row">
-            <span className="details-param">Ability </span>
-            <span className="details-value">{poke.ability}</span>
-          </div>
-          <div className="details-row">
-            <span className="details-param">Nature </span>
-            <span className="details-value">{poke.nature}</span>
-          </div>
-          <div className="details-row">
-            <span className="details-param">EVs </span>
-            <span className="details-value">{poke.ev_hp}-{poke.ev_atk}-{poke.ev_def}-{poke.ev_spa}-{poke.ev_spd}-{poke.ev_spe}</span>
-          </div>
-          <div className="details-row">
-            <span className="details-param">Move 1 </span>
-            <span className="details-value">{poke.move1}</span>
-          </div>
-          <div className="details-row">
-            <span className="details-param">Move 2 </span>
-            <span className="details-value">{poke.move2}</span>
-          </div>
-          <div className="details-row">
-            <span className="details-param">Move 3 </span>
-            <span className="details-value">{poke.move3}</span>
-          </div>
-          <div className="details-row">
-            <span className="details-param">Move 4 </span>
-            <span className="details-value">{poke.move4}</span>
-          </div>
-        </Popover.Content>
-      </Popover>
-    );
-
-    return popover;
+    return card;
   }
 
   render() {
@@ -117,22 +130,18 @@ export class TeamComponent extends React.Component {
               <Col>
                 <div>
                     {
-                      this.state.pokemonSlots && this.state.pokemonSlots.map((poke, index) => 
-                      <div className="inputgroup-container" key={index} >
+                      this.state.pokemonSlots && this.state.pokemonSlots.map((poke, slot) => 
+                      <div className="inputgroup-container" key={slot} >
                         <div>
                           <InputGroup className="mb-2 mr-2" style={{width: 200}}>
                             <InputGroup.Prepend>
-                              <InputGroup.Checkbox checked={poke.enabled} onChange={(e) => this.onCheckboxChange(index, e)}/>
+                              <InputGroup.Checkbox checked={poke.enabled} onChange={(e) => this.onCheckboxChange(slot, e)}/>
                             </InputGroup.Prepend>
-                            <FormControl as="select" value={poke.id} onChange={(e) => this.onInputChange(index, e)}>
-                              {this.teamPokemonOptions()}
-                            </FormControl>
+                            <FormControl value={this.props.pokemonList[poke.id].species} placeholder="Click or tap to select" disabled/>
                           </InputGroup>
                         </div>
-                        <div className="details-line">
-                          <OverlayTrigger trigger={['hover', 'focus']} placement="bottom" overlay={this.pokemonDetailsPopover(poke.id)}>
-                            <Button variant="outline-dark" size="sm">Details</Button>
-                          </OverlayTrigger>
+                        <div className="set-button-line">
+                          <Button variant="outline-dark" size="sm" onClick={() => this.onModalOpen(slot)}>Set</Button>
                         </div>
                       </div>
                       )
@@ -143,6 +152,28 @@ export class TeamComponent extends React.Component {
           </Col>
         </Row>
       </Container>
+      <Modal size="lg" show={this.state.modalShow} onHide={() => this.onModalCancel()}>
+        <Modal.Header closeButton>
+          <Modal.Title>Select Pokemon</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <div className='str-list'>
+            {this.props.pokemonList.map((poke, index) => 
+              <div key={poke.id} onClick={() => this.onClickPokemonCard(index)}>
+                {this.pokemonStrategyCard(poke, index == this.state.selectedPokeIndex)}
+              </div>
+            )}
+          </div>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => this.onModalCancel()}>
+            Cancel
+          </Button>
+          <Button variant="primary" onClick={() => this.onModalApply()}>
+            Apply
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </>
   )};
 }

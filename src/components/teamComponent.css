@@ -2,20 +2,33 @@
   display: flex;
 }
 
-.details-line {
+.input-group .form-control:disabled {
+  background-color: inherit;
+}
+
+.set-button-line {
   line-height: 32px;
 }
 
-.details-row {
-  display: table-row;
+.str-card {
+  width: 95%;
+  padding: 10px;  
+  margin-bottom: 15px;
+  border: 1px solid lightgray;
+  border-radius: 10px;
+  box-shadow: gray 1px 1px;
+  cursor: pointer;
 }
 
-.details-param {
-  display: table-cell;
+.selected-card {
+  background-color: lightskyblue;
+}
+
+.name-line {
   font-weight: 600;
-  padding-right: 10px;
 }
 
-.details-value {
-  display: table-cell;
+.str-list {
+  height: 400px;
+  overflow-x: auto;
 }
