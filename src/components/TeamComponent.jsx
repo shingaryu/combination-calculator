@@ -1,6 +1,7 @@
 import React from 'react';
 import { Container, Row, Col, InputGroup, FormControl, Popover, OverlayTrigger, Button, Modal } from 'react-bootstrap'
 import './teamComponent.css'
+import { I18nContext } from 'react-i18next';
 
 export class TeamComponent extends React.Component {
   constructor(props) {
@@ -25,6 +26,8 @@ export class TeamComponent extends React.Component {
       selectedPokeIndex: null
     }
   }
+
+  static contextType = I18nContext;
 
   onCheckboxChange(num, event) {
     const pokemons = this.state.pokemonSlots.concat();
@@ -116,6 +119,8 @@ export class TeamComponent extends React.Component {
   }
 
   render() {
+    const t = this.context.i18n.t.bind(this.context.i18n);
+
     return (
     <>
       <Container fluid className="mb-3">
@@ -123,7 +128,7 @@ export class TeamComponent extends React.Component {
           <Col>
             <Row>
               <Col>
-                <h2>Your Team</h2>
+               <h2>{t('team.title')}</h2>
               </Col>
             </Row>
             <Row>

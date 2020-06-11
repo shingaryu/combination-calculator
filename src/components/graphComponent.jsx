@@ -2,10 +2,12 @@ import React from 'react';
 import { Row, Col, Container } from "react-bootstrap";
 import {Bar, HorizontalBar} from 'react-chartjs-2';
 import MediaQuery from "react-responsive";
+import { useTranslation } from 'react-i18next';
 
 export const GraphComponent = (props) => {
   const labels = props.labels;
   const datasets = props.datasets;
+  const { t } = useTranslation();
 
   const data = {
     labels: labels,
@@ -47,7 +49,7 @@ export const GraphComponent = (props) => {
       <Container fluid className="mt-5">
         <Row>
           <Col>
-            <h2>Strength Values to Targets</h2>
+            <h2>{t('graph.title')}</h2>
           </Col>
         </Row>
         <Row>
