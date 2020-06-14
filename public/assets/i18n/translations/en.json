@@ -1,8 +1,29 @@
 {
+  "app": {
+    "title": "Pokémon VGC Team Combination Calculator",
+    "loading": "Loading"
+  },
   "team": {
-    "title": "Your Team"
+    "title": "Your Team",
+    "slotPlaceholder": "",
+    "set": "Set",
+    "modal": {
+      "title": "Select Pokemon",
+      "cancel": "Cancel",
+      "apply": "Apply"
+    }
+  },
+  "search": {
+    "settingsTitle": "Search Settings",
+    "evaluationMethod": "Evaluation method",
+    "targetStrenthComplement": "Target strenth complement",
+    "resultTitle": "Search Result",
+    "columnPokemon": "Pokémon",
+    "columnValue": "Value"
   },
   "graph": {
-    "title": "Strength Values to Targets"
+    "title": "Strength Values to Targets",
+    "teamStrengthValue": "Team strength value",
+    "selectedPokemonStrengthValue": "Selected pokemon strength value"
   }
 }

@@ -6,6 +6,7 @@ import { TeamComponent } from './TeamComponent';
 import { CombinationService } from '../services/combination-service';
 import { SearchResultComponent } from './searchResultComponent';
 import { getPokemonStrategies } from '../api/pokemonStrategiesApi';
+import { I18nContext } from 'react-i18next';
 
 export class TeamBuilderComponent extends React.Component {
   constructor(props) {
@@ -35,6 +36,8 @@ export class TeamBuilderComponent extends React.Component {
     });
   }
 
+  static contextType = I18nContext;
+
   onChangeTeamPokemons(indices) {
     this.setState({ teamPokemonIndices: indices });
   }
@@ -48,13 +51,15 @@ export class TeamBuilderComponent extends React.Component {
   }
 
   render() {
+    const t = this.context.i18n.t.bind(this.context.i18n);
+
     if (this.state.loading) {
       return <span>Loading...</span>
     } else {  
       const teamStrengthValues = this.combinationService.strValuesOfTeam(this.state.teamPokemonIndices);
       const graphDatasets = [
         {
-          dataLabel: 'Team strength value',
+          dataLabel: t('graph.teamStrengthValue'),
           values: teamStrengthValues,
           colorRGB: [255, 99, 132]
         }
@@ -68,7 +73,7 @@ export class TeamBuilderComponent extends React.Component {
       if (this.state.selectedSearchResultPokemonIndices) {
         const searchResultPokemonStrengthValues = this.combinationService.strValuesOfTeam(this.state.selectedSearchResultPokemonIndices);
         graphDatasets.push({
-            dataLabel: 'Selected pokemon strength value',
+            dataLabel: t('graph.selectedPokemonStrengthValue'),
             values: searchResultPokemonStrengthValues,
             colorRGB: [0, 99, 132]
         })

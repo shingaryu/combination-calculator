@@ -1,5 +1,6 @@
 import React from 'react';
 import { Container, Row, Col, Form } from 'react-bootstrap'
+import { I18nContext } from 'react-i18next';
 
 export class SearchComponent extends React.Component {
   constructor(props) {
@@ -8,6 +9,8 @@ export class SearchComponent extends React.Component {
       evaluationMethod: 0
     };
   }
+
+  static contextType = I18nContext;
 
   onChangeSearchSettings(event) {
     let newState = {...this.state};
@@ -20,21 +23,23 @@ export class SearchComponent extends React.Component {
   }
 
   render() {
+    const t = this.context.i18n.t.bind(this.context.i18n);
+
     return (
     <>
       <Container fluid>
         <Row>
           <Col>
-            <h2>Search Settings</h2>
+            <h2>{t('search.settingsTitle')}</h2>
           </Col>
         </Row>
         <Row>
           <Col>
             <Form>
               <Form.Group controlId="evaluation-method">
-                <Form.Label>Evaluation method</Form.Label>
+                <Form.Label>{t('search.evaluationMethod')}</Form.Label>
                 <Form.Control as="select" onChange={(e) => this.onChangeSearchSettings(e)}>
-                  <option value="0">Target strengths complement</option>
+                  <option value="0">{t('search.targetStrenthComplement')}</option>
                   {/* <option value="1">option2</option> */}
                 </Form.Control>
               </Form.Group>

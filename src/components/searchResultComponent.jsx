@@ -1,6 +1,7 @@
 import React, { useContext } from 'react';
 import { Container, Row, Col, Table } from 'react-bootstrap'
 import './searchResultComponent.css'
+import { I18nContext } from 'react-i18next';
 
 export class SearchResultComponent extends React.Component {
   constructor(props) {
@@ -9,6 +10,8 @@ export class SearchResultComponent extends React.Component {
       selectedRow: null
     };
   }
+
+  static contextType = I18nContext;
 
   onClickTableRow(rowIndex, pokemonIds) {
     if (this.state.selectedRow === rowIndex) {
@@ -22,12 +25,14 @@ export class SearchResultComponent extends React.Component {
   }
 
   render() {
+    const t = this.context.i18n.t.bind(this.context.i18n);
+
     return (
     <>
       <Container fluid>
         <Row>
           <Col>
-            <h2>Search Result</h2>
+            <h2>{t('search.resultTitle')}</h2>
           </Col>
         </Row>
         <Row>
@@ -38,9 +43,9 @@ export class SearchResultComponent extends React.Component {
                 <th key='h-i'>#</th>
                 {this.props.searchResult.length===0?
                   <th key={`h-p0`}>Pokemon</th>:
-                  this.props.searchResult[0].pokemonIds.map((x, i) => <th key={`h-p${i}`}>Pokemon</th>)
+                  this.props.searchResult[0].pokemonIds.map((x, i) => <th key={`h-p${i}`}>{t('search.columnPokemon')}</th>)
                 }
-                <th key='h-v'>Value</th>
+                <th key='h-v'>{t('search.columnValue')}</th>
               </tr>
             </thead>
             <tbody>

@@ -142,11 +142,11 @@ export class TeamComponent extends React.Component {
                             <InputGroup.Prepend>
                               <InputGroup.Checkbox checked={poke.enabled} onChange={(e) => this.onCheckboxChange(slot, e)}/>
                             </InputGroup.Prepend>
-                            <FormControl value={this.props.pokemonList[poke.id].species} placeholder="Click or tap to select" disabled/>
+                            <FormControl value={this.props.pokemonList[poke.id].species} placeholder={t('team.slotPlaceholder')} disabled/>
                           </InputGroup>
                         </div>
                         <div className="set-button-line">
-                          <Button variant="outline-dark" size="sm" onClick={() => this.onModalOpen(slot)}>Set</Button>
+                          <Button variant="outline-dark" size="sm" onClick={() => this.onModalOpen(slot)}>{t('team.set')}</Button>
                         </div>
                       </div>
                       )
@@ -159,7 +159,7 @@ export class TeamComponent extends React.Component {
       </Container>
       <Modal size="lg" show={this.state.modalShow} onHide={() => this.onModalCancel()}>
         <Modal.Header closeButton>
-          <Modal.Title>Select Pokemon</Modal.Title>
+          <Modal.Title>{t('team.modal.title')}</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <div className='str-list'>
@@ -172,10 +172,10 @@ export class TeamComponent extends React.Component {
         </Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" onClick={() => this.onModalCancel()}>
-            Cancel
+            {t('team.modal.cancel')}
           </Button>
           <Button variant="primary" onClick={() => this.onModalApply()}>
-            Apply
+            {t('team.modal.apply')}
           </Button>
         </Modal.Footer>
       </Modal>

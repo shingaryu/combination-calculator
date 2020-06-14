@@ -1,8 +1,29 @@
 {
+  "app": {
+    "title": "ポケモン剣盾 パーティー相性計算機",
+    "loading": "読み込み中"
+  },
   "team": {
-    "title": "あなたのチーム"
+    "title": "パーティーを設定",
+    "slotPlaceholder": "",
+    "set": "選択",
+    "modal": {
+      "title": "ポケモンを選択",
+      "cancel": "キャンセル",
+      "apply": "OK"
+    }
+  },
+  "search": {
+    "settingsTitle": "検索設定",
+    "evaluationMethod": "評価方法",
+    "targetStrenthComplement": "相性補完",
+    "resultTitle": "検索結果",
+    "columnPokemon": "ポケモン",
+    "columnValue": "評価値"
   },
   "graph": {
-    "title": "ターゲットへの相性値"
+    "title": "各仮想敵への強さ評価",
+    "teamStrengthValue": "パーティーの総合力",
+    "selectedPokemonStrengthValue": "選択中のポケモン"
   }
 }
