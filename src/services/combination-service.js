@@ -437,7 +437,7 @@ export class CombinationService {
       return row.vector;
     });
 
-    const combinedVector = this.addVectors(...pokemonVectors);
+    const combinedVector = this.addVectors(...pokemonVectors).map(x => x.toFixed(0));
 
     return combinedVector;
   }

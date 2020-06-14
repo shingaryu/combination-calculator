@@ -3,6 +3,7 @@ import { Row, Col, Container } from "react-bootstrap";
 import {Bar, HorizontalBar} from 'react-chartjs-2';
 import MediaQuery from "react-responsive";
 import { useTranslation } from 'react-i18next';
+import './graphComponent.css'
 
 export const GraphComponent = (props) => {
   const labels = props.labels;
@@ -22,25 +23,36 @@ export const GraphComponent = (props) => {
     }))
   };
 
-  const strengthValueAxisOption = [{
-    ticks: {
-      min: -1024*4,
-      max: 1024*4,
-      stepSize: 1024
-    }
-  }];
-
   const chartOptionsBar = {
     maintainAspectRatio: false,
     scales: {
-      yAxes: strengthValueAxisOption
+      xAxes: [{
+        ticks: {
+          minRotation: 90,
+          maxRotation: 90
+        }
+      }],
+      yAxes: [{
+        ticks: {
+          min: -1024*4,
+          max: 1024*4,
+          stepSize: 1024
+        }
+      }]
     }
   }  
 
   const chartOptionsHorizontal = {
     maintainAspectRatio: false,
     scales: {
-      xAxes: strengthValueAxisOption
+      xAxes: [{
+        position: 'top',
+        ticks: {
+          min: -1024*4,
+          max: 1024*4,
+          stepSize: 2048,
+        }
+      }]
     }
   }  
 
@@ -55,23 +67,21 @@ export const GraphComponent = (props) => {
         <Row>
           <Col>
           <MediaQuery query="(max-width: 767px)">
-            <div style={{height: 500}}>
+            <div style={{height: 16 * (labels.length + 4)}}>
               <HorizontalBar
                 data={data}
-                width={1000}
-                height={500}
                 options={chartOptionsHorizontal}
               />
             </div>          
           </MediaQuery>
           <MediaQuery query="(min-width: 768px)">
-            <div style={{height: 500}}>
-              <Bar
-                data={data}
-                width={100}
-                height={50}
-                options={chartOptionsBar}
-              />
+            <div className="chart-area">
+              <div style={{height: 500, width: 22 * (labels.length + 2)}}>
+                <Bar
+                  data={data}
+                  options={chartOptionsBar}
+                />
+              </div>
             </div>
           </MediaQuery>
           </Col>
