@@ -27,10 +27,10 @@ export class SearchComponent extends React.Component {
 
     return (
     <>
-      <Container fluid>
+      <Container fluid className="mt-3">
         <Row>
           <Col>
-            <h2>{t('search.settingsTitle')}</h2>
+            <h4>{t('search.settingsTitle')}</h4>
           </Col>
         </Row>
         <Row>

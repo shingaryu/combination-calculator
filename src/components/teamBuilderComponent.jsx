@@ -1,5 +1,5 @@
 import React from 'react';
-import { Container, Row, Col } from 'react-bootstrap'
+import { Container, Row, Col, Tabs, Tab } from 'react-bootstrap'
 import { SearchComponent } from './searchComponent';
 import { GraphComponent } from './graphComponent';
 import { TeamComponent } from './TeamComponent';
@@ -83,25 +83,24 @@ export class TeamBuilderComponent extends React.Component {
         <>
           <Container fluid className="mt-3">
             <Row>
-              <Col md={3}>
+              <Col>
                 <TeamComponent num={6} pokemonList={this.state.teamPokemonList} onChange={(indices) => this.onChangeTeamPokemons(indices)}></TeamComponent>
-              </Col>
-              <Col md={3}>
-                <SearchComponent onChange={(settings) => this.onSearchSettingsChange(settings)}></SearchComponent>
-              </Col>
-              <Col md={6}>
-                <SearchResultComponent searchResult={results} onSelectChange={(indices) => this.onSelectSearchResultRow(indices)}/>
               </Col>
             </Row>
             <Row>
               <Col>
-    
-              </Col>
-              <Col>
+                <Tabs defaultActiveKey="graph" className="mt-3">
+                  <Tab eventKey="graph" title={t('tab.titleGraph')}>
+                    <GraphComponent labels={this.state.strVectorColumns} datasets={graphDatasets}/>
+                  </Tab>
+                  <Tab eventKey="search" title={t('tab.titleSearch')}>
+                    <SearchComponent onChange={(settings) => this.onSearchSettingsChange(settings)}></SearchComponent>
+                    <SearchResultComponent searchResult={results} onSelectChange={(indices) => this.onSelectSearchResultRow(indices)}/>
+                  </Tab>
+                </Tabs>    
               </Col>
             </Row>
           </Container>
-          <GraphComponent labels={this.state.strVectorColumns} datasets={graphDatasets}/>
         </>
     )};    
   }

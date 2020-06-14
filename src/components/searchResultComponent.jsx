@@ -29,10 +29,10 @@ export class SearchResultComponent extends React.Component {
 
     return (
     <>
-      <Container fluid>
+      <Container fluid className="mt-3">
         <Row>
           <Col>
-            <h2>{t('search.resultTitle')}</h2>
+            <h4>{t('search.resultTitle')}</h4>
           </Col>
         </Row>
         <Row>

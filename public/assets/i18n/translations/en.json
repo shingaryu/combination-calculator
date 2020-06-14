@@ -3,6 +3,10 @@
     "title": "Pokémon VGC Team Combination Calculator",
     "loading": "Loading"
   },
+  "tab": {
+    "titleGraph": "Chart",
+    "titleSearch": "Search"
+  },
   "team": {
     "title": "Your Team",
     "slotPlaceholder": "",

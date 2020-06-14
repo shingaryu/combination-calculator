@@ -128,7 +128,7 @@ export class TeamComponent extends React.Component {
           <Col>
             <Row>
               <Col>
-               <h2>{t('team.title')}</h2>
+               <h4>{t('team.title')}</h4>
               </Col>
             </Row>
             <Row>

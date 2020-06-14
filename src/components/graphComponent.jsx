@@ -46,10 +46,10 @@ export const GraphComponent = (props) => {
 
   return (
     <>
-      <Container fluid className="mt-5">
+      <Container fluid className="mt-3">
         <Row>
           <Col>
-            <h2>{t('graph.title')}</h2>
+            <h4>{t('graph.title')}</h4>
           </Col>
         </Row>
         <Row>
