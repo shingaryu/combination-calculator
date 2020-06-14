@@ -22,6 +22,7 @@
     "evaluationMethod": "評価方法",
     "targetStrenthComplement": "相性補完",
     "resultTitle": "検索結果",
+    "columnRank": "順位",
     "columnPokemon": "ポケモン",
     "columnValue": "評価値"
   },

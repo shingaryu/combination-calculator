@@ -22,6 +22,7 @@
     "evaluationMethod": "Evaluation method",
     "targetStrenthComplement": "Target strenth complement",
     "resultTitle": "Search Result",
+    "columnRank": "#",
     "columnPokemon": "Pokémon",
     "columnValue": "Value"
   },
