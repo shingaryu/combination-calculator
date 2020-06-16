@@ -12,7 +12,7 @@ function App() {
         <div className="App">
         <Container fluid>
           <Navbar bg="light">
-            <Navbar.Brand className="nowrap-navbar">Pokémon VGC Team Combination Calculator</Navbar.Brand>
+            <Navbar.Brand className="nowrap-navbar">Pokémon VGC Team Performance Evaluator</Navbar.Brand>
           </Navbar>
           <TeamBuilderComponent></TeamBuilderComponent>
         </Container>
