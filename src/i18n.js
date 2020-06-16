@@ -8,7 +8,7 @@ i18n
   .init({
     lng: 'ja',
     backend: {
-      loadPath: '/combination-calculator/assets/i18n/{{ns}}/{{lng}}.json'
+      loadPath: '/assets/i18n/{{ns}}/{{lng}}.json'
     },
     fallbackLng: 'ja',
     debug: true,
