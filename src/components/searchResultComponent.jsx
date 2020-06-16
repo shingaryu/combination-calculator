@@ -2,6 +2,7 @@ import React, { useContext } from 'react';
 import { Container, Row, Col, Table } from 'react-bootstrap'
 import './searchResultComponent.css'
 import { I18nContext } from 'react-i18next';
+import { translateSpeciesIfPossible } from '../services/stringSanitizer';
 
 export class SearchResultComponent extends React.Component {
   constructor(props) {
@@ -38,7 +39,7 @@ export class SearchResultComponent extends React.Component {
               {this.props.searchResult.map((result, index) => (
                 <tr key={index}>
                   <td key={`${index}-i`}>{index + 1}</td>
-                  {result.pokemonNames.map((x, i) => <td key={`${index}-p${i}`}>{x}</td>)}
+                  {result.pokemonNames.map((x, i) => <td key={`${index}-p${i}`}>{translateSpeciesIfPossible(x, t)}</td>)}
                   <td key={`${index}-v`}>{result.value.toFixed(4)}</td>
                 </tr>                
               ))}

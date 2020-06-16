@@ -7,6 +7,7 @@ import { CombinationService } from '../services/combination-service';
 import { SearchResultComponent } from './searchResultComponent';
 import { getPokemonStrategies } from '../api/pokemonStrategiesApi';
 import { I18nContext } from 'react-i18next';
+import { translateSpeciesIfPossible } from '../services/stringSanitizer';
 
 export class TeamBuilderComponent extends React.Component {
   constructor(props) {
@@ -91,7 +92,7 @@ export class TeamBuilderComponent extends React.Component {
               <Col>
                 <Tabs defaultActiveKey="graph" className="mt-3">
                   <Tab eventKey="graph" title={t('tab.titleGraph')}>
-                    <GraphComponent labels={this.state.strVectorColumns} datasets={graphDatasets}/>
+                    <GraphComponent labels={this.state.strVectorColumns.map(x => translateSpeciesIfPossible(x, t))} datasets={graphDatasets}/>
                   </Tab>
                   <Tab eventKey="search" title={t('tab.titleSearch')}>
                     <SearchComponent onChange={(settings) => this.onSearchSettingsChange(settings)}></SearchComponent>

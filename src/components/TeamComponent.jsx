@@ -2,6 +2,7 @@ import React from 'react';
 import { Container, Row, Col, InputGroup, FormControl, Popover, OverlayTrigger, Button, Modal } from 'react-bootstrap'
 import './teamComponent.css'
 import { I18nContext } from 'react-i18next';
+import { translateSpeciesIfPossible } from '../services/stringSanitizer';
 
 export class TeamComponent extends React.Component {
   constructor(props) {
@@ -62,7 +63,7 @@ export class TeamComponent extends React.Component {
   onModalCancel() {
     this.setState({
       modalShow: false,
-      editingSlot: null,
+      // editingSlot: null,
       selectedPokeIndex: null
     });
   }
@@ -74,7 +75,7 @@ export class TeamComponent extends React.Component {
     this.setState({
       pokemons: pokemons,
       modalShow: false,
-      editingSlot: null,
+      // editingSlot: null,
       selectedPokeIndex: null
     });
 
@@ -87,23 +88,18 @@ export class TeamComponent extends React.Component {
     });
   }
 
-  teamPokemonOptions() {
-    const options = [];
-    options.push(<option key={-1} value={-1}> </option>); // empty
-    this.props.pokemonList.forEach((listPoke, i) => options.push(<option key={i} value={i}>{listPoke.species}</option>));
-    return options;
-  }
-
   validTeamPokemonIndices() {
     return this.state.pokemonSlots.filter(x => x.enabled && x.id !== "-1").map(y => y.id);
   }
 
   pokemonStrategyCard(poke, isSelected) {
+    const t = this.context.i18n.t.bind(this.context.i18n);
+
     const card = (
       <>
         <div className={isSelected? "str-card selected-card": "str-card" }>
           <div className='name-line'>
-            {poke.species} {poke.gender ? poke.gender + ' ': ''} {poke.item ? '@ ' + poke.item: ''}
+            {translateSpeciesIfPossible(poke.species, t)} {poke.gender ? poke.gender + ' ': ''} {poke.item ? '@ ' + poke.item: ''}
           </div>
           <div>
             {poke.ability}, {poke.nature}, {poke.ev_hp}-{poke.ev_atk}-{poke.ev_def}-{poke.ev_spa}-{poke.ev_spd}-{poke.ev_spe}
@@ -142,7 +138,7 @@ export class TeamComponent extends React.Component {
                             <InputGroup.Prepend>
                               <InputGroup.Checkbox checked={poke.enabled} onChange={(e) => this.onCheckboxChange(slot, e)}/>
                             </InputGroup.Prepend>
-                            <FormControl value={this.props.pokemonList[poke.id].species} placeholder={t('team.slotPlaceholder')} disabled/>
+                            <FormControl value={translateSpeciesIfPossible(this.props.pokemonList[poke.id].species, t)} placeholder={t('team.slotPlaceholder')} disabled/>
                           </InputGroup>
                         </div>
                         <div className="set-button-line">
@@ -159,7 +155,7 @@ export class TeamComponent extends React.Component {
       </Container>
       <Modal size="lg" show={this.state.modalShow} onHide={() => this.onModalCancel()}>
         <Modal.Header closeButton>
-          <Modal.Title>{t('team.modal.title')}</Modal.Title>
+          <Modal.Title>{t('team.modal.title').replace('{num}', this.state.editingSlot + 1)}</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <div className='str-list'>
