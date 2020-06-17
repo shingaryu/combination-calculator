@@ -1,5 +1,5 @@
 import strategiesUrl from '../assets/strategies.csv';
-import usageUrl from '../assets/usage.csv';
+// import usageUrl from '../assets/usage.csv';
 import axios from 'axios';
 import { getStrengthVectorsByStrategies } from '../api/strengthVectorsApi';
 
@@ -28,8 +28,6 @@ export class CombinationService {
     });
 
     await Promise.resolve(loadStrTablePromise);
-
-    console.log(this.strengthRows)
 
     const loadStrategiesPromise = new Promise(async (resolve, reject) => {
       try {
@@ -62,7 +60,7 @@ export class CombinationService {
   loadStrengthTable(json) {
     const targetPokeNames = json.columns.map(x => x.species);
     const targetPokeIds = json.columns.map(x => x.strategyId);
-    console.log(`${targetPokeNames.length} columns exist`);
+    console.log(`strength table columns: ${targetPokeNames.length}`);
 
     let strengthRows = []; 
     let index = 0;
@@ -86,7 +84,7 @@ export class CombinationService {
       strengthRows.push(strengthRow);
     });
   
-    console.log(`${strengthRows.length} rows are loaded`);
+    console.log(`valid strength table rows: ${strengthRows.length}`);
   
     return { targetPokeNames, targetPokeIds, strengthRows};
   }

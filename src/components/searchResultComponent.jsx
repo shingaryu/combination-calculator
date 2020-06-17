@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React from 'react';
 import { Container, Row, Col, Table } from 'react-bootstrap'
 import './searchResultComponent.css'
 import { I18nContext } from 'react-i18next';
