@@ -36,6 +36,10 @@
     "teamStrengthValue": "Team strength value",
     "selectedPokemonStrengthValue": "Selected pokemon strength value"
   },
+  "reference": {
+    "title": "Reference (evaluation method of matchups)",
+    "blogTitle": "ポケモンの対面相性を数値化してみる (Showdown シミュレーター使用) (Japanese)"
+  },
   "pokemon": {
     "species": {
       "bulbasaur": "Bulbasaur",

@@ -1,0 +1,9 @@
+.reference-row {
+  margin-top: 100px;
+  margin-bottom: 30px;
+  font-size: small;
+}
+
+.reference-row a {
+  line-break: anywhere;
+}

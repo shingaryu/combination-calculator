@@ -8,6 +8,7 @@ import { SearchResultComponent } from './searchResultComponent';
 import { getPokemonStrategies } from '../api/pokemonStrategiesApi';
 import { I18nContext } from 'react-i18next';
 import { translateSpeciesIfPossible } from '../services/stringSanitizer';
+import './teamBuilderComponent.css'
 
 export class TeamBuilderComponent extends React.Component {
   constructor(props) {
@@ -112,6 +113,23 @@ export class TeamBuilderComponent extends React.Component {
                     <SearchResultComponent searchResult={results} onSelectChange={(indices) => this.onSelectSearchResultRow(indices)}/>
                   </Tab>
                 </Tabs>    
+              </Col>
+            </Row>
+            <Row className="reference-row">
+              <Col>
+                <Container>
+                  <Row>
+                    <Col>
+                      <h5>{t('reference.title')}</h5>
+                      <span>{t('reference.blogTitle')}</span>
+                      <p>
+                        <a href="https://shingaryu.hatenablog.com/entry/2020/02/16/020640" target="_blank">
+                          https://shingaryu.hatenablog.com/entry/2020/02/16/020640
+                        </a>
+                      </p>
+                    </Col>
+                  </Row>
+              </Container>
               </Col>
             </Row>
           </Container>

@@ -36,6 +36,10 @@
     "teamStrengthValue": "パーティーの総合力",
     "selectedPokemonStrengthValue": "選択中のポケモン"
   },
+  "reference": {
+    "title": "参考 (対面相性評価の方法)",
+    "blogTitle": "ポケモンの対面相性を数値化してみる (Showdown シミュレーター使用)"
+  },
   "pokemon": {
     "species": {
       "bulbasaur": "フシギダネ",
