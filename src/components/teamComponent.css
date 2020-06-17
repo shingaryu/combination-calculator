@@ -2,8 +2,9 @@
   display: flex;
 }
 
-.input-group .form-control:disabled {
+.input-group .form-control:read-only {
   background-color: inherit;
+  cursor: pointer;
 }
 
 .set-button-line {

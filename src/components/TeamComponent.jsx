@@ -138,7 +138,8 @@ export class TeamComponent extends React.Component {
                             <InputGroup.Prepend>
                               <InputGroup.Checkbox checked={poke.enabled} onChange={(e) => this.onCheckboxChange(slot, e)}/>
                             </InputGroup.Prepend>
-                            <FormControl value={translateSpeciesIfPossible(this.props.pokemonList[poke.id].species, t)} placeholder={t('team.slotPlaceholder')} disabled/>
+                            <FormControl value={translateSpeciesIfPossible(this.props.pokemonList[poke.id].species, t)} placeholder={t('team.slotPlaceholder')} 
+                              readOnly onClick={() => this.onModalOpen(slot)}/>
                           </InputGroup>
                         </div>
                         <div className="set-button-line">
