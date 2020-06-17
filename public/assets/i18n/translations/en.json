@@ -3,6 +3,11 @@
     "title": "Pokémon VGC Team Performance Evaluator",
     "loading": "Loading"
   },
+  "overview": {
+    "title": "Overview",
+    "textline1": "Show the strengthness and the weakness of your team by using matchup values, which are pre-calculated for all combinations of defined pokemon.",
+    "textline2": "Selectable pokemon sets are fixed, but to be added in the near future."
+  },
   "tab": {
     "titleGraph": "Chart",
     "titleSearch": "Search"

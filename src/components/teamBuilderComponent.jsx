@@ -85,6 +85,19 @@ export class TeamBuilderComponent extends React.Component {
           <Container fluid className="mt-3">
             <Row>
               <Col>
+                <Container>
+                  <Row>
+                    <Col>
+                      <h4>{t('overview.title')}</h4>
+                      <p>{t('overview.textline1')}</p>
+                      <p>{t('overview.textline2')}</p>
+                    </Col>
+                  </Row>
+              </Container>
+              </Col>
+            </Row>
+            <Row className="mt-3">
+              <Col>
                 <TeamComponent num={6} pokemonList={this.state.teamPokemonList} onChange={(indices) => this.onChangeTeamPokemons(indices)}></TeamComponent>
               </Col>
             </Row>
