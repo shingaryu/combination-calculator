@@ -86,7 +86,7 @@ export class TeamBuilderComponent extends React.Component {
           <Container fluid className="mt-3">
             <Row>
               <Col>
-                <Container>
+                <Container style={{marginLeft: 0}}>
                   <Row>
                     <Col>
                       <h4>{t('overview.title')}</h4>
