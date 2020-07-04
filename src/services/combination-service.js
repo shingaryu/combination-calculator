@@ -32,8 +32,8 @@ export class CombinationService {
     const loadStrategiesPromise = new Promise(async (resolve, reject) => {
       try {
         const strategiesTextRes = await axios.get(strategiesUrl);
-        this.loadStrategyInfoToStrTable(strategiesTextRes.data, this.strengthRows);
-        console.log(`strategy information was successfully loaded`);
+        // this.loadStrategyInfoToStrTable(strategiesTextRes.data, this.strengthRows);
+        // console.log(`strategy information was successfully loaded`);
         resolve();
       } catch (error) {
         reject(error);
@@ -315,7 +315,7 @@ export class CombinationService {
     const combinedVector = this.strValuesOfTeam(teamPokemonIndices);
 
     let targetStrengthRows = this.strengthRows.filter(x => teamPokemonIndices.indexOf(x.index.toString()) < 0);
-    targetStrengthRows = this.filterStrengthRows(compatibleStrTypes, targetStrengthRows);
+    // targetStrengthRows = this.filterStrengthRows(compatibleStrTypes, targetStrengthRows);
 
     const results = [];
     targetStrengthRows.forEach(row => {
@@ -326,7 +326,7 @@ export class CombinationService {
       })
     });
 
-    results.sort((a, b) => b.value - a.value); // higher values comes first
+    results.sort((a, b) => b.value - a.value); // higher values come first
 
     return results;
   }
