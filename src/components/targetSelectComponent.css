@@ -1,0 +1,9 @@
+.input-group .form-control:read-only {
+  background-color: inherit;
+  /* cursor: pointer; */
+}
+
+.input-area {
+  height: 400px;
+  overflow-y: auto;
+}

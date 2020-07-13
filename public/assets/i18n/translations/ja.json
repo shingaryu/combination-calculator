@@ -10,7 +10,8 @@
   },
   "tab": {
     "titleGraph": "グラフ",
-    "titleSearch": "検索"
+    "titleSearch": "検索",
+    "titleTargetSelect": "仮想敵選択"
   },
   "team": {
     "title": "パーティーを設定",
@@ -35,6 +36,9 @@
     "title": "各仮想敵への強さ評価",
     "teamStrengthValue": "パーティーの総合力",
     "selectedPokemonStrengthValue": "選択中のポケモン"
+  },
+  "targetSelect": {
+    "title": "表示する仮想敵を選択"
   },
   "reference": {
     "title": "参考 (対面相性評価の方法)",

@@ -280,12 +280,12 @@ export class CombinationService {
     return this.targetPokeNames;
   }
 
-  strValuesOfTeam(teamPokemonIndices) {
+  strValuesOfTeam(teamPokemonIndices, selectedTargetIndices) {
     // is it needed to remove duplications about team members?
 
     if (!teamPokemonIndices || teamPokemonIndices.length === 0) {
       const allZero = [];
-      for (let i = 0; i < this.targetPokeNames; i++) {
+      for (let i = 0; i < selectedTargetIndices.length; i++) {
         allZero.push(0);
       }
       return allZero;
@@ -299,7 +299,8 @@ export class CombinationService {
       }
 
       const row = this.strengthRows[pokeIndex];
-      return row.vector;
+      const filteredVector = row.vector.filter((x, i) => selectedTargetIndices.indexOf(i) >= 0);
+      return filteredVector;
     });
 
     const combinedVector = this.addVectors(...pokemonVectors).map(x => x.toFixed(0));
@@ -307,22 +308,23 @@ export class CombinationService {
     return combinedVector;
   }
 
-  calcTargetStrengthsComplement(teamPokemonIndices, compatibleStrTypes) {
+  calcTargetStrengthsComplement(teamPokemonIndices, selectedTargetIndices, compatibleStrTypes) {
     if (!teamPokemonIndices || teamPokemonIndices.length === 0) {
       return [];
     }
 
-    const combinedVector = this.strValuesOfTeam(teamPokemonIndices);
+    const combinedVector = this.strValuesOfTeam(teamPokemonIndices, selectedTargetIndices);
 
     let targetStrengthRows = this.strengthRows.filter(x => teamPokemonIndices.indexOf(x.index.toString()) < 0);
     // targetStrengthRows = this.filterStrengthRows(compatibleStrTypes, targetStrengthRows);
 
     const results = [];
     targetStrengthRows.forEach(row => {
+      const filteredVector = row.vector.filter((x, i) => selectedTargetIndices.indexOf(i) >= 0);
       results.push({
         pokemonIds: [ row.index ],
         pokemonNames: [ row.name ],
-        value: -1 * this.cosineSimilarity(combinedVector, row.vector) // smaller cosine similarities have bigger complements
+        value: -1 * this.cosineSimilarity(combinedVector, filteredVector) // smaller cosine similarities have bigger complements
       })
     });
 

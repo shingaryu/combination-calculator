@@ -9,6 +9,7 @@ import { getPokemonStrategies } from '../api/pokemonStrategiesApi';
 import { I18nContext } from 'react-i18next';
 import { translateSpeciesIfPossible } from '../services/stringSanitizer';
 import './teamBuilderComponent.css'
+import { TargetSelectComponent } from './targetSelectComponent';
 
 export class TeamBuilderComponent extends React.Component {
   constructor(props) {
@@ -26,9 +27,11 @@ export class TeamBuilderComponent extends React.Component {
       getPokemonStrategies()
     ]).then(returns => {
       const pokemonStrategies = returns[1].data;
+      const targetPokemonNames = this.combinationService.getAllTargetPokemonNames();
       this.setState({ 
         loading: false, 
-        strVectorColumns: this.combinationService.getAllTargetPokemonNames(),
+        strVectorColumns: targetPokemonNames,
+        selectedTargetIndices: [0,1,2,3,4,7,8,9,10,11,13,14,15,16,17,20,21,22,25,26,27,31,32,33,34,37,39,40,42,43,44,45,47,48,49,51,52,53,55,56,57,58],
         teamPokemonList: pokemonStrategies,
       });      
     }, error => {
@@ -52,13 +55,18 @@ export class TeamBuilderComponent extends React.Component {
     this.setState({ selectedSearchResultPokemonIndices: indices });
   }
 
+  onChangeSelectedTargetIndices(indices) {
+    this.setState({ selectedTargetIndices: indices });
+  }
+
   render() {
     const t = this.context.i18n.t.bind(this.context.i18n);
 
     if (this.state.loading) {
       return <span>Loading...</span>
     } else {  
-      const teamStrengthValues = this.combinationService.strValuesOfTeam(this.state.teamPokemonIndices);
+      const graphLabels = this.state.strVectorColumns.filter((x, i) => this.state.selectedTargetIndices.indexOf(i) >= 0).map(x => translateSpeciesIfPossible(x, t));
+      const teamStrengthValues = this.combinationService.strValuesOfTeam(this.state.teamPokemonIndices, this.state.selectedTargetIndices);
       const graphDatasets = [
         {
           dataLabel: t('graph.teamStrengthValue'),
@@ -69,16 +77,7 @@ export class TeamBuilderComponent extends React.Component {
 
       let results = [];
       if (this.state.searchSettings.evaluationMethod === 0) {
-        results = this.combinationService.calcTargetStrengthsComplement(this.state.teamPokemonIndices, ['Sweeper', 'Tank', 'Wall']);
-      }
-
-      if (this.state.selectedSearchResultPokemonIndices) {
-        const searchResultPokemonStrengthValues = this.combinationService.strValuesOfTeam(this.state.selectedSearchResultPokemonIndices);
-        graphDatasets.push({
-            dataLabel: t('graph.selectedPokemonStrengthValue'),
-            values: searchResultPokemonStrengthValues,
-            colorRGB: [0, 99, 132]
-        })
+        results = this.combinationService.calcTargetStrengthsComplement(this.state.teamPokemonIndices, this.state.selectedTargetIndices, ['Sweeper', 'Tank', 'Wall']);
       }
 
       return (
@@ -106,11 +105,14 @@ export class TeamBuilderComponent extends React.Component {
               <Col>
                 <Tabs defaultActiveKey="graph" className="mt-3">
                   <Tab eventKey="graph" title={t('tab.titleGraph')}>
-                    <GraphComponent labels={this.state.strVectorColumns.map(x => translateSpeciesIfPossible(x, t))} datasets={graphDatasets}/>
+                    <GraphComponent labels={graphLabels} datasets={graphDatasets}/>
                   </Tab>
                   <Tab eventKey="search" title={t('tab.titleSearch')}>
                     <SearchComponent onChange={(settings) => this.onSearchSettingsChange(settings)}></SearchComponent>
                     <SearchResultComponent searchResult={results} onSelectChange={(indices) => this.onSelectSearchResultRow(indices)}/>
+                  </Tab>
+                  <Tab eventKey="target-select" title={t('tab.titleTargetSelect')}>
+                    <TargetSelectComponent allTargetNames={this.state.strVectorColumns} onChange={(indices) => this.onChangeSelectedTargetIndices(indices)} />
                   </Tab>
                 </Tabs>    
               </Col>

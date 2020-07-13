@@ -10,7 +10,8 @@
   },
   "tab": {
     "titleGraph": "Chart",
-    "titleSearch": "Search"
+    "titleSearch": "Search",
+    "titleTargetSelect": "Targets"
   },
   "team": {
     "title": "Your Team",
@@ -35,6 +36,9 @@
     "title": "Strength Values to Targets",
     "teamStrengthValue": "Team strength value",
     "selectedPokemonStrengthValue": "Selected pokemon strength value"
+  },
+  "targetSelect": {
+    "title": "Select targets to show"
   },
   "reference": {
     "title": "Reference (evaluation method of matchups)",
