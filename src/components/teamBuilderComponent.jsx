@@ -70,7 +70,7 @@ export class TeamBuilderComponent extends React.Component {
       const graphDatasets = [
         {
           dataLabel: t('graph.teamStrengthValue'),
-          values: teamStrengthValues,
+          values: teamStrengthValues.map(x => Math.round(x)),
           colorRGB: [255, 99, 132]
         }
       ]
@@ -78,6 +78,8 @@ export class TeamBuilderComponent extends React.Component {
       let results = [];
       if (this.state.searchSettings.evaluationMethod === 0) {
         results = this.combinationService.calcTargetStrengthsComplement(this.state.teamPokemonIndices, this.state.selectedTargetIndices, ['Sweeper', 'Tank', 'Wall']);
+      } else if (this.state.searchSettings.evaluationMethod === 1) {
+        results = this.combinationService.calcWeakestPointImmunity(this.state.teamPokemonIndices, this.state.selectedTargetIndices, ['Sweeper', 'Tank', 'Wall']);
       }
 
       return (

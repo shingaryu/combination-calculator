@@ -26,7 +26,8 @@
   "search": {
     "settingsTitle": "検索設定",
     "evaluationMethod": "評価方法",
-    "targetStrenthComplement": "相性補完",
+    "targetStrenthComplement": "PTとの相性補完",
+    "weakestPointImmunity": "PTが最も苦手なポケモンへの強さ",
     "resultTitle": "検索結果",
     "columnRank": "順位",
     "columnPokemon": "ポケモン",

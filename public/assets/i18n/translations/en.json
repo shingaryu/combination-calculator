@@ -26,7 +26,8 @@
   "search": {
     "settingsTitle": "Search Settings",
     "evaluationMethod": "Evaluation method",
-    "targetStrenthComplement": "Target strenth complement",
+    "targetStrenthComplement": "Target strength complement",
+    "weakestPointImmunity": "Immunity to weakest point",
     "resultTitle": "Search Result",
     "columnRank": "#",
     "columnPokemon": "Pokémon",

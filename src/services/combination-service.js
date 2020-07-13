@@ -303,7 +303,7 @@ export class CombinationService {
       return filteredVector;
     });
 
-    const combinedVector = this.addVectors(...pokemonVectors).map(x => x.toFixed(0));
+    const combinedVector = this.addVectors(...pokemonVectors);
 
     return combinedVector;
   }
@@ -331,5 +331,31 @@ export class CombinationService {
     results.sort((a, b) => b.value - a.value); // higher values come first
 
     return results;
+  }
+
+  calcWeakestPointImmunity(teamPokemonIndices, selectedTargetIndices) {
+    if (!teamPokemonIndices || teamPokemonIndices.length === 0) {
+      return [];
+    }
+
+    const combinedVector = this.strValuesOfTeam(teamPokemonIndices, selectedTargetIndices);
+    let targetStrengthRows = this.strengthRows.filter(x => teamPokemonIndices.indexOf(x.index.toString()) < 0);
+
+    const weakestSpot = combinedVector.indexOf(Math.min(...combinedVector));
+
+    const results = [];
+    targetStrengthRows.forEach(row => {
+      const filteredVector = row.vector.filter((x, i) => selectedTargetIndices.indexOf(i) >= 0);
+      results.push({
+        pokemonIds: [ row.index ],
+        pokemonNames: [ row.name ],
+        value: filteredVector[weakestSpot],
+        targetPokemonName: this.targetPokeNames[selectedTargetIndices[weakestSpot]] // temporary
+      })
+    });
+
+    results.sort((a, b) => b.value - a.value); // higher values come first
+
+    return results;    
   }
 }

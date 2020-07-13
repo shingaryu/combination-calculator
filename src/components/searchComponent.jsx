@@ -40,7 +40,7 @@ export class SearchComponent extends React.Component {
                 <Form.Label>{t('search.evaluationMethod')}</Form.Label>
                 <Form.Control as="select" onChange={(e) => this.onChangeSearchSettings(e)}>
                   <option value="0">{t('search.targetStrenthComplement')}</option>
-                  {/* <option value="1">option2</option> */}
+                  <option value="1">{t('search.weakestPointImmunity')}</option>
                 </Form.Control>
               </Form.Group>
             </Form>          

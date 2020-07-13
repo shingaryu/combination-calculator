@@ -20,6 +20,9 @@ export class SearchResultComponent extends React.Component {
         <Row>
           <Col>
             <h4>{t('search.resultTitle')}</h4>
+            { this.props.searchResult.length>0 && this.props.searchResult[0].targetPokemonName? 
+              `(for: ${translateSpeciesIfPossible(this.props.searchResult[0].targetPokemonName, t)})`:''
+            }
           </Col>
         </Row>
         <Row>
