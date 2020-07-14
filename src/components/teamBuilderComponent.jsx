@@ -170,7 +170,7 @@ export class TeamBuilderComponent extends React.Component {
             </Row>
             <Row className="reference-row">
               <Col>
-                <Container>
+                <Container style={{marginLeft: 0}}>
                   <Row>
                     <Col>
                       <h5>{t('reference.title')}</h5>
