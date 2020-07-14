@@ -97,6 +97,21 @@ export class TeamBuilderComponent extends React.Component {
     return filteredOriginalIndices;
   }
 
+  toOriginalIndices(indicesOnSorted, originalIndices) {
+    const originals = indicesOnSorted.map(i => originalIndices[i]);
+    originals.sort((a, b) => {
+      if (a < b) {
+        return -1;
+      } else if (b < a) {
+        return 1;
+      } else {
+        return 0;
+      }
+    });
+
+    return originals;
+  }
+
   render() {
     const t = this.context.i18n.t.bind(this.context.i18n);
 
@@ -149,7 +164,7 @@ export class TeamBuilderComponent extends React.Component {
             </Row>
             <Row className="mt-3">
               <Col>
-                <TeamComponent num={6} pokemonList={sortedPokemonList} onChange={(indices) => this.onChangeTeamPokemons(indices.map(i => originalIndices[i]))}></TeamComponent>
+                <TeamComponent num={6} pokemonList={sortedPokemonList} onChange={(indices) => this.onChangeTeamPokemons(this.toOriginalIndices(indices, originalIndices))}></TeamComponent>
               </Col>
             </Row>
             <Row>
@@ -163,7 +178,7 @@ export class TeamBuilderComponent extends React.Component {
                     <SearchResultComponent searchResult={results} />
                   </Tab>
                   <Tab eventKey="target-select" title={t('tab.titleTargetSelect')}>
-                    <TargetSelectComponent allTargetNames={sortedTargetNames} onChange={(indices) => this.onChangeSelectedTargetIndices(indices.map(i => originalIndices[i]))} />
+                    <TargetSelectComponent allTargetNames={sortedTargetNames} onChange={(indices) => this.onChangeSelectedTargetIndices(this.toOriginalIndices(indices, originalIndices))} />
                   </Tab>
                 </Tabs>    
               </Col>
