@@ -12,7 +12,7 @@ export class TeamComponent extends React.Component {
     }
 
     const pokemonSlots = [];
-    const defaultTeamIndices = ["18", "11", "23", "25", "2", "21"];
+    const defaultTeamIndices = ["0", "49", "33", "12", "43", "39"];
     for (let i = 0; i < this.props.num; i++) {
       pokemonSlots[i] = {
         id: defaultTeamIndices[i],

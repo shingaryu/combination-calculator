@@ -31,7 +31,7 @@ export class TeamBuilderComponent extends React.Component {
       this.setState({ 
         loading: false, 
         strVectorColumns: targetPokemonNames,
-        selectedTargetIndices: [0,1,2,3,4,7,8,9,10,11,13,14,15,16,17,20,21,22,25,26,27,31,32,33,34,37,39,40,42,43,44,45,47,48,49,51,52,53,55,56,57,58],
+        selectedTargetIndices: [0,1,2,3,4,7,8,9,10,11,13,14,15,16,17,20,21,22,25,26,27,31,32,33,34,37,39,40,42,43,44,45,47,48,49,51,52,53,54,56,57,58,59,60,61],
         teamPokemonList: pokemonStrategies,
       });      
     }, error => {
@@ -59,14 +59,61 @@ export class TeamBuilderComponent extends React.Component {
     this.setState({ selectedTargetIndices: indices });
   }
 
+  pokemonListSortRefIndices(t) {
+    const sortedPokemonList = this.state.teamPokemonList.concat();
+    sortedPokemonList.sort((a, b) => {
+      if (translateSpeciesIfPossible(a.species, t) < translateSpeciesIfPossible(b.species, t)) {
+        return -1;
+      } else if (translateSpeciesIfPossible(b.species, t) < translateSpeciesIfPossible(a.species, t)) {
+        return 1;
+      } else {
+        return 0;
+      }
+    });
+
+    const originalIndices = [];
+    sortedPokemonList.forEach((sortedPoke) => {
+      const index = this.state.teamPokemonList.findIndex(originalPoke => originalPoke.id === sortedPoke.id);
+      originalIndices.push(index);
+    });
+    
+    return originalIndices;
+  }
+
+  filteredTargetSortRefIndices(t) {
+    const filtered = this.state.strVectorColumns.filter((x, i) => this.state.selectedTargetIndices.indexOf(i) >= 0)
+      .map((x, i) => ({index: i, name: x}));
+    filtered.sort((a, b) => {
+      if (translateSpeciesIfPossible(a.name, t) < translateSpeciesIfPossible(b.name, t)) {
+        return -1;
+      } else if (translateSpeciesIfPossible(b.name, t) < translateSpeciesIfPossible(a.name, t)) {
+        return 1;
+      } else {
+        return 0;
+      }
+    });
+
+    const filteredOriginalIndices = filtered.map(x => x.index);
+    return filteredOriginalIndices;
+  }
+
   render() {
     const t = this.context.i18n.t.bind(this.context.i18n);
 
     if (this.state.loading) {
       return <span>Loading...</span>
-    } else {  
-      const graphLabels = this.state.strVectorColumns.filter((x, i) => this.state.selectedTargetIndices.indexOf(i) >= 0).map(x => translateSpeciesIfPossible(x, t));
-      const teamStrengthValues = this.combinationService.strValuesOfTeam(this.state.teamPokemonIndices, this.state.selectedTargetIndices);
+    } else {
+      // for sort
+      const originalIndices = this.pokemonListSortRefIndices(t);
+      const origIndAfterTargetFilter = this.filteredTargetSortRefIndices(t);
+      
+      const sortedPokemonList = originalIndices.map(i => this.state.teamPokemonList[i]);
+      const graphLabels = originalIndices.map(i => this.state.strVectorColumns[i])
+        .filter((x, i) => this.state.selectedTargetIndices.indexOf(originalIndices[i]) >= 0)
+        .map(x => translateSpeciesIfPossible(x, t));
+
+      let teamStrengthValues = this.combinationService.strValuesOfTeam(this.state.teamPokemonIndices, this.state.selectedTargetIndices);
+      teamStrengthValues = origIndAfterTargetFilter.map(i => teamStrengthValues[i]);
       const graphDatasets = [
         {
           dataLabel: t('graph.teamStrengthValue'),
@@ -81,6 +128,8 @@ export class TeamBuilderComponent extends React.Component {
       } else if (this.state.searchSettings.evaluationMethod === 1) {
         results = this.combinationService.calcWeakestPointImmunity(this.state.teamPokemonIndices, this.state.selectedTargetIndices, ['Sweeper', 'Tank', 'Wall']);
       }
+
+      const sortedTargetNames = originalIndices.map(i => this.state.strVectorColumns[i]);
 
       return (
         <>
@@ -100,7 +149,7 @@ export class TeamBuilderComponent extends React.Component {
             </Row>
             <Row className="mt-3">
               <Col>
-                <TeamComponent num={6} pokemonList={this.state.teamPokemonList} onChange={(indices) => this.onChangeTeamPokemons(indices)}></TeamComponent>
+                <TeamComponent num={6} pokemonList={sortedPokemonList} onChange={(indices) => this.onChangeTeamPokemons(indices.map(i => originalIndices[i]))}></TeamComponent>
               </Col>
             </Row>
             <Row>
@@ -111,10 +160,10 @@ export class TeamBuilderComponent extends React.Component {
                   </Tab>
                   <Tab eventKey="search" title={t('tab.titleSearch')}>
                     <SearchComponent onChange={(settings) => this.onSearchSettingsChange(settings)}></SearchComponent>
-                    <SearchResultComponent searchResult={results} onSelectChange={(indices) => this.onSelectSearchResultRow(indices)}/>
+                    <SearchResultComponent searchResult={results} />
                   </Tab>
                   <Tab eventKey="target-select" title={t('tab.titleTargetSelect')}>
-                    <TargetSelectComponent allTargetNames={this.state.strVectorColumns} onChange={(indices) => this.onChangeSelectedTargetIndices(indices)} />
+                    <TargetSelectComponent allTargetNames={sortedTargetNames} onChange={(indices) => this.onChangeSelectedTargetIndices(indices.map(i => originalIndices[i]))} />
                   </Tab>
                 </Tabs>    
               </Col>
