@@ -1,12 +1,16 @@
 import React from 'react';
 import { Container, Row, Col, Form } from 'react-bootstrap'
 import { I18nContext } from 'react-i18next';
+import { translateSpeciesIfPossible } from '../services/stringSanitizer';
 
 export class SearchComponent extends React.Component {
   constructor(props) {
     super(props);
+    const numOfTargetHolders = 4;
     this.state = {
-      evaluationMethod: 0
+      evaluationMethod: 0,
+      numOfTargetHolders: numOfTargetHolders,
+      targets: [...Array(numOfTargetHolders)].map(x => '')
     };
   }
 
@@ -19,6 +23,17 @@ export class SearchComponent extends React.Component {
     }
     
     this.setState(newState);
+    this.props.onChange(newState);
+  }
+
+  onSelectTargets(slot, targetId) {
+    console.log(`slot: ${slot}, targetId: ${targetId}`);
+    const targets = this.state.targets;
+    targets[slot] = targetId;
+    const newState = { ...this.state, targets};
+    this.setState(newState);
+    console.log(newState);
+
     this.props.onChange(newState);
   }
 
@@ -41,8 +56,28 @@ export class SearchComponent extends React.Component {
                 <Form.Control as="select" onChange={(e) => this.onChangeSearchSettings(e)}>
                   <option value="0">{t('search.targetStrenthComplement')}</option>
                   <option value="1">{t('search.weakestPointImmunity')}</option>
+                  <option value="2">Set custom targets</option>
                 </Form.Control>
               </Form.Group>
+              {
+                this.state.evaluationMethod === 2 && <div className="mb-2">Targets</div>
+              }
+              {
+                this.state.evaluationMethod === 2 && [...Array(this.state.numOfTargetHolders)].map((x, i) => {
+                  return (
+                    <Form.Group key={`fg-${i}`} controlId={`target-list-${i}`}>
+                      {/* <Form.Label>Targets</Form.Label> */}
+                      <Form.Control as="select" onChange={(e) => this.onSelectTargets(i, e.target.value)}>
+                        <option key={`op-${i}-empty`} />
+                        { this.props.pokemonList.map((poke) => (
+                          <option key={`op-${i}-${poke.id}`} 
+                            value={poke.id}>{translateSpeciesIfPossible(poke.species, t)}</option>
+                        ))}
+                      </Form.Control>
+                    </Form.Group>
+                  )
+                })
+              }
             </Form>          
           </Col>
         </Row>

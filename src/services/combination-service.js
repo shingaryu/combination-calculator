@@ -358,4 +358,39 @@ export class CombinationService {
 
     return results;    
   }
+
+  calcImmunityToCustomTargets(teamPokemonIndices, selectedTargetIndices, targetIds) {
+    if (!teamPokemonIndices || teamPokemonIndices.length === 0) {
+      return [];
+    }
+
+    if (!targetIds || targetIds.length === 0) {
+      return [];
+    }
+
+    let targetStrengthRows = this.strengthRows.filter(x => teamPokemonIndices.indexOf(x.index.toString()) < 0);
+
+    const results = [];
+    targetStrengthRows.forEach(row => {
+      const vectorWithId = [];
+      row.vector.forEach((val, i) => {
+        vectorWithId.push({targetId: this.targetPokeIds[i], value: val});
+      })
+
+      const filteredVector = vectorWithId.filter((x) => targetIds.indexOf(x.targetId) >= 0);
+
+      let sum = 0;
+      filteredVector.forEach(vec => sum += vec.value);
+
+      results.push({
+        pokemonIds: [ row.index ],
+        pokemonNames: [ row.name ],
+        value: sum,
+      })
+    });
+
+    results.sort((a, b) => b.value - a.value); // higher values come first
+
+    return results;    
+  }
 }

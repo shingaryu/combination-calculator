@@ -142,6 +142,9 @@ export class TeamBuilderComponent extends React.Component {
         results = this.combinationService.calcTargetStrengthsComplement(this.state.teamPokemonIndices, this.state.selectedTargetIndices, ['Sweeper', 'Tank', 'Wall']);
       } else if (this.state.searchSettings.evaluationMethod === 1) {
         results = this.combinationService.calcWeakestPointImmunity(this.state.teamPokemonIndices, this.state.selectedTargetIndices, ['Sweeper', 'Tank', 'Wall']);
+      } else if (this.state.searchSettings.evaluationMethod === 2) {
+        results = this.combinationService.calcImmunityToCustomTargets(this.state.teamPokemonIndices, this.state.selectedTargetIndices, 
+          this.state.searchSettings.targets.filter(idStr => idStr));
       }
 
       const sortedTargetNames = originalIndices.map(i => this.state.strVectorColumns[i]);
@@ -174,7 +177,7 @@ export class TeamBuilderComponent extends React.Component {
                     <GraphComponent labels={graphLabels} datasets={graphDatasets}/>
                   </Tab>
                   <Tab eventKey="search" title={t('tab.titleSearch')}>
-                    <SearchComponent onChange={(settings) => this.onSearchSettingsChange(settings)}></SearchComponent>
+                    <SearchComponent pokemonList={sortedPokemonList} onChange={(settings) => this.onSearchSettingsChange(settings)}></SearchComponent>
                     <SearchResultComponent searchResult={results} />
                   </Tab>
                   <Tab eventKey="target-select" title={t('tab.titleTargetSelect')}>
