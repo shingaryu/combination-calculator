@@ -393,4 +393,31 @@ export class CombinationService {
 
     return results;    
   }
+
+  calcOverallMinus(teamPokemonIndices, selectedTargetIndices) {
+    if (!teamPokemonIndices || teamPokemonIndices.length === 0) {
+      return [];
+    }
+
+    const combinedVector = this.strValuesOfTeam(teamPokemonIndices, selectedTargetIndices);
+    let targetStrengthRows = this.strengthRows.filter(x => teamPokemonIndices.indexOf(x.index.toString()) < 0 && teamPokemonIndices.indexOf(x.index) < 0);
+
+    const results = [];
+    targetStrengthRows.forEach(row => {
+      const filteredVector = row.vector.filter((x, i) => selectedTargetIndices.indexOf(i) >= 0);
+      const overallVector = this.addVectors(combinedVector, filteredVector);
+      let minusSum = 0.0;
+      overallVector.filter(val => val < 0).forEach(val => minusSum += val);
+
+      results.push({
+        pokemonIds: [ row.index ],
+        pokemonNames: [ row.name ],
+        value: minusSum,
+      })
+    });
+
+    results.sort((a, b) => b.value - a.value); // higher values come first
+
+    return results;     
+  }
 }

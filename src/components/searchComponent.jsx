@@ -57,6 +57,7 @@ export class SearchComponent extends React.Component {
                   <option value="0">{t('search.targetStrenthComplement')}</option>
                   <option value="1">{t('search.weakestPointImmunity')}</option>
                   <option value="2">Set custom targets</option>
+                  <option value="3">Overall minus</option>
                 </Form.Control>
               </Form.Group>
               {

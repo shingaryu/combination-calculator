@@ -145,6 +145,8 @@ export class TeamBuilderComponent extends React.Component {
       } else if (this.state.searchSettings.evaluationMethod === 2) {
         results = this.combinationService.calcImmunityToCustomTargets(this.state.teamPokemonIndices, this.state.selectedTargetIndices, 
           this.state.searchSettings.targets.filter(idStr => idStr));
+      } else if (this.state.searchSettings.evaluationMethod === 3) {
+        results = this.combinationService.calcOverallMinus(this.state.teamPokemonIndices, this.state.selectedTargetIndices);
       }
 
       const sortedTargetNames = originalIndices.map(i => this.state.strVectorColumns[i]);
