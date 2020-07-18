@@ -315,7 +315,7 @@ export class CombinationService {
 
     const combinedVector = this.strValuesOfTeam(teamPokemonIndices, selectedTargetIndices);
 
-    let targetStrengthRows = this.strengthRows.filter(x => teamPokemonIndices.indexOf(x.index.toString()) < 0);
+    let targetStrengthRows = this.strengthRows.filter(x => teamPokemonIndices.indexOf(x.index.toString()) < 0 && teamPokemonIndices.indexOf(x.index) < 0);
     // targetStrengthRows = this.filterStrengthRows(compatibleStrTypes, targetStrengthRows);
 
     const results = [];
@@ -339,9 +339,10 @@ export class CombinationService {
     }
 
     const combinedVector = this.strValuesOfTeam(teamPokemonIndices, selectedTargetIndices);
-    let targetStrengthRows = this.strengthRows.filter(x => teamPokemonIndices.indexOf(x.index.toString()) < 0);
+    let targetStrengthRows = this.strengthRows.filter(x => teamPokemonIndices.indexOf(x.index.toString()) < 0 && teamPokemonIndices.indexOf(x.index) < 0);
 
     const weakestSpot = combinedVector.indexOf(Math.min(...combinedVector));
+    console.log(`weakest spot: ${weakestSpot} (${this.targetPokeNames[selectedTargetIndices[weakestSpot]]})`);
 
     const results = [];
     targetStrengthRows.forEach(row => {
@@ -368,7 +369,7 @@ export class CombinationService {
       return [];
     }
 
-    let targetStrengthRows = this.strengthRows.filter(x => teamPokemonIndices.indexOf(x.index.toString()) < 0);
+    let targetStrengthRows = this.strengthRows.filter(x => teamPokemonIndices.indexOf(x.index.toString()) < 0 && teamPokemonIndices.indexOf(x.index) < 0);
 
     const results = [];
     targetStrengthRows.forEach(row => {
