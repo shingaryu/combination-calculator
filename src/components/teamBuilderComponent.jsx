@@ -10,6 +10,7 @@ import { I18nContext } from 'react-i18next';
 import { translateSpeciesIfPossible } from '../services/stringSanitizer';
 import './teamBuilderComponent.css'
 import { TargetSelectComponent } from './targetSelectComponent';
+import { BattleTeamComponent } from './battleTeamComponent';
 
 export class TeamBuilderComponent extends React.Component {
   constructor(props) {
@@ -184,6 +185,10 @@ export class TeamBuilderComponent extends React.Component {
                   </Tab>
                   <Tab eventKey="target-select" title={t('tab.titleTargetSelect')}>
                     <TargetSelectComponent allTargetNames={sortedTargetNames} onChange={(indices) => this.onChangeSelectedTargetIndices(this.toOriginalIndices(indices, originalIndices))} />
+                  </Tab>
+                  <Tab eventKey="battle-team" title="Battle Team">
+                    <BattleTeamComponent sortedPokemonList={sortedPokemonList} toOriginalIndices={(indices => this.toOriginalIndices(indices, originalIndices))} 
+                      combinationService={this.combinationService} teamPokemonIndices={this.state.teamPokemonIndices} />
                   </Tab>
                 </Tabs>    
               </Col>

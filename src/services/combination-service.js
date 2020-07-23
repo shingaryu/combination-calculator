@@ -280,6 +280,34 @@ export class CombinationService {
     return this.targetPokeNames;
   }
 
+  calcTeamCombinationsOnWeakest(teamPokemonIndices, opponentPokemonIndices) {
+    const battleTeamIndices = [];
+    for (let i = 0; i < teamPokemonIndices.length; i++) {
+      for (let j = i + 1; j < teamPokemonIndices.length; j++) {
+        for (let k = j + 1; k < teamPokemonIndices.length; k++) {
+          const ind = teamPokemonIndices;
+          battleTeamIndices.push([ind[i], ind[j], ind[k]]);
+        }
+      }
+    }
+
+    const results = [];
+    battleTeamIndices.forEach(indices => {
+      const strValues = this.strValuesOfTeam(indices, opponentPokemonIndices);
+      const minimumValue = Math.min(...strValues);
+      results.push({
+        pokemonIds: indices,
+        pokemonNames: indices.map(i => this.strengthRows[i].name),
+        strValues: strValues,
+        value: minimumValue
+      })
+    });
+
+    results.sort((a, b) => b.value - a.value); // higher values come first
+
+    return results;
+  }
+
   strValuesOfTeam(teamPokemonIndices, selectedTargetIndices) {
     // is it needed to remove duplications about team members?
 
