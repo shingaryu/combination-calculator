@@ -11,16 +11,38 @@ import { translateSpeciesIfPossible } from '../services/stringSanitizer';
 import './teamBuilderComponent.css'
 import { TargetSelectComponent } from './targetSelectComponent';
 import { BattleTeamComponent } from './battleTeamComponent';
+import SearchSettings from '../models/searchSettings';
+import PokemonStrategy from '../models/PokemonStrategy';
+import { TFunction } from 'i18next';
 
-export class TeamBuilderComponent extends React.Component {
-  constructor(props) {
+type TeamBuilderComponentProps = {
+
+}
+
+type TeamBuilderComponentState = {
+  loading: boolean,
+  teamPokemonIndices: number[],
+  searchSettings: SearchSettings,
+  selectedSearchResultPokemonIndices: number[] | null,
+  strVectorColumns: string[],
+  selectedTargetIndices: number[],
+  teamPokemonList: PokemonStrategy[]
+}
+
+export class TeamBuilderComponent extends React.Component<TeamBuilderComponentProps, TeamBuilderComponentState> {
+  private combinationService: CombinationService
+
+  constructor(props: TeamBuilderComponentProps) {
     super(props);
     this.combinationService = new CombinationService();
     this.state = { 
       loading: true,
-      teamPokemonIndices: ["18", "11", "23", "25", "2", "21"], // default in teamComponent
+      teamPokemonIndices: [18, 11, 23, 25, 2, 21], // default in teamComponent
       searchSettings: { evaluationMethod: 0 },
-      selectedSearchResultPokemonIndices: null
+      selectedSearchResultPokemonIndices: null,
+      strVectorColumns: [],
+      selectedTargetIndices: [0,1,2,3,4,7,8,9,10,11,13,14,15,16,17,20,21,22,25,26,27,31,32,33,34,37,39,40,42,43,44,45,47,48,49,51,52,53,54,56,57,58,59,60,61],
+      teamPokemonList: []
     };
 
     Promise.all([
@@ -32,7 +54,6 @@ export class TeamBuilderComponent extends React.Component {
       this.setState({ 
         loading: false, 
         strVectorColumns: targetPokemonNames,
-        selectedTargetIndices: [0,1,2,3,4,7,8,9,10,11,13,14,15,16,17,20,21,22,25,26,27,31,32,33,34,37,39,40,42,43,44,45,47,48,49,51,52,53,54,56,57,58,59,60,61],
         teamPokemonList: pokemonStrategies,
       });      
     }, error => {
@@ -44,23 +65,23 @@ export class TeamBuilderComponent extends React.Component {
 
   static contextType = I18nContext;
 
-  onChangeTeamPokemons(indices) {
+  onChangeTeamPokemons(indices: number[]) {
     this.setState({ teamPokemonIndices: indices });
   }
 
-  onSearchSettingsChange(settings) {
+  onSearchSettingsChange(settings: SearchSettings) {
     this.setState({ searchSettings: settings, selectedSearchResultPokemonIndices: null });
   }
 
-  onSelectSearchResultRow(indices) {
+  onSelectSearchResultRow(indices: number[]) {
     this.setState({ selectedSearchResultPokemonIndices: indices });
   }
 
-  onChangeSelectedTargetIndices(indices) {
+  onChangeSelectedTargetIndices(indices: number[]) {
     this.setState({ selectedTargetIndices: indices });
   }
 
-  pokemonListSortRefIndices(t) {
+  pokemonListSortRefIndices(t: TFunction) {
     const sortedPokemonList = this.state.teamPokemonList.concat();
     sortedPokemonList.sort((a, b) => {
       if (translateSpeciesIfPossible(a.species, t) < translateSpeciesIfPossible(b.species, t)) {
@@ -72,7 +93,7 @@ export class TeamBuilderComponent extends React.Component {
       }
     });
 
-    const originalIndices = [];
+    const originalIndices: number[] = [];
     sortedPokemonList.forEach((sortedPoke) => {
       const index = this.state.teamPokemonList.findIndex(originalPoke => originalPoke.id === sortedPoke.id);
       originalIndices.push(index);
@@ -81,7 +102,7 @@ export class TeamBuilderComponent extends React.Component {
     return originalIndices;
   }
 
-  filteredTargetSortRefIndices(t) {
+  filteredTargetSortRefIndices(t: TFunction) {
     const filtered = this.state.strVectorColumns.filter((x, i) => this.state.selectedTargetIndices.indexOf(i) >= 0)
       .map((x, i) => ({index: i, name: x}));
     filtered.sort((a, b) => {
@@ -98,7 +119,7 @@ export class TeamBuilderComponent extends React.Component {
     return filteredOriginalIndices;
   }
 
-  toOriginalIndices(indicesOnSorted, originalIndices) {
+  toOriginalIndices(indicesOnSorted: number[], originalIndices: number[]) {
     const originals = indicesOnSorted.map(i => originalIndices[i]);
     originals.sort((a, b) => {
       if (a < b) {
@@ -142,10 +163,10 @@ export class TeamBuilderComponent extends React.Component {
       if (this.state.searchSettings.evaluationMethod === 0) {
         results = this.combinationService.calcTargetStrengthsComplement(this.state.teamPokemonIndices, this.state.selectedTargetIndices, ['Sweeper', 'Tank', 'Wall']);
       } else if (this.state.searchSettings.evaluationMethod === 1) {
-        results = this.combinationService.calcWeakestPointImmunity(this.state.teamPokemonIndices, this.state.selectedTargetIndices, ['Sweeper', 'Tank', 'Wall']);
+        results = this.combinationService.calcWeakestPointImmunity(this.state.teamPokemonIndices, this.state.selectedTargetIndices);
       } else if (this.state.searchSettings.evaluationMethod === 2) {
         results = this.combinationService.calcImmunityToCustomTargets(this.state.teamPokemonIndices, this.state.selectedTargetIndices, 
-          this.state.searchSettings.targets.filter(idStr => idStr));
+          this.state.searchSettings.targets?.filter(idStr => idStr));
       } else if (this.state.searchSettings.evaluationMethod === 3) {
         results = this.combinationService.calcOverallMinus(this.state.teamPokemonIndices, this.state.selectedTargetIndices);
       }
@@ -170,24 +191,24 @@ export class TeamBuilderComponent extends React.Component {
             </Row>
             <Row className="mt-3">
               <Col>
-                <TeamComponent num={6} pokemonList={sortedPokemonList} onChange={(indices) => this.onChangeTeamPokemons(this.toOriginalIndices(indices, originalIndices))}></TeamComponent>
+                <TeamComponent num={6} pokemonList={sortedPokemonList} onChange={(indices: number[]) => this.onChangeTeamPokemons(this.toOriginalIndices(indices, originalIndices))}></TeamComponent>
               </Col>
             </Row>
             <Row>
               <Col>
-                <Tabs defaultActiveKey="graph" className="mt-3">
+                <Tabs id="function-tabs" defaultActiveKey="graph" className="mt-3">
                   <Tab eventKey="graph" title={t('tab.titleGraph')}>
                     <GraphComponent labels={graphLabels} datasets={graphDatasets}/>
                   </Tab>
                   <Tab eventKey="search" title={t('tab.titleSearch')}>
-                    <SearchComponent pokemonList={sortedPokemonList} onChange={(settings) => this.onSearchSettingsChange(settings)}></SearchComponent>
+                    <SearchComponent pokemonList={sortedPokemonList} onChange={(settings: SearchSettings) => this.onSearchSettingsChange(settings)}></SearchComponent>
                     <SearchResultComponent searchResult={results} />
                   </Tab>
                   <Tab eventKey="target-select" title={t('tab.titleTargetSelect')}>
-                    <TargetSelectComponent allTargetNames={sortedTargetNames} onChange={(indices) => this.onChangeSelectedTargetIndices(this.toOriginalIndices(indices, originalIndices))} />
+                    <TargetSelectComponent allTargetNames={sortedTargetNames} onChange={(indices: number[]) => this.onChangeSelectedTargetIndices(this.toOriginalIndices(indices, originalIndices))} />
                   </Tab>
                   <Tab eventKey="battle-team" title="Battle Team">
-                    <BattleTeamComponent sortedPokemonList={sortedPokemonList} toOriginalIndices={(indices => this.toOriginalIndices(indices, originalIndices))} 
+                    <BattleTeamComponent sortedPokemonList={sortedPokemonList} toOriginalIndices={(indices: number[]) => this.toOriginalIndices(indices, originalIndices)} 
                       combinationService={this.combinationService} teamPokemonIndices={this.state.teamPokemonIndices} />
                   </Tab>
                 </Tabs>    
