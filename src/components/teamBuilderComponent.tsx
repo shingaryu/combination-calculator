@@ -23,7 +23,6 @@ type TeamBuilderComponentState = {
   loading: boolean,
   teamPokemonIndices: number[],
   searchSettings: SearchSettings,
-  selectedSearchResultPokemonIndices: number[] | null,
   strVectorColumns: string[],
   selectedTargetIndices: number[],
   teamPokemonList: PokemonStrategy[]
@@ -39,7 +38,6 @@ export class TeamBuilderComponent extends React.Component<TeamBuilderComponentPr
       loading: true,
       teamPokemonIndices: [18, 11, 23, 25, 2, 21], // default in teamComponent
       searchSettings: { evaluationMethod: 0 },
-      selectedSearchResultPokemonIndices: null,
       strVectorColumns: [],
       selectedTargetIndices: [0,1,2,3,4,7,8,9,10,11,13,14,15,16,17,20,21,22,25,26,27,31,32,33,34,37,39,40,42,43,44,45,47,48,49,51,52,53,54,56,57,58,59,60,61],
       teamPokemonList: []
@@ -70,11 +68,7 @@ export class TeamBuilderComponent extends React.Component<TeamBuilderComponentPr
   }
 
   onSearchSettingsChange(settings: SearchSettings) {
-    this.setState({ searchSettings: settings, selectedSearchResultPokemonIndices: null });
-  }
-
-  onSelectSearchResultRow(indices: number[]) {
-    this.setState({ selectedSearchResultPokemonIndices: indices });
+    this.setState({ searchSettings: settings });
   }
 
   onChangeSelectedTargetIndices(indices: number[]) {
