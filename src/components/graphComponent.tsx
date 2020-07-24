@@ -11,7 +11,13 @@ type GraphComponentProps = {
     dataLabel: string;
     values: number[];
     colorRGB: number[];
-  }[]
+  }[],
+  heightVertical?: number,
+  widthVertical?: number,
+  heightHorizontal?: number,
+  widthHorizontal?: number,
+  optionsBar?: any,
+  optionsHorizontal?: any
 }
 
 export const GraphComponent: React.FunctionComponent<GraphComponentProps> = (props) => {
@@ -48,7 +54,8 @@ export const GraphComponent: React.FunctionComponent<GraphComponentProps> = (pro
           stepSize: 1024
         }
       }]
-    }
+    },
+    ...props.optionsBar
   }  
 
   const chartOptionsHorizontal = {
@@ -62,7 +69,8 @@ export const GraphComponent: React.FunctionComponent<GraphComponentProps> = (pro
           stepSize: 2048,
         }
       }]
-    }
+    },
+    ...props.optionsHorizontal
   }  
 
   return (
@@ -76,7 +84,7 @@ export const GraphComponent: React.FunctionComponent<GraphComponentProps> = (pro
         <Row>
           <Col>
           <MediaQuery query="(max-width: 767px)">
-            <div style={{height: 16 * (labels.length + 4)}}>
+            <div style={{height: props.heightHorizontal || 16 * (labels.length + 4)}}>
               <HorizontalBar
                 data={data}
                 options={chartOptionsHorizontal}
@@ -85,7 +93,7 @@ export const GraphComponent: React.FunctionComponent<GraphComponentProps> = (pro
           </MediaQuery>
           <MediaQuery query="(min-width: 768px)">
             <div className="chart-area">
-              <div style={{height: 500, width: 22 * (labels.length + 2)}}>
+              <div style={{height: props.heightVertical || 500, width: props.widthVertical || 22 * (labels.length + 2)}}>
                 <Bar
                   data={data}
                   options={chartOptionsBar}

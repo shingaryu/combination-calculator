@@ -5,6 +5,7 @@ import { translateSpeciesIfPossible } from '../services/stringSanitizer';
 import { TeamComponent } from './TeamComponent';
 import PokemonStrategy from '../models/PokemonStrategy';
 import { CombinationService } from '../services/combination-service';
+import { GraphComponent } from './graphComponent';
 
 type BattleTeamComponentProps = {
   sortedPokemonList: PokemonStrategy[],
@@ -44,7 +45,51 @@ export class BattleTeamComponent extends React.Component<BattleTeamComponentProp
     const myTeamIndices = this.props.toTeamPokemonIndices(this.state.myTeam);
     const oppTeamIndices = this.props.toTeamPokemonIndices(this.state.oppTeam);
 
+    const oppTeamOrderByAlphabets = this.state.oppTeam.concat();
+    oppTeamOrderByAlphabets.sort((a, b) => {
+      if (a.species < b.species) {
+        return -1;
+      } else if (b.species < a.species) {
+        return 1;
+      } else {
+        return 0;
+      }
+    });
+
     const results = this.props.combinationService.calcTeamCombinationsOnWeakest(myTeamIndices, oppTeamIndices);
+
+    const graphLabels = this.state.oppTeam.map(x => translateSpeciesIfPossible(x.species, t));
+
+    const graphDataSets = this.state.myTeam.map((myPoke, i) => {
+      const originalIndex = this.props.toTeamPokemonIndices([myPoke]);
+      const strValues = this.props.combinationService.strValuesOfTeam(originalIndex, oppTeamIndices);
+      const strValuesWithPoke = strValues.map((val, i) => ({val: val, poke: oppTeamOrderByAlphabets[i]}));
+      const strValuesWithPokeSorted: any[] = [];
+      this.state.oppTeam.forEach(poke => {
+        const index = strValuesWithPoke.findIndex(x => x.poke.id === poke.id);
+        strValuesWithPokeSorted.push(strValuesWithPoke[index]);
+      })
+
+      const graphDataset = {
+        dataLabel: translateSpeciesIfPossible(myPoke.species, t),
+        values: strValuesWithPokeSorted.map(x => Math.round(x.val)),
+        colorRGB: [255 / (this.state.myTeam.length - 1) * i, 99, 132]
+      };
+
+      return graphDataset;
+    })
+
+    const chartOptionsBar = {
+      scales: {
+        yAxes: [{
+          ticks: {
+            min: -1024,
+            max: 1024,
+            stepSize: 512
+          }
+        }]
+      }
+    }
 
     return (
     <>
@@ -57,6 +102,12 @@ export class BattleTeamComponent extends React.Component<BattleTeamComponentProp
           <Col>
             <h4>Opponent's Team</h4>
             <TeamComponent num={6} pokemonList={this.props.sortedPokemonList} onChange={(pokemons) => this.onChangeOppPokemons(pokemons)}></TeamComponent>
+          </Col>
+        </Row>
+        <Row>
+          <Col>
+            <h4>Individual strength values to the opponent team</h4>
+            <GraphComponent labels={graphLabels} datasets={graphDataSets} heightVertical={200} widthVertical={800} optionsBar={chartOptionsBar} />
           </Col>
         </Row>
         <Row>
