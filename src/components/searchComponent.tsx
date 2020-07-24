@@ -2,9 +2,22 @@ import React from 'react';
 import { Container, Row, Col, Form } from 'react-bootstrap'
 import { I18nContext } from 'react-i18next';
 import { translateSpeciesIfPossible } from '../services/stringSanitizer';
+import PokemonStrategy from '../models/PokemonStrategy';
+import SearchSettings from '../models/searchSettings';
 
-export class SearchComponent extends React.Component {
-  constructor(props) {
+type SearchComponentProps = {
+  pokemonList: PokemonStrategy[],
+  onChange: (settings: SearchSettings) => void
+}
+
+type SearchComponentState = {
+  evaluationMethod: number,
+  numOfTargetHolders: number,
+  targets: string[]
+}
+
+export class SearchComponent extends React.Component<SearchComponentProps, SearchComponentState> {
+  constructor(props: SearchComponentProps) {
     super(props);
     const numOfTargetHolders = 4;
     this.state = {
@@ -16,7 +29,7 @@ export class SearchComponent extends React.Component {
 
   static contextType = I18nContext;
 
-  onChangeSearchSettings(event) {
+  onChangeSearchSettings(event: React.ChangeEvent<HTMLInputElement>) {
     let newState = {...this.state};
     if (event.target.id === 'evaluation-method') {
       newState = {...this.state, evaluationMethod: parseInt(event.target.value)}
@@ -26,7 +39,7 @@ export class SearchComponent extends React.Component {
     this.props.onChange(newState);
   }
 
-  onSelectTargets(slot, targetId) {
+  onSelectTargets(slot: number, targetId: string) {
     console.log(`slot: ${slot}, targetId: ${targetId}`);
     const targets = this.state.targets;
     targets[slot] = targetId;
@@ -53,7 +66,7 @@ export class SearchComponent extends React.Component {
             <Form>
               <Form.Group controlId="evaluation-method">
                 <Form.Label>{t('search.evaluationMethod')}</Form.Label>
-                <Form.Control as="select" onChange={(e) => this.onChangeSearchSettings(e)}>
+                <Form.Control as="select" onChange={(e: React.ChangeEvent<HTMLInputElement>) => this.onChangeSearchSettings(e)}>
                   <option value="0">{t('search.targetStrenthComplement')}</option>
                   <option value="1">{t('search.weakestPointImmunity')}</option>
                   <option value="2">Set custom targets</option>
@@ -68,7 +81,7 @@ export class SearchComponent extends React.Component {
                   return (
                     <Form.Group key={`fg-${i}`} controlId={`target-list-${i}`}>
                       {/* <Form.Label>Targets</Form.Label> */}
-                      <Form.Control as="select" onChange={(e) => this.onSelectTargets(i, e.target.value)}>
+                      <Form.Control as="select" onChange={(e: React.ChangeEvent<HTMLInputElement>) => this.onSelectTargets(i, e.target.value)}>
                         <option key={`op-${i}-empty`} />
                         { this.props.pokemonList.map((poke) => (
                           <option key={`op-${i}-${poke.id}`} 
