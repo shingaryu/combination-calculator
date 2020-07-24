@@ -3,9 +3,18 @@ import { Container, Row, Col, Table } from 'react-bootstrap'
 import './searchResultComponent.css'
 import { I18nContext } from 'react-i18next';
 import { translateSpeciesIfPossible } from '../services/stringSanitizer';
+import SearchResult from '../models/searchResult';
 
-export class SearchResultComponent extends React.Component {
-  constructor(props) {
+type SearchResultComponentProps = {
+  searchResult: SearchResult[]
+}
+
+type SearchResultComponentState = {
+
+}
+
+export class SearchResultComponent extends React.Component<SearchResultComponentProps, SearchResultComponentState> {
+  constructor(props: SearchResultComponentProps) {
     super(props);
   }
 
