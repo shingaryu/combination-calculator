@@ -21,7 +21,6 @@ export class BattleTeamComponent extends React.Component {
   }
 
   onChangeOppPokemons(indices) {
-    console.log('onchangeopppokemon')
     this.setState({ oppPokemonIndices: indices.map(x => parseInt(x)) });
   }
 
@@ -53,7 +52,8 @@ export class BattleTeamComponent extends React.Component {
                     <th key={`h-p0`}>Pokemon</th>:
                     results[0].pokemonIds.map((x, i) => <th key={`h-p${i}`}>{t('search.columnPokemon')}</th>)
                   }
-                  <th key='h-v'>{t('search.columnValue')}</th>
+                  <th key='h-v'>Min. Value</th>
+                  <th key='h-t'>On Target</th>
                 </tr>
               </thead>
               <tbody>
@@ -62,6 +62,7 @@ export class BattleTeamComponent extends React.Component {
                     <td key={`${index}-i`}>{index + 1}</td>
                     {result.pokemonNames.map((x, i) => <td key={`${index}-p${i}`}>{translateSpeciesIfPossible(x, t)}</td>)}
                     <td key={`${index}-v`}>{result.value.toFixed(4)}</td>
+                    <td key={`${index}-v`}>{translateSpeciesIfPossible(result.minimumValueTargetName, t)}</td>
                   </tr>                
                 ))}
               </tbody>

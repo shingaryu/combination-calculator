@@ -312,11 +312,15 @@ export class CombinationService {
     battleTeamIndices.forEach(indices => {
       const strValues = this.strValuesOfTeam(indices, opponentPokemonIndices);
       const minimumValue = Math.min(...strValues);
+      const minimumValueIndex = strValues.findIndex(x => x === minimumValue);
+      const oppPokeOriginalIndex = opponentPokemonIndices[minimumValueIndex];
       results.push({
         pokemonIds: indices.map(x => x.toString()),
         pokemonNames: indices.map(i => this.strengthRows[i].name),
         strValues: strValues,
-        value: minimumValue
+        value: minimumValue,
+        minimumValueTargetId: this.targetPokeIds[oppPokeOriginalIndex],
+        minimumValueTargetName: this.targetPokeNames[oppPokeOriginalIndex]
       })
     });
 
