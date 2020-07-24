@@ -3,8 +3,6 @@ import Nature from "./Nature";
 import Shiny from "./Shiny";
 
 type PokemonStrategy =  {
-  date: Date,
-  balance: number,
   id: string,
   species_id: string,
   species: string,
