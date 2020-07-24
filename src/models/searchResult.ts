@@ -3,6 +3,7 @@ type SearchResult = {
   pokemonNames: string[],
   value: number,
   targetPokemonName?: string
+  strValues?: number[]
 }
 
 export default SearchResult;

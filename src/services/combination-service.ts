@@ -1,14 +1,30 @@
-import strategiesUrl from '../assets/strategies.csv';
+// import strategiesUrl from '../assets/strategies.csv';
 // import usageUrl from '../assets/usage.csv';
 import axios from 'axios';
 import { getStrengthVectorsByStrategies } from '../api/strengthVectorsApi';
+import StrengthTable from '../models/StrengthTable';
+import SearchResult from '../models/searchResult';
+const strategiesUrl = require('../assets/strategies.csv');
+
+type StrengthRow = {
+  index: number,
+  id: string,
+  name: string,
+  originalVector: number[],
+  vector: number[],
+  strategyType?: string,
+  hasBoost?: boolean;
+}
 
 export class CombinationService {
+  private strengthRows: StrengthRow[];
+  private targetPokeNames: string[];
+  private targetPokeIds: string[];
 
   constructor() {
-    this.strengthRows = null;
-    this.targetPokeNames = null;
-    this.targetPokeIds = null;
+    this.strengthRows = [];
+    this.targetPokeNames = [];
+    this.targetPokeIds = [];
   }
 
   async loadMasterData() {
@@ -57,30 +73,31 @@ export class CombinationService {
     await Promise.all([loadStrategiesPromise]);
   }
   
-  loadStrengthTable(json) {
+  loadStrengthTable(json: StrengthTable): { targetPokeNames: string[], targetPokeIds: string[], strengthRows: StrengthRow[] } {
     const targetPokeNames = json.columns.map(x => x.species);
     const targetPokeIds = json.columns.map(x => x.strategyId);
     console.log(`strength table columns: ${targetPokeNames.length}`);
 
-    let strengthRows = []; 
+    let strengthRows: StrengthRow[] = []; 
     let index = 0;
     json.rows.forEach(row => {
       if (!row) {
         return;
       }
 
-      const strengthRow = {};
-      strengthRow['index'] = index++;
-      strengthRow['id'] = row.strategyId;
-      strengthRow['name'] = row.species;
-
       const values = row.values;
       if (targetPokeNames.length !== values.length) {
         throw new Error('error: the number of column is not same among all rows');
       }
 
-      strengthRow['originalVector'] = values;
-      strengthRow['vector'] = values;
+      const strengthRow: StrengthRow = {
+        index: index++,
+        id: row.strategyId,
+        name: row.species,
+        originalVector: values,
+        vector: values
+      };
+
       strengthRows.push(strengthRow);
     });
   
@@ -90,7 +107,7 @@ export class CombinationService {
   }
 
   // load strategy info from text and add params to strength table
-  loadStrategyInfoToStrTable(strategiesText, strengthRows) {
+  loadStrategyInfoToStrTable(strategiesText: string, strengthRows: StrengthRow[]) {
     strategiesText = strategiesText.replace('\r\n', '\n');
     const strategiesRows = strategiesText.split('\n');
   
@@ -142,7 +159,7 @@ export class CombinationService {
     });
   }
   
-  loadUsageInfo(usageText, columns, strengthRows) {
+  loadUsageInfo(usageText: string, columns: string[], strengthRows: StrengthRow[]) {
     usageText = usageText.replace('\r\n', '\n');
   
     const usageRows = usageText.split('\n');
@@ -169,7 +186,7 @@ export class CombinationService {
       usageInfo.push({name, usage});
     });
     
-    const usageBaseRatio = [];
+    const usageBaseRatio: number[] = [];
     for (let i = 0; i < columns.length; i++) {
       if (usageMap.get(columns[i]) === undefined) {
         throw new Error(`error: usage information for pokemon ${columns[i]} is not found`);
@@ -186,10 +203,10 @@ export class CombinationService {
     })
   }
   
-  addVectors() {
-    const length = arguments[0].length;
-    for (let i = 0; i < arguments.length; i++) {
-      if (length !== arguments[i].length) {
+  addVectors(...vectors: number[][]) {
+    const length = vectors[0].length;
+    for (let i = 0; i < vectors.length; i++) {
+      if (length !== vectors[i].length) {
         throw new Error('the number of elements is not same');
       }
       
@@ -198,8 +215,8 @@ export class CombinationService {
     const newVec = [];
     for (let i = 0; i < length; i++) {
       let elementsSum = 0;
-      for (let j = 0; j < arguments.length; j++) {
-        elementsSum += arguments[j][i];
+      for (let j = 0; j < vectors.length; j++) {
+        elementsSum += vectors[j][i];
       }
       newVec.push(elementsSum);
     } 
@@ -207,7 +224,7 @@ export class CombinationService {
     return newVec;
   }
   
-  addVector(vector1, vector2) {
+  addVector(vector1: number[], vector2: number[]) {
     if (vector1.length !== vector2.length) {
       throw new Error('the number of elements is not same');
     }
@@ -220,11 +237,11 @@ export class CombinationService {
     return newVec;
   }
   
-  cosineSimilarity(v1, v2) {
+  cosineSimilarity(v1: number[], v2: number[]) {
     return this.dotProduct(v1, v2) / (this.l2norm(v1) * this.l2norm(v2));
   }
   
-  dotProduct(vector1, vector2) {
+  dotProduct(vector1: number[], vector2: number[]) {
     if (vector1.length !== vector2.length) {
       throw new Error('the number of elements is not same');
     }
@@ -237,7 +254,7 @@ export class CombinationService {
     return sum;
   }
   
-  l2norm(vector) {
+  l2norm(vector: number[]) {
     let sum = 0;
     vector.forEach(x => {
       sum += x * x;
@@ -247,12 +264,12 @@ export class CombinationService {
     return sum;
   }
   
-  isEmptyString(x) {
+  isEmptyString(x: string) {
     return (x === '' || x === '\n' || x === '\r');
   }
   
-  compatibleTypes(strategyType) {
-    let compatibleTypes = [];
+  compatibleTypes(strategyType: string) {
+    let compatibleTypes: string[] = [];
   
     if (strategyType === 'Sweeper') {
       compatibleTypes = ['Sweeper', 'Tank'];
@@ -265,8 +282,8 @@ export class CombinationService {
     return compatibleTypes;
   }
   
-  filterStrengthRows(acceptableTypes, strengthRows) {
-    return strengthRows.filter(x => acceptableTypes.indexOf(x.strategyType) >= 0);
+  filterStrengthRows(acceptableTypes: string[], strengthRows: StrengthRow[]) {
+    return strengthRows.filter(x => x.strategyType && acceptableTypes.indexOf(x.strategyType) >= 0);
   }
 
   getAllTeamPokemonNames() {
@@ -280,7 +297,7 @@ export class CombinationService {
     return this.targetPokeNames;
   }
 
-  calcTeamCombinationsOnWeakest(teamPokemonIndices, opponentPokemonIndices) {
+  calcTeamCombinationsOnWeakest(teamPokemonIndices: number[], opponentPokemonIndices: number[]) {
     const battleTeamIndices = [];
     for (let i = 0; i < teamPokemonIndices.length; i++) {
       for (let j = i + 1; j < teamPokemonIndices.length; j++) {
@@ -291,12 +308,12 @@ export class CombinationService {
       }
     }
 
-    const results = [];
+    const results: SearchResult[] = [];
     battleTeamIndices.forEach(indices => {
       const strValues = this.strValuesOfTeam(indices, opponentPokemonIndices);
       const minimumValue = Math.min(...strValues);
       results.push({
-        pokemonIds: indices,
+        pokemonIds: indices.map(x => x.toString()),
         pokemonNames: indices.map(i => this.strengthRows[i].name),
         strValues: strValues,
         value: minimumValue
@@ -308,7 +325,7 @@ export class CombinationService {
     return results;
   }
 
-  strValuesOfTeam(teamPokemonIndices, selectedTargetIndices) {
+  strValuesOfTeam(teamPokemonIndices: number[], selectedTargetIndices: number[]) {
     // is it needed to remove duplications about team members?
 
     if (!teamPokemonIndices || teamPokemonIndices.length === 0) {
@@ -319,9 +336,7 @@ export class CombinationService {
       return allZero;
     }
 
-    const pokemonVectors = teamPokemonIndices.map(pokeIndexStr => {
-      const pokeIndex = parseInt(pokeIndexStr);
-
+    const pokemonVectors = teamPokemonIndices.map(pokeIndex => {
       if (!(0 <= pokeIndex && pokeIndex <= this.strengthRows.length - 1)) {
         throw new Error ('Error: pokemon index is out of the range');
       }
@@ -336,21 +351,21 @@ export class CombinationService {
     return combinedVector;
   }
 
-  calcTargetStrengthsComplement(teamPokemonIndices, selectedTargetIndices, compatibleStrTypes) {
+  calcTargetStrengthsComplement(teamPokemonIndices: number[], selectedTargetIndices: number[], compatibleStrTypes: string[]) {
     if (!teamPokemonIndices || teamPokemonIndices.length === 0) {
       return [];
     }
 
     const combinedVector = this.strValuesOfTeam(teamPokemonIndices, selectedTargetIndices);
 
-    let targetStrengthRows = this.strengthRows.filter(x => teamPokemonIndices.indexOf(x.index.toString()) < 0 && teamPokemonIndices.indexOf(x.index) < 0);
+    let targetStrengthRows = this.strengthRows.filter(x => teamPokemonIndices.indexOf(x.index) < 0);
     // targetStrengthRows = this.filterStrengthRows(compatibleStrTypes, targetStrengthRows);
 
-    const results = [];
+    const results: SearchResult[] = [];
     targetStrengthRows.forEach(row => {
       const filteredVector = row.vector.filter((x, i) => selectedTargetIndices.indexOf(i) >= 0);
       results.push({
-        pokemonIds: [ row.index ],
+        pokemonIds: [ row.index.toString() ],
         pokemonNames: [ row.name ],
         value: -1 * this.cosineSimilarity(combinedVector, filteredVector) // smaller cosine similarities have bigger complements
       })
@@ -361,22 +376,22 @@ export class CombinationService {
     return results;
   }
 
-  calcWeakestPointImmunity(teamPokemonIndices, selectedTargetIndices) {
+  calcWeakestPointImmunity(teamPokemonIndices: number[], selectedTargetIndices: number[]) {
     if (!teamPokemonIndices || teamPokemonIndices.length === 0) {
       return [];
     }
 
     const combinedVector = this.strValuesOfTeam(teamPokemonIndices, selectedTargetIndices);
-    let targetStrengthRows = this.strengthRows.filter(x => teamPokemonIndices.indexOf(x.index.toString()) < 0 && teamPokemonIndices.indexOf(x.index) < 0);
+    let targetStrengthRows = this.strengthRows.filter(x => teamPokemonIndices.indexOf(x.index) < 0);
 
     const weakestSpot = combinedVector.indexOf(Math.min(...combinedVector));
     console.log(`weakest spot: ${weakestSpot} (${this.targetPokeNames[selectedTargetIndices[weakestSpot]]})`);
 
-    const results = [];
+    const results: SearchResult[] = [];
     targetStrengthRows.forEach(row => {
       const filteredVector = row.vector.filter((x, i) => selectedTargetIndices.indexOf(i) >= 0);
       results.push({
-        pokemonIds: [ row.index ],
+        pokemonIds: [ row.index.toString() ],
         pokemonNames: [ row.name ],
         value: filteredVector[weakestSpot],
         targetPokemonName: this.targetPokeNames[selectedTargetIndices[weakestSpot]] // temporary
@@ -388,7 +403,7 @@ export class CombinationService {
     return results;    
   }
 
-  calcImmunityToCustomTargets(teamPokemonIndices, selectedTargetIndices, targetIds) {
+  calcImmunityToCustomTargets(teamPokemonIndices: number[], selectedTargetIndices: number[], targetIds: string[]) {
     if (!teamPokemonIndices || teamPokemonIndices.length === 0) {
       return [];
     }
@@ -397,11 +412,11 @@ export class CombinationService {
       return [];
     }
 
-    let targetStrengthRows = this.strengthRows.filter(x => teamPokemonIndices.indexOf(x.index.toString()) < 0 && teamPokemonIndices.indexOf(x.index) < 0);
+    let targetStrengthRows = this.strengthRows.filter(x => teamPokemonIndices.indexOf(x.index) < 0);
 
-    const results = [];
+    const results: SearchResult[] = [];
     targetStrengthRows.forEach(row => {
-      const vectorWithId = [];
+      const vectorWithId: any[] = [];
       row.vector.forEach((val, i) => {
         vectorWithId.push({targetId: this.targetPokeIds[i], value: val});
       })
@@ -412,7 +427,7 @@ export class CombinationService {
       filteredVector.forEach(vec => sum += vec.value);
 
       results.push({
-        pokemonIds: [ row.index ],
+        pokemonIds: [ row.index.toString() ],
         pokemonNames: [ row.name ],
         value: sum,
       })
@@ -423,15 +438,15 @@ export class CombinationService {
     return results;    
   }
 
-  calcOverallMinus(teamPokemonIndices, selectedTargetIndices) {
+  calcOverallMinus(teamPokemonIndices: number[], selectedTargetIndices: number[]) {
     if (!teamPokemonIndices || teamPokemonIndices.length === 0) {
       return [];
     }
 
     const combinedVector = this.strValuesOfTeam(teamPokemonIndices, selectedTargetIndices);
-    let targetStrengthRows = this.strengthRows.filter(x => teamPokemonIndices.indexOf(x.index.toString()) < 0 && teamPokemonIndices.indexOf(x.index) < 0);
+    let targetStrengthRows = this.strengthRows.filter(x => teamPokemonIndices.indexOf(x.index) < 0);
 
-    const results = [];
+    const results: SearchResult[] = [];
     targetStrengthRows.forEach(row => {
       const filteredVector = row.vector.filter((x, i) => selectedTargetIndices.indexOf(i) >= 0);
       const overallVector = this.addVectors(combinedVector, filteredVector);
@@ -439,7 +454,7 @@ export class CombinationService {
       overallVector.filter(val => val < 0).forEach(val => minusSum += val);
 
       results.push({
-        pokemonIds: [ row.index ],
+        pokemonIds: [ row.index.toString() ],
         pokemonNames: [ row.name ],
         value: minusSum,
       })

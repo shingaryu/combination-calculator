@@ -14,6 +14,7 @@ import { BattleTeamComponent } from './battleTeamComponent';
 import SearchSettings from '../models/searchSettings';
 import PokemonStrategy from '../models/PokemonStrategy';
 import { TFunction } from 'i18next';
+import SearchResult from '../models/searchResult';
 
 type TeamBuilderComponentProps = {
 
@@ -153,14 +154,14 @@ export class TeamBuilderComponent extends React.Component<TeamBuilderComponentPr
         }
       ]
 
-      let results = [];
+      let results: SearchResult[] = [];
       if (this.state.searchSettings.evaluationMethod === 0) {
         results = this.combinationService.calcTargetStrengthsComplement(this.state.teamPokemonIndices, this.state.selectedTargetIndices, ['Sweeper', 'Tank', 'Wall']);
       } else if (this.state.searchSettings.evaluationMethod === 1) {
         results = this.combinationService.calcWeakestPointImmunity(this.state.teamPokemonIndices, this.state.selectedTargetIndices);
-      } else if (this.state.searchSettings.evaluationMethod === 2) {
+      } else if (this.state.searchSettings.evaluationMethod === 2 && this.state.searchSettings.targets) {
         results = this.combinationService.calcImmunityToCustomTargets(this.state.teamPokemonIndices, this.state.selectedTargetIndices, 
-          this.state.searchSettings.targets?.filter(idStr => idStr));
+          this.state.searchSettings.targets.filter(idStr => idStr));
       } else if (this.state.searchSettings.evaluationMethod === 3) {
         results = this.combinationService.calcOverallMinus(this.state.teamPokemonIndices, this.state.selectedTargetIndices);
       }

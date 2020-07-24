@@ -3,7 +3,7 @@ import StrengthTableRow from "./StrengthTableRow";
 
 type StrengthTable = {
   columns: StrengthTableColumn[],
-  rows: StrengthTableRow
+  rows: StrengthTableRow[]
 }
 
 export default StrengthTable;
