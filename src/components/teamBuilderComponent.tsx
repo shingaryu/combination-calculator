@@ -22,7 +22,7 @@ type TeamBuilderComponentProps = {
 
 type TeamBuilderComponentState = {
   loading: boolean,
-  teamPokemonIndices: number[],
+  teamPokemons: PokemonStrategy[],
   searchSettings: SearchSettings,
   strVectorColumns: string[],
   selectedTargetIndices: number[],
@@ -37,7 +37,7 @@ export class TeamBuilderComponent extends React.Component<TeamBuilderComponentPr
     this.combinationService = new CombinationService();
     this.state = { 
       loading: true,
-      teamPokemonIndices: [18, 11, 23, 25, 2, 21], // default in teamComponent
+      teamPokemons: [],
       searchSettings: { evaluationMethod: 0 },
       strVectorColumns: [],
       selectedTargetIndices: [0,1,2,3,4,7,8,9,10,11,13,14,15,16,17,20,21,22,25,26,27,31,32,33,34,37,39,40,42,43,44,45,47,48,49,51,52,53,54,56,57,58,59,60,61],
@@ -51,7 +51,8 @@ export class TeamBuilderComponent extends React.Component<TeamBuilderComponentPr
       const pokemonStrategies = returns[1].data;
       const targetPokemonNames = this.combinationService.getAllTargetPokemonNames();
       this.setState({ 
-        loading: false, 
+        loading: false,
+        teamPokemons: [pokemonStrategies[18], pokemonStrategies[11], pokemonStrategies[23], pokemonStrategies[25], pokemonStrategies[2], pokemonStrategies[21]],
         strVectorColumns: targetPokemonNames,
         teamPokemonList: pokemonStrategies,
       });      
@@ -64,8 +65,8 @@ export class TeamBuilderComponent extends React.Component<TeamBuilderComponentPr
 
   static contextType = I18nContext;
 
-  onChangeTeamPokemons(indices: number[]) {
-    this.setState({ teamPokemonIndices: indices });
+  onChangeTeamPokemons(pokemons: PokemonStrategy[]) {
+    this.setState({ teamPokemons: pokemons });
   }
 
   onSearchSettingsChange(settings: SearchSettings) {
@@ -129,6 +130,21 @@ export class TeamBuilderComponent extends React.Component<TeamBuilderComponentPr
     return originals;
   }
 
+  toTeamPokemonIndices(pokemons: PokemonStrategy[]) {
+    const indices = pokemons.map(ps => this.state.teamPokemonList.findIndex(pl => ps.id === pl.id));
+    indices.sort((a, b) => {
+      if (a < b) {
+        return -1;
+      } else if (b < a) {
+        return 1;
+      } else {
+        return 0;
+      }
+    });
+
+    return indices;
+  }
+
   render() {
     const t = this.context.i18n.t.bind(this.context.i18n);
 
@@ -144,7 +160,7 @@ export class TeamBuilderComponent extends React.Component<TeamBuilderComponentPr
         .filter((x, i) => this.state.selectedTargetIndices.indexOf(originalIndices[i]) >= 0)
         .map(x => translateSpeciesIfPossible(x, t));
 
-      let teamStrengthValues = this.combinationService.strValuesOfTeam(this.state.teamPokemonIndices, this.state.selectedTargetIndices);
+      let teamStrengthValues = this.combinationService.strValuesOfTeam(this.toTeamPokemonIndices(this.state.teamPokemons), this.state.selectedTargetIndices);
       teamStrengthValues = origIndAfterTargetFilter.map(i => teamStrengthValues[i]);
       const graphDatasets = [
         {
@@ -156,14 +172,14 @@ export class TeamBuilderComponent extends React.Component<TeamBuilderComponentPr
 
       let results: SearchResult[] = [];
       if (this.state.searchSettings.evaluationMethod === 0) {
-        results = this.combinationService.calcTargetStrengthsComplement(this.state.teamPokemonIndices, this.state.selectedTargetIndices, ['Sweeper', 'Tank', 'Wall']);
+        results = this.combinationService.calcTargetStrengthsComplement(this.toTeamPokemonIndices(this.state.teamPokemons), this.state.selectedTargetIndices, ['Sweeper', 'Tank', 'Wall']);
       } else if (this.state.searchSettings.evaluationMethod === 1) {
-        results = this.combinationService.calcWeakestPointImmunity(this.state.teamPokemonIndices, this.state.selectedTargetIndices);
+        results = this.combinationService.calcWeakestPointImmunity(this.toTeamPokemonIndices(this.state.teamPokemons), this.state.selectedTargetIndices);
       } else if (this.state.searchSettings.evaluationMethod === 2 && this.state.searchSettings.targets) {
-        results = this.combinationService.calcImmunityToCustomTargets(this.state.teamPokemonIndices, this.state.selectedTargetIndices, 
+        results = this.combinationService.calcImmunityToCustomTargets(this.toTeamPokemonIndices(this.state.teamPokemons), this.state.selectedTargetIndices, 
           this.state.searchSettings.targets.filter(idStr => idStr));
       } else if (this.state.searchSettings.evaluationMethod === 3) {
-        results = this.combinationService.calcOverallMinus(this.state.teamPokemonIndices, this.state.selectedTargetIndices);
+        results = this.combinationService.calcOverallMinus(this.toTeamPokemonIndices(this.state.teamPokemons), this.state.selectedTargetIndices);
       }
 
       const sortedTargetNames = originalIndices.map(i => this.state.strVectorColumns[i]);
@@ -186,7 +202,7 @@ export class TeamBuilderComponent extends React.Component<TeamBuilderComponentPr
             </Row>
             <Row className="mt-3">
               <Col>
-                <TeamComponent num={6} pokemonList={sortedPokemonList} onChange={(indices: number[]) => this.onChangeTeamPokemons(this.toOriginalIndices(indices, originalIndices))}></TeamComponent>
+                <TeamComponent num={6} pokemonList={sortedPokemonList} onChange={(pokemons: PokemonStrategy[]) => this.onChangeTeamPokemons(pokemons)}></TeamComponent>
               </Col>
             </Row>
             <Row>
@@ -204,7 +220,7 @@ export class TeamBuilderComponent extends React.Component<TeamBuilderComponentPr
                   </Tab>
                   <Tab eventKey="battle-team" title="Battle Team">
                     <BattleTeamComponent sortedPokemonList={sortedPokemonList} toOriginalIndices={(indices: number[]) => this.toOriginalIndices(indices, originalIndices)} 
-                      combinationService={this.combinationService} teamPokemonIndices={this.state.teamPokemonIndices} />
+                      combinationService={this.combinationService} teamPokemonIndices={this.toTeamPokemonIndices(this.state.teamPokemons)} />
                   </Tab>
                 </Tabs>    
               </Col>
