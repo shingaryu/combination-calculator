@@ -5,7 +5,16 @@ import MediaQuery from "react-responsive";
 import { useTranslation } from 'react-i18next';
 import './graphComponent.css'
 
-export const GraphComponent = (props) => {
+type GraphComponentProps = {
+  labels: string[],
+  datasets: {
+    dataLabel: string;
+    values: number[];
+    colorRGB: number[];
+  }[]
+}
+
+export const GraphComponent: React.FunctionComponent<GraphComponentProps> = (props) => {
   const labels = props.labels;
   const datasets = props.datasets;
   const { t } = useTranslation();
