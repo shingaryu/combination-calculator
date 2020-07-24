@@ -3,31 +3,48 @@ import { Container, Row, Col, InputGroup, FormControl, Table } from 'react-boots
 import { I18nContext } from 'react-i18next';
 import { translateSpeciesIfPossible } from '../services/stringSanitizer';
 import { TeamComponent } from './TeamComponent';
+import PokemonStrategy from '../models/PokemonStrategy';
+import { CombinationService } from '../services/combination-service';
 
-export class BattleTeamComponent extends React.Component {
-  constructor(props) {
+type BattleTeamComponentProps = {
+  sortedPokemonList: PokemonStrategy[],
+  combinationService: CombinationService,
+  toTeamPokemonIndices: (pokemons: PokemonStrategy[]) => number[]
+}
+
+type BattleTeamComponentState = {
+  myTeam: PokemonStrategy[],
+  oppTeam: PokemonStrategy[]
+}
+
+export class BattleTeamComponent extends React.Component<BattleTeamComponentProps, BattleTeamComponentState> {
+  constructor(props: BattleTeamComponentProps) {
     super(props);
 
+    const pokeList = this.props.sortedPokemonList;
+
     this.state = { 
-      myPokemonIndices: this.props.teamPokemonIndices,
-      oppPokemonIndices: [18, 11, 23, 25, 2, 21]
+      myTeam: [pokeList[0], pokeList[49], pokeList[33], pokeList[12], pokeList[43], pokeList[39]],
+      oppTeam: [pokeList[0], pokeList[49], pokeList[33], pokeList[12], pokeList[43], pokeList[39]],
     };
   }
 
   static contextType = I18nContext;
 
-  onChangeMyPokemons(indices) {
-    this.setState({ myPokemonIndices: indices });
+  onChangeMyPokemons(pokemons: PokemonStrategy[]) {
+    this.setState({ myTeam: pokemons });
   }
 
-  onChangeOppPokemons(indices) {
-    console.log('onchangeopppokemon')
-    this.setState({ oppPokemonIndices: indices.map(x => parseInt(x)) });
+  onChangeOppPokemons(pokemons: PokemonStrategy[]) {
+    this.setState({ oppTeam: pokemons });
   }
 
   render() {
     const t = this.context.i18n.t.bind(this.context.i18n);
-    const results = this.props.combinationService.calcTeamCombinationsOnWeakest(this.state.myPokemonIndices, this.state.oppPokemonIndices);
+    const myTeamIndices = this.props.toTeamPokemonIndices(this.state.myTeam);
+    const oppTeamIndices = this.props.toTeamPokemonIndices(this.state.oppTeam);
+
+    const results = this.props.combinationService.calcTeamCombinationsOnWeakest(myTeamIndices, oppTeamIndices);
 
     return (
     <>
@@ -35,11 +52,11 @@ export class BattleTeamComponent extends React.Component {
         <Row>
           <Col>
             <h4>My Team</h4>
-            <TeamComponent num={6} pokemonList={this.props.sortedPokemonList} onChange={(indices) => this.onChangeMyPokemons(this.props.toOriginalIndices(indices))}></TeamComponent>
+            <TeamComponent num={6} pokemonList={this.props.sortedPokemonList} onChange={(pokemons) => this.onChangeMyPokemons(pokemons)}></TeamComponent>
           </Col>
           <Col>
             <h4>Opponent's Team</h4>
-            <TeamComponent num={6} pokemonList={this.props.sortedPokemonList} onChange={(indices) => this.onChangeOppPokemons(this.props.toOriginalIndices(indices))}></TeamComponent>
+            <TeamComponent num={6} pokemonList={this.props.sortedPokemonList} onChange={(pokemons) => this.onChangeOppPokemons(pokemons)}></TeamComponent>
           </Col>
         </Row>
         <Row>
