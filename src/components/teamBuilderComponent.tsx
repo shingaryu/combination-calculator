@@ -219,7 +219,7 @@ export class TeamBuilderComponent extends React.Component<TeamBuilderComponentPr
                     <TargetSelectComponent allTargetNames={sortedTargetNames} onChange={(indices: number[]) => this.onChangeSelectedTargetIndices(this.toOriginalIndices(indices, originalIndices))} />
                   </Tab>
                   <Tab eventKey="battle-team" title="Battle Team">
-                    <BattleTeamComponent sortedPokemonList={sortedPokemonList} combinationService={this.combinationService} 
+                    <BattleTeamComponent rawPokemonList={this.state.teamPokemonList} sortedPokemonList={sortedPokemonList} combinationService={this.combinationService} 
                       toTeamPokemonIndices={(pokemons: PokemonStrategy[]) => this.toTeamPokemonIndices(pokemons)} />
                   </Tab>
                 </Tabs>    

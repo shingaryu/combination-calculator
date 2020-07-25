@@ -329,6 +329,40 @@ export class CombinationService {
     return results;
   }
 
+  calcTeamCombinationsOnMaximumWeakest(teamPokemonIndices: number[], opponentPokemonIndices: number[]) {
+    const battleTeamIndices = [];
+    for (let i = 0; i < teamPokemonIndices.length; i++) {
+      for (let j = i + 1; j < teamPokemonIndices.length; j++) {
+        for (let k = j + 1; k < teamPokemonIndices.length; k++) {
+          const ind = teamPokemonIndices;
+          battleTeamIndices.push([ind[i], ind[j], ind[k]]);
+        }
+      }
+    }
+
+    const results: SearchResult[] = [];
+    battleTeamIndices.forEach(indices => {
+      const maximums = this.strValuesOfTeamOnMaximum(indices, opponentPokemonIndices);
+      const strValues = maximums.map(x => x.value);
+      const minimumValue = Math.min(...strValues);
+      const minimumValueIndex = strValues.findIndex(x => x === minimumValue);
+      const oppPokeOriginalIndex = opponentPokemonIndices[minimumValueIndex];
+      results.push({
+        pokemonIds: indices.map(x => x.toString()),
+        pokemonNames: indices.map(i => this.strengthRows[i].name),
+        strValues: strValues,
+        value: minimumValue,
+        minimumValueTargetId: this.targetPokeIds[oppPokeOriginalIndex],
+        minimumValueTargetName: this.targetPokeNames[oppPokeOriginalIndex],
+        eachMaximums: maximums
+      })
+    });
+
+    results.sort((a, b) => b.value - a.value); // higher values come first
+
+    return results;
+  }
+
   strValuesOfTeam(teamPokemonIndices: number[], selectedTargetIndices: number[]) {
     // is it needed to remove duplications about team members?
 
@@ -353,6 +387,43 @@ export class CombinationService {
     const combinedVector = this.addVectors(...pokemonVectors);
 
     return combinedVector;
+  }
+
+  strValuesOfTeamOnMaximum(teamPokemonIndices: number[], selectedTargetIndices: number[]):
+    { to: number, from: number, value: number}[] {
+    // is it needed to remove duplications about team members?
+
+    // if (!teamPokemonIndices || teamPokemonIndices.length === 0) {
+    //   const allZero = [];
+    //   for (let i = 0; i < selectedTargetIndices.length; i++) {
+    //     allZero.push(0);
+    //   }
+    //   return allZero;
+    // }
+
+    const pokemonVectors = teamPokemonIndices.map(pokeIndex => {
+      if (!(0 <= pokeIndex && pokeIndex <= this.strengthRows.length - 1)) {
+        throw new Error ('Error: pokemon index is out of the range');
+      }
+
+      const row = this.strengthRows[pokeIndex];
+      const filteredVector = row.vector.filter((x, i) => selectedTargetIndices.indexOf(i) >= 0);
+      return filteredVector;
+    });
+
+    const maximums = [];
+    for (let i = 0; i < selectedTargetIndices.length; i++) {
+      const valuesToThisTarget = [];
+      for (let j = 0; j < teamPokemonIndices.length; j++) {
+        valuesToThisTarget.push(pokemonVectors[j][i]);
+      }
+      
+      const maximumValue = Math.max(...valuesToThisTarget);
+      const maximumIndex = valuesToThisTarget.findIndex(x => x === maximumValue);
+      maximums.push({ to: selectedTargetIndices[i], from: teamPokemonIndices[maximumIndex], value: maximumValue});
+    }
+
+    return maximums;
   }
 
   calcTargetStrengthsComplement(teamPokemonIndices: number[], selectedTargetIndices: number[], compatibleStrTypes: string[]) {

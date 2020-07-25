@@ -1,5 +1,5 @@
 import React from 'react';
-import { Container, Row, Col, InputGroup, FormControl, Table } from 'react-bootstrap'
+import { Container, Row, Col, InputGroup, FormControl, Table, Tabs, Tab } from 'react-bootstrap'
 import { I18nContext } from 'react-i18next';
 import { translateSpeciesIfPossible } from '../services/stringSanitizer';
 import { TeamComponent } from './TeamComponent';
@@ -8,6 +8,7 @@ import { CombinationService } from '../services/combination-service';
 import { GraphComponent } from './graphComponent';
 
 type BattleTeamComponentProps = {
+  rawPokemonList: PokemonStrategy[],
   sortedPokemonList: PokemonStrategy[],
   combinationService: CombinationService,
   toTeamPokemonIndices: (pokemons: PokemonStrategy[]) => number[]
@@ -56,8 +57,6 @@ export class BattleTeamComponent extends React.Component<BattleTeamComponentProp
       }
     });
 
-    const results = this.props.combinationService.calcTeamCombinationsOnWeakest(myTeamIndices, oppTeamIndices);
-
     const graphLabels = this.state.oppTeam.map(x => translateSpeciesIfPossible(x.species, t));
 
     const graphDataSets = this.state.myTeam.map((myPoke, i) => {
@@ -91,6 +90,9 @@ export class BattleTeamComponent extends React.Component<BattleTeamComponentProp
       }
     }
 
+    const resultsAM = this.props.combinationService.calcTeamCombinationsOnWeakest(myTeamIndices, oppTeamIndices);
+    const resultsMM = this.props.combinationService.calcTeamCombinationsOnMaximumWeakest(myTeamIndices, oppTeamIndices);
+
     return (
     <>
       <Container fluid className="mt-3">
@@ -112,30 +114,71 @@ export class BattleTeamComponent extends React.Component<BattleTeamComponentProp
         </Row>
         <Row>
           <Col>
-            <h4>Selection</h4>
-            <Table striped bordered hover size="sm">
-              <thead>
-                <tr>
-                  <th key='h-i'>{t('search.columnRank')}</th>
-                  {results.length===0?
-                    <th key={`h-p0`}>Pokemon</th>:
-                    results[0].pokemonIds.map((x, i) => <th key={`h-p${i}`}>{t('search.columnPokemon')}</th>)
-                  }
-                  <th key='h-v'>Min. Value</th>
-                  <th key='h-t'>On Target</th>
-                </tr>
-              </thead>
-              <tbody>
-                {results.map((result, index) => (
-                  <tr key={index}>
-                    <td key={`${index}-i`}>{index + 1}</td>
-                    {result.pokemonNames.map((x, i) => <td key={`${index}-p${i}`}>{translateSpeciesIfPossible(x, t)}</td>)}
-                    <td key={`${index}-v`}>{result.value.toFixed(4)}</td>
-                    <td key={`${index}-v`}>{translateSpeciesIfPossible(result.minimumValueTargetName, t)}</td>
-                  </tr>                
-                ))}
-              </tbody>
-            </Table> 
+          <Tabs id="method-tabs" defaultActiveKey="maximum-minimum" className="mt-3">
+            <Tab eventKey="average-minimum" title="Average Minimum">
+              <h4 className="mt-3">Selections (Method: Average Minimum)</h4>
+              <Table striped bordered hover size="sm">
+                <thead>
+                  <tr>
+                    <th key='h-i'>{t('search.columnRank')}</th>
+                    {resultsAM.length===0?
+                      <th key={`h-p0`}>Pokemon</th>:
+                      resultsAM[0].pokemonIds.map((x, i) => <th key={`h-p${i}`}>{t('search.columnPokemon')}</th>)
+                    }
+                    <th key='h-v'>Min. Value</th>
+                    <th key='h-t'>On Target</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {resultsAM.map((result, index) => (
+                    <tr key={index}>
+                      <td key={`${index}-i`}>{index + 1}</td>
+                      {result.pokemonNames.map((x, i) => <td key={`${index}-p${i}`}>{translateSpeciesIfPossible(x, t)}</td>)}
+                      <td key={`${index}-v`}>{result.value.toFixed(4)}</td>
+                      <td key={`${index}-v`}>{translateSpeciesIfPossible(result.minimumValueTargetName, t)}</td>
+                    </tr>                
+                  ))}
+                </tbody>
+              </Table> 
+            </Tab>
+            <Tab eventKey="maximum-minimum" title="Maximum Minimum">
+              <h4 className="mt-3">Selections (Method: Maximum Minimum)</h4>
+              <Table striped bordered hover size="sm">
+                <thead>
+                  <tr>
+                    <th key='h-i'>{t('search.columnRank')}</th>
+                    {resultsMM.length===0?
+                      <th key={`h-p0`}>Pokemon</th>:
+                      resultsMM[0].pokemonIds.map((x, i) => <th key={`h-p${i}`}>{t('search.columnPokemon')}</th>)
+                    }
+                    <th key='h-v'>Min. Value</th>
+                    <th key='h-t'>On Target</th>
+                    <th key='h-d'>Details</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {resultsMM.map((result, index) => (
+                    <tr key={index}>
+                      <td key={`${index}-i`}>{index + 1}</td>
+                      {result.pokemonNames.map((x, i) => <td key={`${index}-p${i}`}>{translateSpeciesIfPossible(x, t)}</td>)}
+                      <td key={`${index}-v`}>{result.value.toFixed(4)}</td>
+                      <td key={`${index}-v`}>{translateSpeciesIfPossible(result.minimumValueTargetName, t)}</td>
+                      <td>
+                        {result.eachMaximums?.map(maximum => {
+                          const toTarget = this.props.rawPokemonList[maximum.to];
+                          const fromPokemon = this.props.rawPokemonList[maximum.from];
+                          const valueInt = Math.round(maximum.value);
+                          return (
+                            <div>{`To: ${translateSpeciesIfPossible(toTarget.species, t)} From: ${translateSpeciesIfPossible(fromPokemon.species, t)} Value: ${valueInt}`}</div>
+                          );
+                        })}
+                      </td>
+                    </tr>                
+                  ))}
+                </tbody>
+              </Table> 
+            </Tab>
+          </Tabs>
           </Col>
         </Row>
       </Container>
