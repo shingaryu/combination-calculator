@@ -347,6 +347,13 @@ export class CombinationService {
       const minimumValue = Math.min(...strValues);
       const minimumValueIndex = strValues.findIndex(x => x === minimumValue);
       const oppPokeOriginalIndex = opponentPokemonIndices[minimumValueIndex];
+      const overused = this.DetectOverused(maximums);
+      let overusedMinimum = 0;
+      overused.forEach(o => {
+        if (o.total < overusedMinimum) {
+          overusedMinimum = o.total;
+        }
+      });
       results.push({
         pokemonIds: indices.map(x => x.toString()),
         pokemonNames: indices.map(i => this.strengthRows[i].name),
@@ -354,13 +361,54 @@ export class CombinationService {
         value: minimumValue,
         minimumValueTargetId: this.targetPokeIds[oppPokeOriginalIndex],
         minimumValueTargetName: this.targetPokeNames[oppPokeOriginalIndex],
-        eachMaximums: maximums
+        eachMaximums: maximums,
+        overused: overused,
+        overusedMinimum: overusedMinimum
       })
     });
 
-    results.sort((a, b) => b.value - a.value); // higher values come first
+    results.sort((a, b) => {
+      if (b.value < a.value) {
+        return -1;
+      } else if (a.value < b.value) {
+        return 1;
+      } else {
+        if (!a.overusedMinimum || !b.overusedMinimum) {
+          return 0;
+        } else {
+          return b.overusedMinimum - a.overusedMinimum;
+        }
+      }
+
+    }); // higher values come first
 
     return results;
+  }
+
+  DetectOverused(maximums: { to: number, from: number, value: number}[] ) {
+    const remainingHpArray: Map<number, number> = new Map();
+    for (let i = 0; i < maximums.length; i++) {
+      const maxi = maximums[i];
+      if (remainingHpArray.get(maxi.from) === undefined) {
+        remainingHpArray.set(maxi.from, 1024);
+      }
+
+      let currentHp = remainingHpArray.get(maxi.from);
+      if (currentHp === undefined) {
+        currentHp = 1024;
+      }
+      const updatedHp = currentHp - (1024 - maxi.value);
+      remainingHpArray.set(maxi.from, updatedHp);
+    }
+
+    const overused: any[] = [];
+    remainingHpArray.forEach((value, key) => {
+      if (value < 0) {
+        overused.push({from: key, total: value});
+      }
+    });
+
+    return overused;
   }
 
   strValuesOfTeam(teamPokemonIndices: number[], selectedTargetIndices: number[]) {

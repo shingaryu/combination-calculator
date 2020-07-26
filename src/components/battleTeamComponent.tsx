@@ -154,6 +154,7 @@ export class BattleTeamComponent extends React.Component<BattleTeamComponentProp
                     <th key='h-v'>Min. Value</th>
                     <th key='h-t'>On Target</th>
                     <th key='h-d'>Details</th>
+                    <th key='h-o'>Overused</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -170,6 +171,15 @@ export class BattleTeamComponent extends React.Component<BattleTeamComponentProp
                           const valueInt = Math.round(maximum.value);
                           return (
                             <div>{`To: ${translateSpeciesIfPossible(toTarget.species, t)} From: ${translateSpeciesIfPossible(fromPokemon.species, t)} Value: ${valueInt}`}</div>
+                          );
+                        })}
+                      </td>
+                      <td>
+                        {result.overused.map((info: any) => {
+                          const fromPokemon = this.props.rawPokemonList[info.from];
+                          const valueInt = Math.round(info.total);
+                          return (
+                            <div>{`${translateSpeciesIfPossible(fromPokemon.species, t)}: ${valueInt}`}</div>
                           );
                         })}
                       </td>
