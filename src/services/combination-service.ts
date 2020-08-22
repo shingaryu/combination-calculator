@@ -8,8 +8,8 @@ const strategiesUrl = require('../assets/strategies.csv');
 
 type StrengthRow = {
   index: number,
-  id: string,
-  name: string,
+  strategyId: string,
+  species: string,
   originalVector: number[],
   vector: number[],
   strategyType?: string,
@@ -92,8 +92,8 @@ export class CombinationService {
 
       const strengthRow: StrengthRow = {
         index: index++,
-        id: row.strategyId,
-        name: row.species,
+        strategyId: row.strategyId,
+        species: row.species,
         originalVector: values,
         vector: values
       };
@@ -132,7 +132,7 @@ export class CombinationService {
   
       const row = strengthRows[index];
   
-      if (row.name !== name) {
+      if (row.species !== name) {
         throw new Error(`error: species name ${name} is not match with the row [${index}] of the strength table`);
       }
   
@@ -154,7 +154,7 @@ export class CombinationService {
   
     strengthRows.forEach(x => {
       if (!x.strategyType) {
-        throw new Error(`error: strategy type of pokemon ${x.name} is not set`);
+        throw new Error(`error: strategy type of pokemon ${x.species} is not set`);
       }
     });
   }
@@ -290,7 +290,7 @@ export class CombinationService {
     // we can get all team (candidate) pokemon names also from the strategy info
     // which is better?
 
-    return this.strengthRows.map(row => row.name);
+    return this.strengthRows.map(row => row.species);
   }
 
   getAllTargetPokemonNames() {
@@ -316,7 +316,7 @@ export class CombinationService {
       const oppPokeOriginalIndex = opponentPokemonIndices[minimumValueIndex];
       results.push({
         pokemonIds: indices.map(x => x.toString()),
-        pokemonNames: indices.map(i => this.strengthRows[i].name),
+        pokemonNames: indices.map(i => this.strengthRows[i].species),
         strValues: strValues,
         value: minimumValue,
         minimumValueTargetId: this.targetPokeIds[oppPokeOriginalIndex],
@@ -356,7 +356,7 @@ export class CombinationService {
       });
       results.push({
         pokemonIds: indices.map(x => x.toString()),
-        pokemonNames: indices.map(i => this.strengthRows[i].name),
+        pokemonNames: indices.map(i => this.strengthRows[i].species),
         strValues: strValues,
         value: minimumValue,
         minimumValueTargetId: this.targetPokeIds[oppPokeOriginalIndex],
@@ -489,7 +489,7 @@ export class CombinationService {
       const filteredVector = row.vector.filter((x, i) => selectedTargetIndices.indexOf(i) >= 0);
       results.push({
         pokemonIds: [ row.index.toString() ],
-        pokemonNames: [ row.name ],
+        pokemonNames: [ row.species ],
         value: -1 * this.cosineSimilarity(combinedVector, filteredVector) // smaller cosine similarities have bigger complements
       })
     });
@@ -515,7 +515,7 @@ export class CombinationService {
       const filteredVector = row.vector.filter((x, i) => selectedTargetIndices.indexOf(i) >= 0);
       results.push({
         pokemonIds: [ row.index.toString() ],
-        pokemonNames: [ row.name ],
+        pokemonNames: [ row.species ],
         value: filteredVector[weakestSpot],
         targetPokemonName: this.targetPokeNames[selectedTargetIndices[weakestSpot]] // temporary
       })
@@ -551,7 +551,7 @@ export class CombinationService {
 
       results.push({
         pokemonIds: [ row.index.toString() ],
-        pokemonNames: [ row.name ],
+        pokemonNames: [ row.species ],
         value: sum,
       })
     });
@@ -578,7 +578,7 @@ export class CombinationService {
 
       results.push({
         pokemonIds: [ row.index.toString() ],
-        pokemonNames: [ row.name ],
+        pokemonNames: [ row.species ],
         value: minusSum,
       })
     });
