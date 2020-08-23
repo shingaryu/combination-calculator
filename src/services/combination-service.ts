@@ -1,11 +1,11 @@
 // import strategiesUrl from '../assets/strategies.csv';
 // import usageUrl from '../assets/usage.csv';
-import axios from 'axios';
+// import axios from 'axios';
 import { getStrengthVectorsByStrategies } from '../api/strengthVectorsApi';
 import StrengthTable from '../models/StrengthTable';
 import SearchResult from '../models/searchResult';
 import PokemonStrategy from '../models/PokemonStrategy';
-const strategiesUrl = require('../assets/strategies.csv');
+// const strategiesUrl = require('../assets/strategies.csv');
 
 type StrengthRow = {
   index: number,
@@ -48,7 +48,7 @@ export class CombinationService {
 
     const loadStrategiesPromise = new Promise(async (resolve, reject) => {
       try {
-        const strategiesTextRes = await axios.get(strategiesUrl);
+        // const strategiesTextRes = await axios.get(strategiesUrl);
         // this.loadStrategyInfoToStrTable(strategiesTextRes.data, this.strengthRows);
         // console.log(`strategy information was successfully loaded`);
         resolve();

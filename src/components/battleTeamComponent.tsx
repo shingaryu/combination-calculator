@@ -1,5 +1,5 @@
 import React from 'react';
-import { Container, Row, Col, InputGroup, FormControl, Table, Tabs, Tab } from 'react-bootstrap'
+import { Container, Row, Col, Table, Tabs, Tab } from 'react-bootstrap'
 import { I18nContext } from 'react-i18next';
 import { translateSpeciesIfPossible } from '../services/stringSanitizer';
 import { TeamComponent } from './TeamComponent';

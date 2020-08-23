@@ -14,9 +14,6 @@ type SearchResultComponentState = {
 }
 
 export class SearchResultComponent extends React.Component<SearchResultComponentProps, SearchResultComponentState> {
-  constructor(props: SearchResultComponentProps) {
-    super(props);
-  }
 
   static contextType = I18nContext;
 
