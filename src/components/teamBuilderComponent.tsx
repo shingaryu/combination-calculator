@@ -68,6 +68,8 @@ export class TeamBuilderComponent extends React.Component<TeamBuilderComponentPr
   static contextType = I18nContext;
 
   onChangeTeamPokemons(pokemons: PokemonStrategy[]) {
+    console.log('Team selection changed');
+    console.log(pokemons.map(x => x.id));
     this.setState({ teamPokemons: pokemons });
   }
 
@@ -76,6 +78,8 @@ export class TeamBuilderComponent extends React.Component<TeamBuilderComponentPr
   }
 
   onChangeSelectedTargets(pokemons: PokemonStrategy[]) {
+    console.log('Target selection changed');
+    console.log(pokemons.map(x => x.id));
     this.setState({ selectedTargets: pokemons });
   }
 
