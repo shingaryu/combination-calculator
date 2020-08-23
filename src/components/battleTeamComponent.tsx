@@ -135,7 +135,7 @@ export class BattleTeamComponent extends React.Component<BattleTeamComponentProp
                       <td key={`${index}-i`}>{index + 1}</td>
                       {result.pokemonNames.map((x, i) => <td key={`${index}-p${i}`}>{translateSpeciesIfPossible(x, t)}</td>)}
                       <td key={`${index}-v`}>{result.value.toFixed(4)}</td>
-                      <td key={`${index}-v`}>{translateSpeciesIfPossible(result.minimumValueTargetName ?? '', t)}</td>
+                      <td key={`${index}-tn`}>{translateSpeciesIfPossible(result.minimumValueTargetName ?? '', t)}</td>
                     </tr>                
                   ))}
                 </tbody>
@@ -163,23 +163,23 @@ export class BattleTeamComponent extends React.Component<BattleTeamComponentProp
                       <td key={`${index}-i`}>{index + 1}</td>
                       {result.pokemonNames.map((x, i) => <td key={`${index}-p${i}`}>{translateSpeciesIfPossible(x, t)}</td>)}
                       <td key={`${index}-v`}>{result.value.toFixed(4)}</td>
-                      <td key={`${index}-v`}>{translateSpeciesIfPossible(result.minimumValueTargetName ?? '', t)}</td>
+                      <td key={`${index}-tn`}>{translateSpeciesIfPossible(result.minimumValueTargetName ?? '', t)}</td>
                       <td>
-                        {result.eachMaximums?.map(maximum => {
+                        {result.eachMaximums?.map((maximum, index) => {
                           const toTarget = this.props.rawPokemonList[maximum.to];
                           const fromPokemon = this.props.rawPokemonList[maximum.from];
                           const valueInt = Math.round(maximum.value);
                           return (
-                            <div>{`To: ${translateSpeciesIfPossible(toTarget.species, t)} From: ${translateSpeciesIfPossible(fromPokemon.species, t)} Value: ${valueInt}`}</div>
+                            <div key={`em-${index}`}>{`To: ${translateSpeciesIfPossible(toTarget.species, t)} From: ${translateSpeciesIfPossible(fromPokemon.species, t)} Value: ${valueInt}`}</div>
                           );
                         })}
                       </td>
                       <td>
-                        {result.overused.map((info: any) => {
+                        {result.overused.map((info: any, index: number) => {
                           const fromPokemon = this.props.rawPokemonList[info.from];
                           const valueInt = Math.round(info.total);
                           return (
-                            <div>{`${translateSpeciesIfPossible(fromPokemon.species, t)}: ${valueInt}`}</div>
+                            <div key={`ou-${index}`}>{`${translateSpeciesIfPossible(fromPokemon.species, t)}: ${valueInt}`}</div>
                           );
                         })}
                       </td>
