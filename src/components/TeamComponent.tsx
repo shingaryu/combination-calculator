@@ -4,6 +4,7 @@ import './teamComponent.css'
 import { I18nContext } from 'react-i18next';
 import { translateSpeciesIfPossible } from '../services/stringSanitizer';
 import PokemonStrategy from '../models/PokemonStrategy';
+import { defaultTeam } from '../defaultList';
 
 type TeamComponentProps = {
   num: number,
@@ -26,11 +27,11 @@ export class TeamComponent extends React.Component<TeamComponentProps, TeamCompo
       throw new Error ('Error: team length must be more than 0');
     }
 
+    const defaultTeamPokemons = defaultTeam(this.props.pokemonList);
     const pokemonSlots = [];
-    const defaultTeamIndices = [0, 49, 33, 12, 43, 39];
     for (let i = 0; i < this.props.num; i++) {
       pokemonSlots[i] = {
-        poke: this.props.pokemonList[defaultTeamIndices[i]],
+        poke: defaultTeamPokemons[i],
         enabled: true
       }
     }

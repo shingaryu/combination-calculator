@@ -4,6 +4,7 @@ import axios from 'axios';
 import { getStrengthVectorsByStrategies } from '../api/strengthVectorsApi';
 import StrengthTable from '../models/StrengthTable';
 import SearchResult from '../models/searchResult';
+import PokemonStrategy from '../models/PokemonStrategy';
 const strategiesUrl = require('../assets/strategies.csv');
 
 type StrengthRow = {
@@ -411,6 +412,44 @@ export class CombinationService {
     return overused;
   }
 
+  filterAndSortStrVectorByTargets(vector: number[], targets: PokemonStrategy[]) {
+    const newVector = targets.map(tar => {
+      const columnIndex = this.targetPokeIds.findIndex(x => x === tar.id);
+      if (columnIndex === -1) {
+        throw new Error('Error: Target pokemon not found');
+      }
+
+      return vector[columnIndex];
+    });
+
+    return newVector;
+  }
+
+  strValuesOfTeamStrategies(teamPokemons: PokemonStrategy[], selectedTargets: PokemonStrategy[]) {
+    if (!teamPokemons || teamPokemons.length === 0) {
+      const allZero = [];
+      for (let i = 0; i < selectedTargets.length; i++) {
+        allZero.push(0);
+      }
+      return allZero;
+    }
+
+    const pokemonVectors = teamPokemons.map(pokeStrategy => {
+      const row = this.strengthRows.find(x => x.strategyId === pokeStrategy.id);
+      if (!row) {
+        throw new Error('Error: team pokemon does not exist in strength rows');
+      }
+
+      const filteredVector = this.filterAndSortStrVectorByTargets(row.vector, selectedTargets);
+      
+      return filteredVector;
+    });
+    
+    const combinedVector = this.addVectors(...pokemonVectors);
+
+    return combinedVector;
+  }
+
   strValuesOfTeam(teamPokemonIndices: number[], selectedTargetIndices: number[]) {
     // is it needed to remove duplications about team members?
 
@@ -474,19 +513,18 @@ export class CombinationService {
     return maximums;
   }
 
-  calcTargetStrengthsComplement(teamPokemonIndices: number[], selectedTargetIndices: number[], compatibleStrTypes: string[]) {
-    if (!teamPokemonIndices || teamPokemonIndices.length === 0) {
+  calcTargetStrengthsComplement(teamPokemons: PokemonStrategy[], selectedTargets: PokemonStrategy[], compatibleStrTypes: string[]) {
+    if (!teamPokemons || teamPokemons.length === 0) {
       return [];
     }
 
-    const combinedVector = this.strValuesOfTeam(teamPokemonIndices, selectedTargetIndices);
+    const combinedVector = this.strValuesOfTeamStrategies(teamPokemons, selectedTargets);
 
-    let targetStrengthRows = this.strengthRows.filter(x => teamPokemonIndices.indexOf(x.index) < 0);
-    // targetStrengthRows = this.filterStrengthRows(compatibleStrTypes, targetStrengthRows);
+    let targetStrengthRows = this.strengthRows.filter(x => !teamPokemons.find(y => y.id === x.strategyId));
 
     const results: SearchResult[] = [];
     targetStrengthRows.forEach(row => {
-      const filteredVector = row.vector.filter((x, i) => selectedTargetIndices.indexOf(i) >= 0);
+      const filteredVector = this.filterAndSortStrVectorByTargets(row.vector, selectedTargets);
       results.push({
         pokemonIds: [ row.index.toString() ],
         pokemonNames: [ row.species ],
@@ -499,25 +537,25 @@ export class CombinationService {
     return results;
   }
 
-  calcWeakestPointImmunity(teamPokemonIndices: number[], selectedTargetIndices: number[]) {
-    if (!teamPokemonIndices || teamPokemonIndices.length === 0) {
+  calcWeakestPointImmunity(teamPokemons: PokemonStrategy[], selectedTargets: PokemonStrategy[]) {
+    if (!teamPokemons || teamPokemons.length === 0) {
       return [];
     }
 
-    const combinedVector = this.strValuesOfTeam(teamPokemonIndices, selectedTargetIndices);
-    let targetStrengthRows = this.strengthRows.filter(x => teamPokemonIndices.indexOf(x.index) < 0);
+    const combinedVector = this.strValuesOfTeamStrategies(teamPokemons, selectedTargets);
+    let targetStrengthRows = this.strengthRows.filter(x => !teamPokemons.find(y => y.id === x.strategyId));
 
     const weakestSpot = combinedVector.indexOf(Math.min(...combinedVector));
-    console.log(`weakest spot: ${weakestSpot} (${this.targetPokeNames[selectedTargetIndices[weakestSpot]]})`);
+    console.log(`weakest spot: ${weakestSpot} (${selectedTargets[weakestSpot].species})`);
 
     const results: SearchResult[] = [];
     targetStrengthRows.forEach(row => {
-      const filteredVector = row.vector.filter((x, i) => selectedTargetIndices.indexOf(i) >= 0);
+      const filteredVector = this.filterAndSortStrVectorByTargets(row.vector, selectedTargets);
       results.push({
         pokemonIds: [ row.index.toString() ],
         pokemonNames: [ row.species ],
         value: filteredVector[weakestSpot],
-        targetPokemonName: this.targetPokeNames[selectedTargetIndices[weakestSpot]] // temporary
+        targetPokemonName: selectedTargets[weakestSpot].species // temporary
       })
     });
 
@@ -526,8 +564,8 @@ export class CombinationService {
     return results;    
   }
 
-  calcImmunityToCustomTargets(teamPokemonIndices: number[], selectedTargetIndices: number[], targetIds: string[]) {
-    if (!teamPokemonIndices || teamPokemonIndices.length === 0) {
+  calcImmunityToCustomTargets(teamPokemons: PokemonStrategy[], selectedTargets: PokemonStrategy[], targetIds: string[]) {
+    if (!teamPokemons || teamPokemons.length === 0) {
       return [];
     }
 
@@ -535,7 +573,7 @@ export class CombinationService {
       return [];
     }
 
-    let targetStrengthRows = this.strengthRows.filter(x => teamPokemonIndices.indexOf(x.index) < 0);
+    let targetStrengthRows = this.strengthRows.filter(x => !teamPokemons.find(y => y.id === x.strategyId));
 
     const results: SearchResult[] = [];
     targetStrengthRows.forEach(row => {
@@ -561,17 +599,17 @@ export class CombinationService {
     return results;    
   }
 
-  calcOverallMinus(teamPokemonIndices: number[], selectedTargetIndices: number[]) {
-    if (!teamPokemonIndices || teamPokemonIndices.length === 0) {
+  calcOverallMinus(teamPokemons: PokemonStrategy[], selectedTargets: PokemonStrategy[]) {
+    if (!teamPokemons || teamPokemons.length === 0) {
       return [];
     }
 
-    const combinedVector = this.strValuesOfTeam(teamPokemonIndices, selectedTargetIndices);
-    let targetStrengthRows = this.strengthRows.filter(x => teamPokemonIndices.indexOf(x.index) < 0);
+    const combinedVector = this.strValuesOfTeamStrategies(teamPokemons, selectedTargets);
+    let targetStrengthRows = this.strengthRows.filter(x => !teamPokemons.find(y => y.id === x.strategyId));
 
     const results: SearchResult[] = [];
     targetStrengthRows.forEach(row => {
-      const filteredVector = row.vector.filter((x, i) => selectedTargetIndices.indexOf(i) >= 0);
+      const filteredVector = this.filterAndSortStrVectorByTargets(row.vector, selectedTargets);
       const overallVector = this.addVectors(combinedVector, filteredVector);
       let minusSum = 0.0;
       overallVector.filter(val => val < 0).forEach(val => minusSum += val);

@@ -3,18 +3,19 @@ import { Container, Row, Col, InputGroup, FormControl } from 'react-bootstrap'
 import './targetSelectComponent.css'
 import { I18nContext } from 'react-i18next';
 import { translateSpeciesIfPossible } from '../services/stringSanitizer';
+import { defaultTargets } from '../defaultList';
 
 export class TargetSelectComponent extends React.Component {
   constructor(props) {
     super(props);
 
+    const defaultTargetPokemons = defaultTargets(this.props.pokemonList);
     const targetPokemonStates = [];
-    const defaultIndices = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 14, 15, 16, 17, 18, 20, 21, 22, 26, 27, 28, 29, 32, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 45, 46, 48, 49, 50, 52, 53, 55, 56, 57];
-    for (let i = 0; i < this.props.allTargetNames.length; i++) {
+    for (let i = 0; i < this.props.pokemonList.length; i++) {
       targetPokemonStates[i] = {
         index: i,
-        name: this.props.allTargetNames[i],
-        enabled: defaultIndices.indexOf(i) >= 0
+        poke: this.props.pokemonList[i],
+        enabled: !!defaultTargetPokemons.find(tar => tar.id === this.props.pokemonList[i].id)
       }
     }
 
@@ -33,11 +34,11 @@ export class TargetSelectComponent extends React.Component {
       targetPokemonStates: targetPokemonStates
     });
 
-    this.props.onChange(this.selectedTargetIndices());
+    this.props.onChange(this.selectedTargets());
   }
 
-  selectedTargetIndices() {
-    return this.state.targetPokemonStates.filter(x => x.enabled).map((x) => x.index);
+  selectedTargets() {
+    return this.state.targetPokemonStates.filter(x => x.enabled).map((x) => x.poke);
   }
 
   render() {
@@ -64,7 +65,7 @@ export class TargetSelectComponent extends React.Component {
                             <InputGroup.Prepend>
                               <InputGroup.Checkbox checked={state.enabled} onChange={(e) => this.onCheckboxChange(index, e)}/>
                             </InputGroup.Prepend>
-                            <FormControl value={translateSpeciesIfPossible(state.name, t)} placeholder={t('team.slotPlaceholder')} 
+                            <FormControl value={translateSpeciesIfPossible(state.poke.species, t)} placeholder={t('team.slotPlaceholder')} 
                               readOnly />
                           </InputGroup>
                         </div>

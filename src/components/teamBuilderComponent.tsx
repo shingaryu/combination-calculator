@@ -15,6 +15,7 @@ import SearchSettings from '../models/searchSettings';
 import PokemonStrategy from '../models/PokemonStrategy';
 import { TFunction } from 'i18next';
 import SearchResult from '../models/searchResult';
+import { defaultTeam, defaultTargets } from '../defaultList';
 
 type TeamBuilderComponentProps = {
 
@@ -25,7 +26,7 @@ type TeamBuilderComponentState = {
   teamPokemons: PokemonStrategy[],
   searchSettings: SearchSettings,
   strVectorColumns: string[],
-  selectedTargetIndices: number[],
+  selectedTargets: PokemonStrategy[],
   teamPokemonList: PokemonStrategy[]
 }
 
@@ -40,7 +41,7 @@ export class TeamBuilderComponent extends React.Component<TeamBuilderComponentPr
       teamPokemons: [],
       searchSettings: { evaluationMethod: 0 },
       strVectorColumns: [],
-      selectedTargetIndices: [0,1,2,3,4,7,8,9,10,11,13,14,15,16,17,20,21,22,25,26,27,31,32,33,34,37,39,40,42,43,44,45,47,48,49,51,52,53,54,56,57,58,59,60,61],
+      selectedTargets: [],
       teamPokemonList: []
     };
 
@@ -52,7 +53,8 @@ export class TeamBuilderComponent extends React.Component<TeamBuilderComponentPr
       const targetPokemonNames = this.combinationService.getAllTargetPokemonNames();
       this.setState({ 
         loading: false,
-        teamPokemons: [pokemonStrategies[18], pokemonStrategies[11], pokemonStrategies[23], pokemonStrategies[25], pokemonStrategies[2], pokemonStrategies[21]],
+        teamPokemons: defaultTeam(pokemonStrategies),
+        selectedTargets: defaultTargets(pokemonStrategies),
         strVectorColumns: targetPokemonNames,
         teamPokemonList: pokemonStrategies,
       });      
@@ -73,8 +75,23 @@ export class TeamBuilderComponent extends React.Component<TeamBuilderComponentPr
     this.setState({ searchSettings: settings });
   }
 
-  onChangeSelectedTargetIndices(indices: number[]) {
-    this.setState({ selectedTargetIndices: indices });
+  onChangeSelectedTargets(pokemons: PokemonStrategy[]) {
+    this.setState({ selectedTargets: pokemons });
+  }
+
+  sortByTranslatedName(t: TFunction, pokemons: PokemonStrategy[]) {
+    const sortedPokemonList = pokemons.concat();
+    sortedPokemonList.sort((a, b) => {
+      if (translateSpeciesIfPossible(a.species, t) < translateSpeciesIfPossible(b.species, t)) {
+        return -1;
+      } else if (translateSpeciesIfPossible(b.species, t) < translateSpeciesIfPossible(a.species, t)) {
+        return 1;
+      } else {
+        return 0;
+      }
+    });
+
+    return sortedPokemonList;
   }
 
   pokemonListSortRefIndices(t: TFunction) {
@@ -96,23 +113,6 @@ export class TeamBuilderComponent extends React.Component<TeamBuilderComponentPr
     });
     
     return originalIndices;
-  }
-
-  filteredTargetSortRefIndices(t: TFunction) {
-    const filtered = this.state.strVectorColumns.filter((x, i) => this.state.selectedTargetIndices.indexOf(i) >= 0)
-      .map((x, i) => ({index: i, name: x}));
-    filtered.sort((a, b) => {
-      if (translateSpeciesIfPossible(a.name, t) < translateSpeciesIfPossible(b.name, t)) {
-        return -1;
-      } else if (translateSpeciesIfPossible(b.name, t) < translateSpeciesIfPossible(a.name, t)) {
-        return 1;
-      } else {
-        return 0;
-      }
-    });
-
-    const filteredOriginalIndices = filtered.map(x => x.index);
-    return filteredOriginalIndices;
   }
 
   toOriginalIndices(indicesOnSorted: number[], originalIndices: number[]) {
@@ -153,15 +153,15 @@ export class TeamBuilderComponent extends React.Component<TeamBuilderComponentPr
     } else {
       // for sort
       const originalIndices = this.pokemonListSortRefIndices(t);
-      const origIndAfterTargetFilter = this.filteredTargetSortRefIndices(t);
       
       const sortedPokemonList = originalIndices.map(i => this.state.teamPokemonList[i]);
-      const graphLabels = originalIndices.map(i => this.state.strVectorColumns[i])
-        .filter((x, i) => this.state.selectedTargetIndices.indexOf(originalIndices[i]) >= 0)
-        .map(x => translateSpeciesIfPossible(x, t));
+      const sortedTeam = this.sortByTranslatedName(t, this.state.teamPokemons);
+      const sortedTargets = this.sortByTranslatedName(t, this.state.selectedTargets);
+      const selectedTargetsIds = this.state.selectedTargets.map(x => x.id);
+      const graphLabels = sortedPokemonList.filter(x => selectedTargetsIds.indexOf(x.id) >= 0)
+        .map(x => translateSpeciesIfPossible(x.species, t));
 
-      let teamStrengthValues = this.combinationService.strValuesOfTeam(this.toTeamPokemonIndices(this.state.teamPokemons), this.state.selectedTargetIndices);
-      teamStrengthValues = origIndAfterTargetFilter.map(i => teamStrengthValues[i]);
+      let teamStrengthValues = this.combinationService.strValuesOfTeamStrategies(sortedTeam, sortedTargets);
       const graphDatasets = [
         {
           dataLabel: t('graph.teamStrengthValue'),
@@ -172,17 +172,15 @@ export class TeamBuilderComponent extends React.Component<TeamBuilderComponentPr
 
       let results: SearchResult[] = [];
       if (this.state.searchSettings.evaluationMethod === 0) {
-        results = this.combinationService.calcTargetStrengthsComplement(this.toTeamPokemonIndices(this.state.teamPokemons), this.state.selectedTargetIndices, ['Sweeper', 'Tank', 'Wall']);
+        results = this.combinationService.calcTargetStrengthsComplement(sortedTeam, sortedTargets, ['Sweeper', 'Tank', 'Wall']);
       } else if (this.state.searchSettings.evaluationMethod === 1) {
-        results = this.combinationService.calcWeakestPointImmunity(this.toTeamPokemonIndices(this.state.teamPokemons), this.state.selectedTargetIndices);
+        results = this.combinationService.calcWeakestPointImmunity(sortedTeam, sortedTargets);
       } else if (this.state.searchSettings.evaluationMethod === 2 && this.state.searchSettings.targets) {
-        results = this.combinationService.calcImmunityToCustomTargets(this.toTeamPokemonIndices(this.state.teamPokemons), this.state.selectedTargetIndices, 
+        results = this.combinationService.calcImmunityToCustomTargets(sortedTeam, sortedTargets, 
           this.state.searchSettings.targets.filter(idStr => idStr));
       } else if (this.state.searchSettings.evaluationMethod === 3) {
-        results = this.combinationService.calcOverallMinus(this.toTeamPokemonIndices(this.state.teamPokemons), this.state.selectedTargetIndices);
+        results = this.combinationService.calcOverallMinus(sortedTeam, sortedTargets);
       }
-
-      const sortedTargetNames = originalIndices.map(i => this.state.strVectorColumns[i]);
 
       return (
         <>
@@ -216,7 +214,7 @@ export class TeamBuilderComponent extends React.Component<TeamBuilderComponentPr
                     <SearchResultComponent searchResult={results} />
                   </Tab>
                   <Tab eventKey="target-select" title={t('tab.titleTargetSelect')}>
-                    <TargetSelectComponent allTargetNames={sortedTargetNames} onChange={(indices: number[]) => this.onChangeSelectedTargetIndices(this.toOriginalIndices(indices, originalIndices))} />
+                    <TargetSelectComponent pokemonList={sortedPokemonList} onChange={(pokemons: PokemonStrategy[]) => this.onChangeSelectedTargets(pokemons)} />
                   </Tab>
                   <Tab eventKey="battle-team" title="Battle Team">
                     <BattleTeamComponent rawPokemonList={this.state.teamPokemonList} sortedPokemonList={sortedPokemonList} combinationService={this.combinationService} 
