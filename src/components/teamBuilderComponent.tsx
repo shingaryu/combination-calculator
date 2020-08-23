@@ -94,42 +94,6 @@ export class TeamBuilderComponent extends React.Component<TeamBuilderComponentPr
     return sortedPokemonList;
   }
 
-  pokemonListSortRefIndices(t: TFunction) {
-    const sortedPokemonList = this.state.teamPokemonList.concat();
-    sortedPokemonList.sort((a, b) => {
-      if (translateSpeciesIfPossible(a.species, t) < translateSpeciesIfPossible(b.species, t)) {
-        return -1;
-      } else if (translateSpeciesIfPossible(b.species, t) < translateSpeciesIfPossible(a.species, t)) {
-        return 1;
-      } else {
-        return 0;
-      }
-    });
-
-    const originalIndices: number[] = [];
-    sortedPokemonList.forEach((sortedPoke) => {
-      const index = this.state.teamPokemonList.findIndex(originalPoke => originalPoke.id === sortedPoke.id);
-      originalIndices.push(index);
-    });
-    
-    return originalIndices;
-  }
-
-  toOriginalIndices(indicesOnSorted: number[], originalIndices: number[]) {
-    const originals = indicesOnSorted.map(i => originalIndices[i]);
-    originals.sort((a, b) => {
-      if (a < b) {
-        return -1;
-      } else if (b < a) {
-        return 1;
-      } else {
-        return 0;
-      }
-    });
-
-    return originals;
-  }
-
   toTeamPokemonIndices(pokemons: PokemonStrategy[]) {
     const indices = pokemons.map(ps => this.state.teamPokemonList.findIndex(pl => ps.id === pl.id));
     indices.sort((a, b) => {
@@ -150,16 +114,11 @@ export class TeamBuilderComponent extends React.Component<TeamBuilderComponentPr
 
     if (this.state.loading) {
       return <span>Loading...</span>
-    } else {
-      // for sort
-      const originalIndices = this.pokemonListSortRefIndices(t);
-      
-      const sortedPokemonList = originalIndices.map(i => this.state.teamPokemonList[i]);
+    } else {    
+      const sortedPokemonList = this.sortByTranslatedName(t, this.state.teamPokemonList);
       const sortedTeam = this.sortByTranslatedName(t, this.state.teamPokemons);
       const sortedTargets = this.sortByTranslatedName(t, this.state.selectedTargets);
-      const selectedTargetsIds = this.state.selectedTargets.map(x => x.id);
-      const graphLabels = sortedPokemonList.filter(x => selectedTargetsIds.indexOf(x.id) >= 0)
-        .map(x => translateSpeciesIfPossible(x.species, t));
+      const graphLabels = sortedTargets.map(x => translateSpeciesIfPossible(x.species, t));
 
       let teamStrengthValues = this.combinationService.strValuesOfTeamStrategies(sortedTeam, sortedTargets);
       const graphDatasets = [
