@@ -1,4 +1,6 @@
-export function translateSpeciesIfPossible(text, t) {
+import { TFunction } from "i18next";
+
+export function translateSpeciesIfPossible(text: string, t: TFunction) {
   let species = text;
   let suffix = '';
 
