@@ -8,10 +8,8 @@ import { CombinationService } from '../services/combination-service';
 import { GraphComponent } from './graphComponent';
 
 type BattleTeamComponentProps = {
-  rawPokemonList: PokemonStrategy[],
   sortedPokemonList: PokemonStrategy[],
   combinationService: CombinationService,
-  toTeamPokemonIndices: (pokemons: PokemonStrategy[]) => number[]
 }
 
 type BattleTeamComponentState = {
@@ -43,35 +41,13 @@ export class BattleTeamComponent extends React.Component<BattleTeamComponentProp
 
   render() {
     const t = this.context.i18n.t.bind(this.context.i18n);
-    const myTeamIndices = this.props.toTeamPokemonIndices(this.state.myTeam);
-    const oppTeamIndices = this.props.toTeamPokemonIndices(this.state.oppTeam);
-
-    const oppTeamOrderByAlphabets = this.state.oppTeam.concat();
-    oppTeamOrderByAlphabets.sort((a, b) => {
-      if (a.species < b.species) {
-        return -1;
-      } else if (b.species < a.species) {
-        return 1;
-      } else {
-        return 0;
-      }
-    });
 
     const graphLabels = this.state.oppTeam.map(x => translateSpeciesIfPossible(x.species, t));
-
     const graphDataSets = this.state.myTeam.map((myPoke, i) => {
-      const originalIndex = this.props.toTeamPokemonIndices([myPoke]);
-      const strValues = this.props.combinationService.strValuesOfTeam(originalIndex, oppTeamIndices);
-      const strValuesWithPoke = strValues.map((val, i) => ({val: val, poke: oppTeamOrderByAlphabets[i]}));
-      const strValuesWithPokeSorted: any[] = [];
-      this.state.oppTeam.forEach(poke => {
-        const index = strValuesWithPoke.findIndex(x => x.poke.id === poke.id);
-        strValuesWithPokeSorted.push(strValuesWithPoke[index]);
-      })
-
+      const strValues = this.props.combinationService.strValuesOfTeamStrategies([myPoke], this.state.oppTeam);
       const graphDataset = {
         dataLabel: translateSpeciesIfPossible(myPoke.species, t),
-        values: strValuesWithPokeSorted.map(x => Math.round(x.val)),
+        values: strValues,
         colorRGB: [255 / (this.state.myTeam.length - 1) * i, 99, 132]
       };
 
@@ -90,8 +66,8 @@ export class BattleTeamComponent extends React.Component<BattleTeamComponentProp
       }
     }
 
-    const resultsAM = this.props.combinationService.calcTeamCombinationsOnWeakest(myTeamIndices, oppTeamIndices);
-    const resultsMM = this.props.combinationService.calcTeamCombinationsOnMaximumWeakest(myTeamIndices, oppTeamIndices);
+    const resultsAM = this.props.combinationService.calcTeamCombinationsOnWeakest(this.state.myTeam, this.state.oppTeam);
+    const resultsMM = this.props.combinationService.calcTeamCombinationsOnMaximumWeakest(this.state.myTeam, this.state.oppTeam);
 
     return (
     <>
@@ -123,7 +99,7 @@ export class BattleTeamComponent extends React.Component<BattleTeamComponentProp
                     <th key='h-i'>{t('search.columnRank')}</th>
                     {resultsAM.length===0?
                       <th key={`h-p0`}>Pokemon</th>:
-                      resultsAM[0].pokemonIds.map((x, i) => <th key={`h-p${i}`}>{t('search.columnPokemon')}</th>)
+                      resultsAM[0].pokemons.map((x, i) => <th key={`h-p${i}`}>{t('search.columnPokemon')}</th>)
                     }
                     <th key='h-v'>Min. Value</th>
                     <th key='h-t'>On Target</th>
@@ -133,9 +109,9 @@ export class BattleTeamComponent extends React.Component<BattleTeamComponentProp
                   {resultsAM.map((result, index) => (
                     <tr key={index}>
                       <td key={`${index}-i`}>{index + 1}</td>
-                      {result.pokemonNames.map((x, i) => <td key={`${index}-p${i}`}>{translateSpeciesIfPossible(x, t)}</td>)}
+                      {result.pokemons.map((x, i) => <td key={`${index}-p${i}`}>{translateSpeciesIfPossible(x.species, t)}</td>)}
                       <td key={`${index}-v`}>{result.value.toFixed(4)}</td>
-                      <td key={`${index}-tn`}>{translateSpeciesIfPossible(result.minimumValueTargetName ?? '', t)}</td>
+                      <td key={`${index}-tn`}>{translateSpeciesIfPossible(result.minimumValueTargetPoke.species ?? '', t)}</td>
                     </tr>                
                   ))}
                 </tbody>
@@ -149,7 +125,7 @@ export class BattleTeamComponent extends React.Component<BattleTeamComponentProp
                     <th key='h-i'>{t('search.columnRank')}</th>
                     {resultsMM.length===0?
                       <th key={`h-p0`}>Pokemon</th>:
-                      resultsMM[0].pokemonIds.map((x, i) => <th key={`h-p${i}`}>{t('search.columnPokemon')}</th>)
+                      resultsMM[0].pokemons.map((x, i) => <th key={`h-p${i}`}>{t('search.columnPokemon')}</th>)
                     }
                     <th key='h-v'>Min. Value</th>
                     <th key='h-t'>On Target</th>
@@ -161,13 +137,13 @@ export class BattleTeamComponent extends React.Component<BattleTeamComponentProp
                   {resultsMM.map((result, index) => (
                     <tr key={index}>
                       <td key={`${index}-i`}>{index + 1}</td>
-                      {result.pokemonNames.map((x, i) => <td key={`${index}-p${i}`}>{translateSpeciesIfPossible(x, t)}</td>)}
+                      {result.pokemons.map((x, i) => <td key={`${index}-p${i}`}>{translateSpeciesIfPossible(x.species, t)}</td>)}
                       <td key={`${index}-v`}>{result.value.toFixed(4)}</td>
-                      <td key={`${index}-tn`}>{translateSpeciesIfPossible(result.minimumValueTargetName ?? '', t)}</td>
+                      <td key={`${index}-tn`}>{translateSpeciesIfPossible(result.minimumValueTargetPoke.species ?? '', t)}</td>
                       <td>
                         {result.eachMaximums?.map((maximum, index) => {
-                          const toTarget = this.props.rawPokemonList[maximum.to];
-                          const fromPokemon = this.props.rawPokemonList[maximum.from];
+                          const toTarget = maximum.to;
+                          const fromPokemon = maximum.from;
                           const valueInt = Math.round(maximum.value);
                           return (
                             <div key={`em-${index}`}>{`To: ${translateSpeciesIfPossible(toTarget.species, t)} From: ${translateSpeciesIfPossible(fromPokemon.species, t)} Value: ${valueInt}`}</div>
@@ -175,8 +151,8 @@ export class BattleTeamComponent extends React.Component<BattleTeamComponentProp
                         })}
                       </td>
                       <td>
-                        {result.overused.map((info: any, index: number) => {
-                          const fromPokemon = this.props.rawPokemonList[info.from];
+                        {result.overused?.map((info: any, index: number) => {
+                          const fromPokemon = info.from;
                           const valueInt = Math.round(info.total);
                           return (
                             <div key={`ou-${index}`}>{`${translateSpeciesIfPossible(fromPokemon.species, t)}: ${valueInt}`}</div>

@@ -180,8 +180,7 @@ export class TeamBuilderComponent extends React.Component<TeamBuilderComponentPr
                     <TargetSelectComponent pokemonList={sortedPokemonList} onChange={(pokemons: PokemonStrategy[]) => this.onChangeSelectedTargets(pokemons)} />
                   </Tab>
                   <Tab eventKey="battle-team" title="Battle Team">
-                    <BattleTeamComponent rawPokemonList={this.state.teamPokemonList} sortedPokemonList={sortedPokemonList} combinationService={this.combinationService} 
-                      toTeamPokemonIndices={(pokemons: PokemonStrategy[]) => this.toTeamPokemonIndices(pokemons)} />
+                    <BattleTeamComponent sortedPokemonList={sortedPokemonList} combinationService={this.combinationService} />
                   </Tab>
                 </Tabs>    
               </Col>

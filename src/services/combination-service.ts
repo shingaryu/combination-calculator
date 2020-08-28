@@ -4,6 +4,7 @@
 import { getStrengthVectorsByStrategies } from '../api/strengthVectorsApi';
 import StrengthTable from '../models/StrengthTable';
 import SearchResult from '../models/searchResult';
+import BattleTeamSearchResult from '../models/BattleTeamSearchResult';
 import PokemonStrategy from '../models/PokemonStrategy';
 // const strategiesUrl = require('../assets/strategies.csv');
 
@@ -298,30 +299,27 @@ export class CombinationService {
     return this.targetPokeNames;
   }
 
-  calcTeamCombinationsOnWeakest(teamPokemonIndices: number[], opponentPokemonIndices: number[]) {
-    const battleTeamIndices = [];
-    for (let i = 0; i < teamPokemonIndices.length; i++) {
-      for (let j = i + 1; j < teamPokemonIndices.length; j++) {
-        for (let k = j + 1; k < teamPokemonIndices.length; k++) {
-          const ind = teamPokemonIndices;
-          battleTeamIndices.push([ind[i], ind[j], ind[k]]);
+  calcTeamCombinationsOnWeakest(teamPokemons: PokemonStrategy[], opponentPokemons: PokemonStrategy[]) {
+    const battleTeamCombinations = [];
+    for (let i = 0; i < teamPokemons.length; i++) {
+      for (let j = i + 1; j < teamPokemons.length; j++) {
+        for (let k = j + 1; k < teamPokemons.length; k++) {
+          battleTeamCombinations.push([teamPokemons[i], teamPokemons[j], teamPokemons[k]]);
         }
       }
     }
 
-    const results: SearchResult[] = [];
-    battleTeamIndices.forEach(indices => {
-      const strValues = this.strValuesOfTeam(indices, opponentPokemonIndices);
+    const results: BattleTeamSearchResult[] = [];
+    battleTeamCombinations.forEach(pokemons => {
+      const strValues = this.strValuesOfTeamStrategies(pokemons, opponentPokemons);
       const minimumValue = Math.min(...strValues);
       const minimumValueIndex = strValues.findIndex(x => x === minimumValue);
-      const oppPokeOriginalIndex = opponentPokemonIndices[minimumValueIndex];
+      const minimumValueOppPoke = opponentPokemons[minimumValueIndex];
       results.push({
-        pokemonIds: indices.map(x => x.toString()),
-        pokemonNames: indices.map(i => this.strengthRows[i].species),
+        pokemons: pokemons,
         strValues: strValues,
         value: minimumValue,
-        minimumValueTargetId: this.targetPokeIds[oppPokeOriginalIndex],
-        minimumValueTargetName: this.targetPokeNames[oppPokeOriginalIndex]
+        minimumValueTargetPoke: minimumValueOppPoke
       })
     });
 
@@ -330,24 +328,23 @@ export class CombinationService {
     return results;
   }
 
-  calcTeamCombinationsOnMaximumWeakest(teamPokemonIndices: number[], opponentPokemonIndices: number[]) {
-    const battleTeamIndices = [];
-    for (let i = 0; i < teamPokemonIndices.length; i++) {
-      for (let j = i + 1; j < teamPokemonIndices.length; j++) {
-        for (let k = j + 1; k < teamPokemonIndices.length; k++) {
-          const ind = teamPokemonIndices;
-          battleTeamIndices.push([ind[i], ind[j], ind[k]]);
+  calcTeamCombinationsOnMaximumWeakest(teamPokemons: PokemonStrategy[], opponentPokemons: PokemonStrategy[]) {
+    const battleTeamCombinations = [];
+    for (let i = 0; i < teamPokemons.length; i++) {
+      for (let j = i + 1; j < teamPokemons.length; j++) {
+        for (let k = j + 1; k < teamPokemons.length; k++) {
+          battleTeamCombinations.push([teamPokemons[i], teamPokemons[j], teamPokemons[k]]);
         }
       }
     }
 
-    const results: SearchResult[] = [];
-    battleTeamIndices.forEach(indices => {
-      const maximums = this.strValuesOfTeamOnMaximum(indices, opponentPokemonIndices);
+    const results: BattleTeamSearchResult[] = [];
+    battleTeamCombinations.forEach(pokemons => {
+      const maximums = this.strValuesOfTeamOnMaximum(pokemons, opponentPokemons);
       const strValues = maximums.map(x => x.value);
       const minimumValue = Math.min(...strValues);
       const minimumValueIndex = strValues.findIndex(x => x === minimumValue);
-      const oppPokeOriginalIndex = opponentPokemonIndices[minimumValueIndex];
+      const minimumValueOppPoke = opponentPokemons[minimumValueIndex];
       const overused = this.DetectOverused(maximums);
       let overusedMinimum = 0;
       overused.forEach(o => {
@@ -356,12 +353,10 @@ export class CombinationService {
         }
       });
       results.push({
-        pokemonIds: indices.map(x => x.toString()),
-        pokemonNames: indices.map(i => this.strengthRows[i].species),
+        pokemons: pokemons,        
         strValues: strValues,
         value: minimumValue,
-        minimumValueTargetId: this.targetPokeIds[oppPokeOriginalIndex],
-        minimumValueTargetName: this.targetPokeNames[oppPokeOriginalIndex],
+        minimumValueTargetPoke: minimumValueOppPoke,
         eachMaximums: maximums,
         overused: overused,
         overusedMinimum: overusedMinimum
@@ -386,8 +381,8 @@ export class CombinationService {
     return results;
   }
 
-  DetectOverused(maximums: { to: number, from: number, value: number}[] ) {
-    const remainingHpArray: Map<number, number> = new Map();
+  DetectOverused(maximums: { to: PokemonStrategy, from: PokemonStrategy, value: number}[] ) {
+    const remainingHpArray: Map<PokemonStrategy, number> = new Map();
     for (let i = 0; i < maximums.length; i++) {
       const maxi = maximums[i];
       if (remainingHpArray.get(maxi.from) === undefined) {
@@ -476,8 +471,8 @@ export class CombinationService {
     return combinedVector;
   }
 
-  strValuesOfTeamOnMaximum(teamPokemonIndices: number[], selectedTargetIndices: number[]):
-    { to: number, from: number, value: number}[] {
+  strValuesOfTeamOnMaximum(teamPokemons: PokemonStrategy[], selectedTargets: PokemonStrategy[]):
+    { to: PokemonStrategy, from: PokemonStrategy, value: number}[] {
     // is it needed to remove duplications about team members?
 
     // if (!teamPokemonIndices || teamPokemonIndices.length === 0) {
@@ -488,26 +483,26 @@ export class CombinationService {
     //   return allZero;
     // }
 
-    const pokemonVectors = teamPokemonIndices.map(pokeIndex => {
-      if (!(0 <= pokeIndex && pokeIndex <= this.strengthRows.length - 1)) {
-        throw new Error ('Error: pokemon index is out of the range');
+    const pokemonVectors = teamPokemons.map(pokeStrategy => {
+      const row = this.strengthRows.find(x => x.strategyId === pokeStrategy.id);
+      if (!row) {
+        throw new Error('Error: team pokemon does not exist in strength rows');
       }
 
-      const row = this.strengthRows[pokeIndex];
-      const filteredVector = row.vector.filter((x, i) => selectedTargetIndices.indexOf(i) >= 0);
+      const filteredVector = this.filterAndSortStrVectorByTargets(row.vector, selectedTargets);
       return filteredVector;
     });
 
     const maximums = [];
-    for (let i = 0; i < selectedTargetIndices.length; i++) {
+    for (let i = 0; i < selectedTargets.length; i++) {
       const valuesToThisTarget = [];
-      for (let j = 0; j < teamPokemonIndices.length; j++) {
+      for (let j = 0; j < teamPokemons.length; j++) {
         valuesToThisTarget.push(pokemonVectors[j][i]);
       }
       
       const maximumValue = Math.max(...valuesToThisTarget);
       const maximumIndex = valuesToThisTarget.findIndex(x => x === maximumValue);
-      maximums.push({ to: selectedTargetIndices[i], from: teamPokemonIndices[maximumIndex], value: maximumValue});
+      maximums.push({ to: selectedTargets[i], from: teamPokemons[maximumIndex], value: maximumValue});
     }
 
     return maximums;
