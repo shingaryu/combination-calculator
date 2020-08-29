@@ -66,7 +66,7 @@ export class BattleTeamComponent extends React.Component<BattleTeamComponentProp
       }
     }
 
-    const resultsAM = this.props.combinationService.calcTeamCombinationsOnWeakest(this.state.myTeam, this.state.oppTeam);
+    const resultsAM = this.props.combinationService.calcTeamCombinationsOnAverageWeakest(this.state.myTeam, this.state.oppTeam);
     const resultsMM = this.props.combinationService.calcTeamCombinationsOnMaximumWeakest(this.state.myTeam, this.state.oppTeam);
 
     return (

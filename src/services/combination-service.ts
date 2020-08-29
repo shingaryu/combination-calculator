@@ -35,127 +35,6 @@ export class CombinationService {
     return this.targetPokeNames;
   }
 
-  calcTeamCombinationsOnWeakest(teamPokemons: PokemonStrategy[], opponentPokemons: PokemonStrategy[]) {
-    const battleTeamCombinations = [];
-    for (let i = 0; i < teamPokemons.length; i++) {
-      for (let j = i + 1; j < teamPokemons.length; j++) {
-        for (let k = j + 1; k < teamPokemons.length; k++) {
-          battleTeamCombinations.push([teamPokemons[i], teamPokemons[j], teamPokemons[k]]);
-        }
-      }
-    }
-
-    const results: BattleTeamSearchResult[] = [];
-    battleTeamCombinations.forEach(pokemons => {
-      const strValues = this.strValuesOfTeamStrategies(pokemons, opponentPokemons);
-      const minimumValue = Math.min(...strValues);
-      const minimumValueIndex = strValues.findIndex(x => x === minimumValue);
-      const minimumValueOppPoke = opponentPokemons[minimumValueIndex];
-      results.push({
-        pokemons: pokemons,
-        strValues: strValues,
-        value: minimumValue,
-        minimumValueTargetPoke: minimumValueOppPoke
-      })
-    });
-
-    results.sort((a, b) => b.value - a.value); // higher values come first
-
-    return results;
-  }
-
-  calcTeamCombinationsOnMaximumWeakest(teamPokemons: PokemonStrategy[], opponentPokemons: PokemonStrategy[]) {
-    const battleTeamCombinations = [];
-    for (let i = 0; i < teamPokemons.length; i++) {
-      for (let j = i + 1; j < teamPokemons.length; j++) {
-        for (let k = j + 1; k < teamPokemons.length; k++) {
-          battleTeamCombinations.push([teamPokemons[i], teamPokemons[j], teamPokemons[k]]);
-        }
-      }
-    }
-
-    const results: BattleTeamSearchResult[] = [];
-    battleTeamCombinations.forEach(pokemons => {
-      const maximums = this.strValuesOfTeamOnMaximum(pokemons, opponentPokemons);
-      const strValues = maximums.map(x => x.value);
-      const minimumValue = Math.min(...strValues);
-      const minimumValueIndex = strValues.findIndex(x => x === minimumValue);
-      const minimumValueOppPoke = opponentPokemons[minimumValueIndex];
-      const overused = this.DetectOverused(maximums);
-      let overusedMinimum = 0;
-      overused.forEach(o => {
-        if (o.total < overusedMinimum) {
-          overusedMinimum = o.total;
-        }
-      });
-      results.push({
-        pokemons: pokemons,        
-        strValues: strValues,
-        value: minimumValue,
-        minimumValueTargetPoke: minimumValueOppPoke,
-        eachMaximums: maximums,
-        overused: overused,
-        overusedMinimum: overusedMinimum
-      })
-    });
-
-    results.sort((a, b) => {
-      if (b.value < a.value) {
-        return -1;
-      } else if (a.value < b.value) {
-        return 1;
-      } else {
-        if (!a.overusedMinimum || !b.overusedMinimum) {
-          return 0;
-        } else {
-          return b.overusedMinimum - a.overusedMinimum;
-        }
-      }
-
-    }); // higher values come first
-
-    return results;
-  }
-
-  DetectOverused(maximums: { to: PokemonStrategy, from: PokemonStrategy, value: number}[] ) {
-    const remainingHpArray: Map<PokemonStrategy, number> = new Map();
-    for (let i = 0; i < maximums.length; i++) {
-      const maxi = maximums[i];
-      if (remainingHpArray.get(maxi.from) === undefined) {
-        remainingHpArray.set(maxi.from, 1024);
-      }
-
-      let currentHp = remainingHpArray.get(maxi.from);
-      if (currentHp === undefined) {
-        currentHp = 1024;
-      }
-      const updatedHp = currentHp - (1024 - maxi.value);
-      remainingHpArray.set(maxi.from, updatedHp);
-    }
-
-    const overused: any[] = [];
-    remainingHpArray.forEach((value, key) => {
-      if (value < 0) {
-        overused.push({from: key, total: value});
-      }
-    });
-
-    return overused;
-  }
-
-  filterAndSortStrVectorByTargets(vector: number[], targets: PokemonStrategy[]) {
-    const newVector = targets.map(tar => {
-      const columnIndex = this.targetPokeIds.findIndex(x => x === tar.id);
-      if (columnIndex === -1) {
-        throw new Error('Error: Target pokemon not found');
-      }
-
-      return vector[columnIndex];
-    });
-
-    return newVector;
-  }
-
   strValuesOfTeamStrategies(teamPokemons: PokemonStrategy[], selectedTargets: PokemonStrategy[]) {
     if (!teamPokemons || teamPokemons.length === 0) {
       const allZero = [];
@@ -329,5 +208,126 @@ export class CombinationService {
     results.sort((a, b) => b.value - a.value); // higher values come first
 
     return results;     
+  }
+
+  calcTeamCombinationsOnAverageWeakest(teamPokemons: PokemonStrategy[], opponentPokemons: PokemonStrategy[]) {
+    const battleTeamCombinations = [];
+    for (let i = 0; i < teamPokemons.length; i++) {
+      for (let j = i + 1; j < teamPokemons.length; j++) {
+        for (let k = j + 1; k < teamPokemons.length; k++) {
+          battleTeamCombinations.push([teamPokemons[i], teamPokemons[j], teamPokemons[k]]);
+        }
+      }
+    }
+
+    const results: BattleTeamSearchResult[] = [];
+    battleTeamCombinations.forEach(pokemons => {
+      const strValues = this.strValuesOfTeamStrategies(pokemons, opponentPokemons);
+      const minimumValue = Math.min(...strValues);
+      const minimumValueIndex = strValues.findIndex(x => x === minimumValue);
+      const minimumValueOppPoke = opponentPokemons[minimumValueIndex];
+      results.push({
+        pokemons: pokemons,
+        strValues: strValues,
+        value: minimumValue,
+        minimumValueTargetPoke: minimumValueOppPoke
+      })
+    });
+
+    results.sort((a, b) => b.value - a.value); // higher values come first
+
+    return results;
+  }
+
+  calcTeamCombinationsOnMaximumWeakest(teamPokemons: PokemonStrategy[], opponentPokemons: PokemonStrategy[]) {
+    const battleTeamCombinations = [];
+    for (let i = 0; i < teamPokemons.length; i++) {
+      for (let j = i + 1; j < teamPokemons.length; j++) {
+        for (let k = j + 1; k < teamPokemons.length; k++) {
+          battleTeamCombinations.push([teamPokemons[i], teamPokemons[j], teamPokemons[k]]);
+        }
+      }
+    }
+
+    const results: BattleTeamSearchResult[] = [];
+    battleTeamCombinations.forEach(pokemons => {
+      const maximums = this.strValuesOfTeamOnMaximum(pokemons, opponentPokemons);
+      const strValues = maximums.map(x => x.value);
+      const minimumValue = Math.min(...strValues);
+      const minimumValueIndex = strValues.findIndex(x => x === minimumValue);
+      const minimumValueOppPoke = opponentPokemons[minimumValueIndex];
+      const overused = this.DetectOverused(maximums);
+      let overusedMinimum = 0;
+      overused.forEach(o => {
+        if (o.total < overusedMinimum) {
+          overusedMinimum = o.total;
+        }
+      });
+      results.push({
+        pokemons: pokemons,        
+        strValues: strValues,
+        value: minimumValue,
+        minimumValueTargetPoke: minimumValueOppPoke,
+        eachMaximums: maximums,
+        overused: overused,
+        overusedMinimum: overusedMinimum
+      })
+    });
+
+    results.sort((a, b) => {
+      if (b.value < a.value) {
+        return -1;
+      } else if (a.value < b.value) {
+        return 1;
+      } else {
+        if (!a.overusedMinimum || !b.overusedMinimum) {
+          return 0;
+        } else {
+          return b.overusedMinimum - a.overusedMinimum;
+        }
+      }
+
+    }); // higher values come first
+
+    return results;
+  }
+
+  private filterAndSortStrVectorByTargets(vector: number[], targets: PokemonStrategy[]) {
+    const newVector = targets.map(tar => {
+      const columnIndex = this.targetPokeIds.findIndex(x => x === tar.id);
+      if (columnIndex === -1) {
+        throw new Error('Error: Target pokemon not found');
+      }
+
+      return vector[columnIndex];
+    });
+
+    return newVector;
+  }
+
+  private DetectOverused(maximums: { to: PokemonStrategy, from: PokemonStrategy, value: number}[] ) {
+    const remainingHpArray: Map<PokemonStrategy, number> = new Map();
+    for (let i = 0; i < maximums.length; i++) {
+      const maxi = maximums[i];
+      if (remainingHpArray.get(maxi.from) === undefined) {
+        remainingHpArray.set(maxi.from, 1024);
+      }
+
+      let currentHp = remainingHpArray.get(maxi.from);
+      if (currentHp === undefined) {
+        currentHp = 1024;
+      }
+      const updatedHp = currentHp - (1024 - maxi.value);
+      remainingHpArray.set(maxi.from, updatedHp);
+    }
+
+    const overused: any[] = [];
+    remainingHpArray.forEach((value, key) => {
+      if (value < 0) {
+        overused.push({from: key, total: value});
+      }
+    });
+
+    return overused;
   }
 }
