@@ -211,14 +211,7 @@ export class CombinationService {
   }
 
   calcTeamCombinationsOnAverageWeakest(teamPokemons: PokemonStrategy[], opponentPokemons: PokemonStrategy[]) {
-    const battleTeamCombinations = [];
-    for (let i = 0; i < teamPokemons.length; i++) {
-      for (let j = i + 1; j < teamPokemons.length; j++) {
-        for (let k = j + 1; k < teamPokemons.length; k++) {
-          battleTeamCombinations.push([teamPokemons[i], teamPokemons[j], teamPokemons[k]]);
-        }
-      }
-    }
+    const battleTeamCombinations = this.threeOfSixCombinations(teamPokemons);
 
     const results: BattleTeamSearchResult[] = [];
     battleTeamCombinations.forEach(pokemons => {
@@ -240,14 +233,7 @@ export class CombinationService {
   }
 
   calcTeamCombinationsOnMaximumWeakest(teamPokemons: PokemonStrategy[], opponentPokemons: PokemonStrategy[]) {
-    const battleTeamCombinations = [];
-    for (let i = 0; i < teamPokemons.length; i++) {
-      for (let j = i + 1; j < teamPokemons.length; j++) {
-        for (let k = j + 1; k < teamPokemons.length; k++) {
-          battleTeamCombinations.push([teamPokemons[i], teamPokemons[j], teamPokemons[k]]);
-        }
-      }
-    }
+    const battleTeamCombinations = this.threeOfSixCombinations(teamPokemons);
 
     const results: BattleTeamSearchResult[] = [];
     battleTeamCombinations.forEach(pokemons => {
@@ -290,6 +276,19 @@ export class CombinationService {
     }); // higher values come first
 
     return results;
+  }
+
+  private threeOfSixCombinations(pokemons: PokemonStrategy[]) {
+    const combinations = [];
+    for (let i = 0; i < pokemons.length; i++) {
+      for (let j = i + 1; j < pokemons.length; j++) {
+        for (let k = j + 1; k < pokemons.length; k++) {
+          combinations.push([pokemons[i], pokemons[j], pokemons[k]]);
+        }
+      }
+    }
+
+    return combinations;
   }
 
   private filterAndSortStrVectorByTargets(vector: number[], targets: PokemonStrategy[]) {
