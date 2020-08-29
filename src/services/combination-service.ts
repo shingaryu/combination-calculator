@@ -3,6 +3,7 @@ import BattleTeamSearchResult from '../models/BattleTeamSearchResult';
 import PokemonStrategy from '../models/PokemonStrategy';
 import StrengthTableLoader from './strengthTableLoader';
 import StrengthRow from './StrengthRow';
+import * as Utils from './utils';
 
 export class CombinationService {
   private strengthRows: StrengthRow[];
@@ -23,85 +24,6 @@ export class CombinationService {
     this.targetPokeIds = loader.getTargetPokeIds();
   }
   
-  addVectors(...vectors: number[][]) {
-    const length = vectors[0].length;
-    for (let i = 0; i < vectors.length; i++) {
-      if (length !== vectors[i].length) {
-        throw new Error('the number of elements is not same');
-      }
-      
-    }
-  
-    const newVec = [];
-    for (let i = 0; i < length; i++) {
-      let elementsSum = 0;
-      for (let j = 0; j < vectors.length; j++) {
-        elementsSum += vectors[j][i];
-      }
-      newVec.push(elementsSum);
-    } 
-  
-    return newVec;
-  }
-  
-  addVector(vector1: number[], vector2: number[]) {
-    if (vector1.length !== vector2.length) {
-      throw new Error('the number of elements is not same');
-    }
-  
-    const newVec = [];
-    for (let i = 0; i < vector1.length; i++) {
-      newVec.push(vector1[i] + vector2[i]);
-    } 
-  
-    return newVec;
-  }
-  
-  cosineSimilarity(v1: number[], v2: number[]) {
-    return this.dotProduct(v1, v2) / (this.l2norm(v1) * this.l2norm(v2));
-  }
-  
-  dotProduct(vector1: number[], vector2: number[]) {
-    if (vector1.length !== vector2.length) {
-      throw new Error('the number of elements is not same');
-    }
-  
-    let sum = 0;
-    for (let i = 0; i < vector1.length; i++) {
-      sum += vector1[i] * vector2[i];
-    }
-  
-    return sum;
-  }
-  
-  l2norm(vector: number[]) {
-    let sum = 0;
-    vector.forEach(x => {
-      sum += x * x;
-    });
-  
-    sum = Math.sqrt(sum);
-    return sum;
-  }
-
-  compatibleTypes(strategyType: string) {
-    let compatibleTypes: string[] = [];
-  
-    if (strategyType === 'Sweeper') {
-      compatibleTypes = ['Sweeper', 'Tank'];
-    } else if (strategyType === 'Tank') {
-      compatibleTypes = ['Sweeper', 'Tank', 'Wall'];
-    } else if (strategyType === 'Wall') {
-      compatibleTypes = ['Tank', 'Wall'];
-    }
-  
-    return compatibleTypes;
-  }
-  
-  filterStrengthRows(acceptableTypes: string[], strengthRows: StrengthRow[]) {
-    return strengthRows.filter(x => x.strategyType && acceptableTypes.indexOf(x.strategyType) >= 0);
-  }
-
   getAllTeamPokemonNames() {
     // we can get all team (candidate) pokemon names also from the strategy info
     // which is better?
@@ -254,7 +176,7 @@ export class CombinationService {
       return filteredVector;
     });
     
-    const combinedVector = this.addVectors(...pokemonVectors);
+    const combinedVector = Utils.addVectors(...pokemonVectors);
 
     return combinedVector;
   }
@@ -311,7 +233,7 @@ export class CombinationService {
       results.push({
         pokemonIds: [ row.index.toString() ],
         pokemonNames: [ row.species ],
-        value: -1 * this.cosineSimilarity(combinedVector, filteredVector) // smaller cosine similarities have bigger complements
+        value: -1 * Utils.cosineSimilarity(combinedVector, filteredVector) // smaller cosine similarities have bigger complements
       })
     });
 
@@ -393,7 +315,7 @@ export class CombinationService {
     const results: SearchResult[] = [];
     targetStrengthRows.forEach(row => {
       const filteredVector = this.filterAndSortStrVectorByTargets(row.vector, selectedTargets);
-      const overallVector = this.addVectors(combinedVector, filteredVector);
+      const overallVector = Utils.addVectors(combinedVector, filteredVector);
       let minusSum = 0.0;
       overallVector.filter(val => val < 0).forEach(val => minusSum += val);
 
