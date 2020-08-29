@@ -7,7 +7,7 @@ type BattleTeamSearchResult = {
   strValues?: number[],
   minimumValueTargetPoke: PokemonStrategy,
   tacticsPattern?: TacticsPattern,
-  overused?: {from: PokemonStrategy, total: number}[],
+  overused?: {player: PokemonStrategy, total: number}[],
   overusedMinimum?: number
 }
 

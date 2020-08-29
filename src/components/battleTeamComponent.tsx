@@ -6,6 +6,7 @@ import { TeamComponent } from './TeamComponent';
 import PokemonStrategy from '../models/PokemonStrategy';
 import { CombinationService } from '../services/combination-service';
 import { GraphComponent } from './graphComponent';
+import { defaultTeam } from '../defaultList';
 
 type BattleTeamComponentProps = {
   sortedPokemonList: PokemonStrategy[],
@@ -24,8 +25,8 @@ export class BattleTeamComponent extends React.Component<BattleTeamComponentProp
     const pokeList = this.props.sortedPokemonList;
 
     this.state = { 
-      myTeam: [pokeList[0], pokeList[49], pokeList[33], pokeList[12], pokeList[43], pokeList[39]],
-      oppTeam: [pokeList[0], pokeList[49], pokeList[33], pokeList[12], pokeList[43], pokeList[39]],
+      myTeam: defaultTeam(pokeList),
+      oppTeam: defaultTeam(pokeList),
     };
   }
 
@@ -68,6 +69,7 @@ export class BattleTeamComponent extends React.Component<BattleTeamComponentProp
 
     const resultsAM = this.props.combinationService.calcTeamCombinationsOnAverageWeakest(this.state.myTeam, this.state.oppTeam);
     const resultsMM = this.props.combinationService.calcTeamCombinationsOnMaximumWeakest(this.state.myTeam, this.state.oppTeam);
+    const resultsAC = this.props.combinationService.calcTeamCombinationsToAllOpppnentsCombinations(this.state.myTeam, this.state.oppTeam);
 
     return (
     <>
@@ -159,6 +161,31 @@ export class BattleTeamComponent extends React.Component<BattleTeamComponentProp
                           );
                         })}
                       </td>
+                    </tr>                
+                  ))}
+                </tbody>
+              </Table> 
+            </Tab>
+            <Tab eventKey="tactics-minimax" title="Tactics Minimax">
+              <h4 className="mt-3">Selections (Method: Tactics Minimax)</h4>
+              <Table striped bordered hover size="sm">
+                <thead>
+                  <tr>
+                    <th key='h-i'>{t('search.columnRank')}</th>
+                    {resultsAC.myTeamResults[0].myTeam.map((x, i) => 
+                      <th key={`h-p${i}`}>{t('search.columnPokemon')}</th>)}
+                    <th key='h-v'>Min. Value</th>
+                    {/* <th key='h-t'>On Target</th> */}
+                    {/* <th key='h-d'>Details</th> */}
+                    {/* <th key='h-o'>Overused</th> */}
+                  </tr>
+                </thead>
+                <tbody>
+                  {resultsAC.myTeamResults.map((result, index) => (
+                    <tr key={index}>
+                      <td key={`${index}-i`}>{index + 1}</td>
+                      {result.myTeam.map((x, i) => <td key={`${index}-p${i}`}>{translateSpeciesIfPossible(x.species, t)}</td>)}
+                      <td key={`${index}-v`}>{result.value.toFixed(4)}</td>
                     </tr>                
                   ))}
                 </tbody>

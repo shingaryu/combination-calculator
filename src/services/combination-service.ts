@@ -242,6 +242,78 @@ export class CombinationService {
     return results;
   }
 
+  calcTeamCombinationsToAllOpppnentsCombinations(teamPokemons: PokemonStrategy[], opponentPokemons: PokemonStrategy[]) {
+    const myTeamCombinations = Utils.threeOfSixCombinations(teamPokemons);
+    const oppTeamCombinations = Utils.threeOfSixCombinations(opponentPokemons);
+
+    type ResultAC = {
+      myTeamResults: MyTeamResult[],
+      strongestMyTeamIndex: number, 
+      value: number
+    };
+
+    type MyTeamResult = {
+      myTeam: PokemonStrategy[],
+      oppTeamResults: OppTeamResult[],
+      strongestOppTeamIndex: number, 
+      value: number
+    }
+
+    type OppTeamResult = {
+      oppTeam: PokemonStrategy[],
+      tacticsResults: TacticsResult[],
+      bestTacticsIndex: number, 
+      value: number
+    }
+
+    type TacticsResult = {
+      tactics: TacticsPattern, 
+      remainingHpSet: {player: PokemonStrategy, total: number}[], 
+      remainingHpMinimumValue: number
+      remainingHpMinumumPoke: PokemonStrategy 
+    }
+
+    let result: ResultAC = { myTeamResults: [], strongestMyTeamIndex: -1, value: 0};
+    myTeamCombinations.forEach(myTeam => {
+      let myTeamResult: MyTeamResult = { myTeam, oppTeamResults: [], strongestOppTeamIndex: -1, value: 0};
+      oppTeamCombinations.forEach(oppTeam => {
+        let oppTeamResult:OppTeamResult = { oppTeam, tacticsResults:[], bestTacticsIndex: -1, value: 0 };
+        const allMatchups = this.allMatchupValues(myTeam, oppTeam);
+        const allTactics = this.allTacticsCombinations(allMatchups);
+        allTactics.forEach(tactics => {
+          const remainingHpSet = this.remainingHp(tactics);
+          const remainingHpMinimumIndex = Utils.minimumIndex(remainingHpSet, x => x.total);
+          const remainingHpMinimumValue = remainingHpSet[remainingHpMinimumIndex].total;
+          const remainingHpMinumumPoke = remainingHpSet[remainingHpMinimumIndex].player;
+          
+          const tacticsResult = { tactics, remainingHpSet, remainingHpMinimumValue, remainingHpMinumumPoke };
+          oppTeamResult.tacticsResults.push(tacticsResult);
+        });
+        
+        const bestTacticsIndex = Utils.maximumIndex<any>(oppTeamResult.tacticsResults, x => x.remainingHpMinimumValue);
+        // const bestTactics = oppTeamResult.tacticsResults[bestTacticsIndex];
+        const value = oppTeamResult.tacticsResults[bestTacticsIndex].remainingHpMinimumValue;
+        oppTeamResult = Object.assign(oppTeamResult, {bestTacticsIndex, value});
+        myTeamResult.oppTeamResults.push(oppTeamResult);
+      });
+
+      const strongestOppTeamIndex = Utils.minimumIndex<any>(myTeamResult.oppTeamResults, x => x.value);
+      // const strongestOpp = myTeamResult.oppTeamResults[strongestOppTeamIndex];
+      const value = myTeamResult.oppTeamResults[strongestOppTeamIndex].value;
+      myTeamResult = Object.assign(myTeamResult, {strongestOppTeamIndex, value});
+      result.myTeamResults.push(myTeamResult);
+    });
+
+    const strongestMyTeamIndex = Utils.maximumIndex<any>(result.myTeamResults, x => x.value);
+    // const strongestMyTeam = result.myTeamResults[strongestMyTeamIndex];
+    const value = result.myTeamResults[strongestMyTeamIndex].value;
+    result = Object.assign(result, {strongestMyTeamIndex, value});
+
+    result.myTeamResults.sort((a, b) => b.value - a.value); // higher values come first
+
+    return result;
+  }
+
   private filterAndSortStrVectorByTargets(vector: number[], targets: PokemonStrategy[]) {
     const newVector = targets.map(tar => {
       const columnIndex = this.targetPokeIds.findIndex(x => x === tar.id);
@@ -256,6 +328,12 @@ export class CombinationService {
   }
 
   private DetectOverused(tactics: TacticsPattern) {
+    const remainingHpArray = this.remainingHp(tactics);
+    const overused = remainingHpArray.filter(x => x.total < 0);
+    return overused;
+  }
+
+  private remainingHp(tactics: TacticsPattern) {
     const remainingHpArray: Map<PokemonStrategy, number> = new Map();
     for (let i = 0; i < tactics.matchups.length; i++) {
       const maxi = tactics.matchups[i];
@@ -271,11 +349,9 @@ export class CombinationService {
       remainingHpArray.set(maxi.player, updatedHp);
     }
 
-    const overused: any[] = [];
+    const overused: {player: PokemonStrategy, total: number}[] = [];
     remainingHpArray.forEach((value, key) => {
-      if (value < 0) {
-        overused.push({player: key, total: value});
-      }
+      overused.push({player: key, total: value});
     });
 
     return overused;
@@ -328,5 +404,40 @@ export class CombinationService {
     })
 
     return { matchups: tacticsMatchups};
+  }
+
+  private allTacticsCombinations(matchups: Matchup[]): TacticsPattern[] {
+    const oppPokemons: PokemonStrategy[] = [];
+    matchups.forEach(x => {
+      if (!oppPokemons.find(y => x.opponent.id === y.id)) {
+        oppPokemons.push(x.opponent);
+      }
+    });
+
+    let tacticsMatchups: Matchup[][] = [];
+    oppPokemons.forEach(oppPokemon => {      
+      const candidateMatchups = matchups.filter(x => x.opponent.id === oppPokemon.id);
+      if (tacticsMatchups.length === 0) {
+        tacticsMatchups = candidateMatchups.map(x => [x]);
+      } else {
+        tacticsMatchups = this.newDimensionalCombinations(tacticsMatchups, candidateMatchups);
+      }
+    });
+    
+    const tacticsCombinations = tacticsMatchups.map(x => ({ matchups: x }));
+    return tacticsCombinations;
+  }
+
+  private newDimensionalCombinations<T>(currentCombinations: T[][], newDimension: T[]): T[][] {
+    const newCombinations: T[][] = [];
+    currentCombinations.forEach(x => {
+      newDimension.forEach(y => {
+        const newArray = x.concat();
+        newArray.push(y);
+        newCombinations.push(newArray);
+      })
+    });
+
+    return newCombinations;   
   }
 }
