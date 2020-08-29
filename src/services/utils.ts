@@ -1,4 +1,5 @@
 import StrengthRow from "./StrengthRow";
+import PokemonStrategy from "../models/PokemonStrategy";
 
 export function addVectors(...vectors: number[][]) {
   const length = vectors[0].length;
@@ -77,4 +78,29 @@ export function compatibleTypes(strategyType: string) {
 
 export function filterStrengthRows(acceptableTypes: string[], strengthRows: StrengthRow[]) {
   return strengthRows.filter(x => x.strategyType && acceptableTypes.indexOf(x.strategyType) >= 0);
+}
+
+export function threeOfSixCombinations(pokemons: PokemonStrategy[]) {
+  const combinations = [];
+  for (let i = 0; i < pokemons.length; i++) {
+    for (let j = i + 1; j < pokemons.length; j++) {
+      for (let k = j + 1; k < pokemons.length; k++) {
+        combinations.push([pokemons[i], pokemons[j], pokemons[k]]);
+      }
+    }
+  }
+
+  return combinations;
+}
+
+export function maximumIndex<T>(array: T[], value: (item: T) => number): number {
+  const maximumValue = Math.max(...array.map(x => value(x)));
+  const maximumValueIndex = array.findIndex(x => value(x) === maximumValue);
+  return maximumValueIndex;
+}
+
+export function minimumIndex<T>(array: T[], value: (item: T) => number): number {
+  const minimumValue = Math.min(...array.map(x => value(x)));
+  const minimumValueIndex = array.findIndex(x => value(x) === minimumValue);
+  return minimumValueIndex;
 }

@@ -1,11 +1,12 @@
 import PokemonStrategy from "./PokemonStrategy";
+import TacticsPattern from "./TacticsPattern";
 
 type BattleTeamSearchResult = {
   pokemons: PokemonStrategy[],
   value: number,
   strValues?: number[],
   minimumValueTargetPoke: PokemonStrategy,
-  eachMaximums?: { to: PokemonStrategy, from: PokemonStrategy, value: number}[],
+  tacticsPattern?: TacticsPattern,
   overused?: {from: PokemonStrategy, total: number}[],
   overusedMinimum?: number
 }

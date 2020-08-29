@@ -141,9 +141,9 @@ export class BattleTeamComponent extends React.Component<BattleTeamComponentProp
                       <td key={`${index}-v`}>{result.value.toFixed(4)}</td>
                       <td key={`${index}-tn`}>{translateSpeciesIfPossible(result.minimumValueTargetPoke.species ?? '', t)}</td>
                       <td>
-                        {result.eachMaximums?.map((maximum, index) => {
-                          const toTarget = maximum.to;
-                          const fromPokemon = maximum.from;
+                        {result.tacticsPattern?.matchups?.map((maximum, index) => {
+                          const toTarget = maximum.opponent;
+                          const fromPokemon = maximum.player;
                           const valueInt = Math.round(maximum.value);
                           return (
                             <div key={`em-${index}`}>{`To: ${translateSpeciesIfPossible(toTarget.species, t)} From: ${translateSpeciesIfPossible(fromPokemon.species, t)} Value: ${valueInt}`}</div>
@@ -152,7 +152,7 @@ export class BattleTeamComponent extends React.Component<BattleTeamComponentProp
                       </td>
                       <td>
                         {result.overused?.map((info: any, index: number) => {
-                          const fromPokemon = info.from;
+                          const fromPokemon = info.player;
                           const valueInt = Math.round(info.total);
                           return (
                             <div key={`ou-${index}`}>{`${translateSpeciesIfPossible(fromPokemon.species, t)}: ${valueInt}`}</div>

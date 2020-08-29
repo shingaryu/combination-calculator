@@ -4,6 +4,8 @@ import PokemonStrategy from '../models/PokemonStrategy';
 import StrengthTableLoader from './strengthTableLoader';
 import StrengthRow from './StrengthRow';
 import * as Utils from './utils';
+import Matchup from '../models/Matchup';
+import TacticsPattern from '../models/TacticsPattern';
 
 export class CombinationService {
   private strengthRows: StrengthRow[];
@@ -58,43 +60,6 @@ export class CombinationService {
     const combinedVector = Utils.addVectors(...pokemonVectors);
 
     return combinedVector;
-  }
-
-  strValuesOfTeamOnMaximum(teamPokemons: PokemonStrategy[], selectedTargets: PokemonStrategy[]):
-    { to: PokemonStrategy, from: PokemonStrategy, value: number}[] {
-    // is it needed to remove duplications about team members?
-
-    // if (!teamPokemonIndices || teamPokemonIndices.length === 0) {
-    //   const allZero = [];
-    //   for (let i = 0; i < selectedTargetIndices.length; i++) {
-    //     allZero.push(0);
-    //   }
-    //   return allZero;
-    // }
-
-    const pokemonVectors = teamPokemons.map(pokeStrategy => {
-      const row = this.strengthRows.find(x => x.strategyId === pokeStrategy.id);
-      if (!row) {
-        throw new Error('Error: team pokemon does not exist in strength rows');
-      }
-
-      const filteredVector = this.filterAndSortStrVectorByTargets(row.vector, selectedTargets);
-      return filteredVector;
-    });
-
-    const maximums = [];
-    for (let i = 0; i < selectedTargets.length; i++) {
-      const valuesToThisTarget = [];
-      for (let j = 0; j < teamPokemons.length; j++) {
-        valuesToThisTarget.push(pokemonVectors[j][i]);
-      }
-      
-      const maximumValue = Math.max(...valuesToThisTarget);
-      const maximumIndex = valuesToThisTarget.findIndex(x => x === maximumValue);
-      maximums.push({ to: selectedTargets[i], from: teamPokemons[maximumIndex], value: maximumValue});
-    }
-
-    return maximums;
   }
 
   calcTargetStrengthsComplement(teamPokemons: PokemonStrategy[], selectedTargets: PokemonStrategy[], compatibleStrTypes: string[]) {
@@ -211,7 +176,7 @@ export class CombinationService {
   }
 
   calcTeamCombinationsOnAverageWeakest(teamPokemons: PokemonStrategy[], opponentPokemons: PokemonStrategy[]) {
-    const battleTeamCombinations = this.threeOfSixCombinations(teamPokemons);
+    const battleTeamCombinations = Utils.threeOfSixCombinations(teamPokemons);
 
     const results: BattleTeamSearchResult[] = [];
     battleTeamCombinations.forEach(pokemons => {
@@ -233,16 +198,16 @@ export class CombinationService {
   }
 
   calcTeamCombinationsOnMaximumWeakest(teamPokemons: PokemonStrategy[], opponentPokemons: PokemonStrategy[]) {
-    const battleTeamCombinations = this.threeOfSixCombinations(teamPokemons);
+    const battleTeamCombinations = Utils.threeOfSixCombinations(teamPokemons);
 
     const results: BattleTeamSearchResult[] = [];
     battleTeamCombinations.forEach(pokemons => {
-      const maximums = this.strValuesOfTeamOnMaximum(pokemons, opponentPokemons);
-      const strValues = maximums.map(x => x.value);
-      const minimumValue = Math.min(...strValues);
-      const minimumValueIndex = strValues.findIndex(x => x === minimumValue);
-      const minimumValueOppPoke = opponentPokemons[minimumValueIndex];
-      const overused = this.DetectOverused(maximums);
+      const matchups = this.allMatchupValues(pokemons, opponentPokemons);
+      const tactics = this.maximumImmunitiesTactics(matchups);
+      const minimumIndex = Utils.minimumIndex(tactics.matchups, (item) => item.value);
+      const minimumValue = tactics.matchups[minimumIndex].value;
+      const minimumValueOppPoke = tactics.matchups[minimumIndex].opponent;
+      const overused = this.DetectOverused(tactics);
       let overusedMinimum = 0;
       overused.forEach(o => {
         if (o.total < overusedMinimum) {
@@ -251,10 +216,9 @@ export class CombinationService {
       });
       results.push({
         pokemons: pokemons,        
-        strValues: strValues,
         value: minimumValue,
         minimumValueTargetPoke: minimumValueOppPoke,
-        eachMaximums: maximums,
+        tacticsPattern: tactics,
         overused: overused,
         overusedMinimum: overusedMinimum
       })
@@ -278,19 +242,6 @@ export class CombinationService {
     return results;
   }
 
-  private threeOfSixCombinations(pokemons: PokemonStrategy[]) {
-    const combinations = [];
-    for (let i = 0; i < pokemons.length; i++) {
-      for (let j = i + 1; j < pokemons.length; j++) {
-        for (let k = j + 1; k < pokemons.length; k++) {
-          combinations.push([pokemons[i], pokemons[j], pokemons[k]]);
-        }
-      }
-    }
-
-    return combinations;
-  }
-
   private filterAndSortStrVectorByTargets(vector: number[], targets: PokemonStrategy[]) {
     const newVector = targets.map(tar => {
       const columnIndex = this.targetPokeIds.findIndex(x => x === tar.id);
@@ -304,29 +255,78 @@ export class CombinationService {
     return newVector;
   }
 
-  private DetectOverused(maximums: { to: PokemonStrategy, from: PokemonStrategy, value: number}[] ) {
+  private DetectOverused(tactics: TacticsPattern) {
     const remainingHpArray: Map<PokemonStrategy, number> = new Map();
-    for (let i = 0; i < maximums.length; i++) {
-      const maxi = maximums[i];
-      if (remainingHpArray.get(maxi.from) === undefined) {
-        remainingHpArray.set(maxi.from, 1024);
+    for (let i = 0; i < tactics.matchups.length; i++) {
+      const maxi = tactics.matchups[i];
+      if (remainingHpArray.get(maxi.player) === undefined) {
+        remainingHpArray.set(maxi.player, 1024);
       }
 
-      let currentHp = remainingHpArray.get(maxi.from);
+      let currentHp = remainingHpArray.get(maxi.player);
       if (currentHp === undefined) {
         currentHp = 1024;
       }
       const updatedHp = currentHp - (1024 - maxi.value);
-      remainingHpArray.set(maxi.from, updatedHp);
+      remainingHpArray.set(maxi.player, updatedHp);
     }
 
     const overused: any[] = [];
     remainingHpArray.forEach((value, key) => {
       if (value < 0) {
-        overused.push({from: key, total: value});
+        overused.push({player: key, total: value});
       }
     });
 
     return overused;
+  }
+
+  private allMatchupValues(teamPokemons: PokemonStrategy[], targetPokemons: PokemonStrategy[]): Matchup[] {
+    const pokemonVectors = teamPokemons.map(pokeStrategy => {
+      const row = this.strengthRows.find(x => x.strategyId === pokeStrategy.id);
+      if (!row) {
+        throw new Error('Error: team pokemon does not exist in strength rows');
+      }
+
+      const filteredVector = this.filterAndSortStrVectorByTargets(row.vector, targetPokemons);
+      
+      return filteredVector;
+    });
+    
+    const matchups: Matchup[] = [];
+    for (let i = 0; i < teamPokemons.length; i++) {
+      for (let j = 0; j < targetPokemons.length; j++) {
+        const matchup = {
+          player: teamPokemons[i],
+          opponent: targetPokemons[j],
+          value: pokemonVectors[i][j]
+        }    
+        matchups.push(matchup);
+      }      
+    }
+
+    return matchups;
+  }
+
+  private maximumImmunitiesTactics(matchups: Matchup[]): TacticsPattern {
+    const tacticsMatchups: Matchup[] = [];
+
+    const maximumMatchups = new Map<PokemonStrategy, Matchup>();
+    matchups.forEach(matchup => {
+      const currentMaximum = maximumMatchups.get(matchup.opponent);
+      if (!currentMaximum) {
+        maximumMatchups.set(matchup.opponent, matchup);
+      } else {
+        if (currentMaximum.value < matchup.value) {
+          maximumMatchups.set(matchup.opponent, matchup);
+        }
+      }
+    });
+
+    maximumMatchups.forEach(value => {
+      tacticsMatchups.push(value);
+    })
+
+    return { matchups: tacticsMatchups};
   }
 }
