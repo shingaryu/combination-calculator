@@ -334,8 +334,11 @@ export class CombinationService {
     });
 
     const strongestMyTeamIndex = Utils.maximumIndex<MyTeamResultWC>(result.myTeamResults.filter(y => y.overallCoverage === 1), x => x.maximumCoverage);
-    const indivisualCoverage = result.myTeamResults[strongestMyTeamIndex].maximumCoverage;
-    result = Object.assign(result, {strongestMyTeamIndex, indivisualCoverage});
+    let indivisualCoverage = -1;
+    if (strongestMyTeamIndex >= 0) {
+      indivisualCoverage = result.myTeamResults[strongestMyTeamIndex].maximumCoverage;
+      result = Object.assign(result, {strongestMyTeamIndex, indivisualCoverage});
+    }
 
     result.myTeamResults.sort((a, b) => {
       if (b.overallCoverage < a.overallCoverage) {
