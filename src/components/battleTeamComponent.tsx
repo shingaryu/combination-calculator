@@ -75,6 +75,7 @@ export class BattleTeamComponent extends React.Component<BattleTeamComponentProp
     const resultsAM = this.props.combinationService.calcTeamCombinationsOnAverageWeakest(this.state.myTeam, this.state.oppTeam);
     const resultsMM = this.props.combinationService.calcTeamCombinationsOnMaximumWeakest(this.state.myTeam, this.state.oppTeam);
     const resultsAC = this.props.combinationService.calcTeamCombinationsToAllOpppnentsCombinations(this.state.myTeam, this.state.oppTeam);
+    const resultsWC = this.props.combinationService.calcTeamCombinationsWithCoverage(this.state.myTeam, this.state.oppTeam);
 
     const myTeamToString = this.state.selectedMyTeamIndex !== -1 ? resultsAC.myTeamResults[this.state.selectedMyTeamIndex].myTeam.map(x => translateSpeciesIfPossible(x.species, t)).join(', '): '';
 
@@ -193,6 +194,46 @@ export class BattleTeamComponent extends React.Component<BattleTeamComponentProp
                       <td key={`${index}-v`}>{result.value.toFixed(4)}</td>
                       <td key={`${index}-dt`}>
                         <Button variant="outline-dark" size="sm" onClick={() => this.setState({modalShow: true, selectedMyTeamIndex: index})}>Show</Button>
+                      </td>
+                    </tr>                
+                  ))}
+                </tbody>
+              </Table> 
+            </Tab>
+            <Tab eventKey="coverage" title="Coverage">
+              <h4 className="mt-3">Selections (Method: Coverage)</h4>
+              <Table striped bordered hover size="sm">
+                <thead>
+                  <tr>
+                    <th key='h-i'>{t('search.columnRank')}</th>
+                    {resultsWC.myTeamResults[0].myTeam.map((x, i) => 
+                      <th key={`h-p${i}`}>{t('search.columnPokemon')}</th>)}
+                    <th key='h-oc'>Overall Coverage</th>
+                    <th key='h-nc'>Num of Coverage</th>
+                    <th key='h-mcp'>M.C. Pokemon</th>
+                    <th key='h-mc'>Maximum Coverage</th>
+                    <th key='h-dt'>Details</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {resultsWC.myTeamResults.map((result, index) => (
+                    <tr key={index}>
+                      <td key={`${index}-i`}>{index + 1}</td>
+                      {result.myTeam.map((x, i) => <td key={`${index}-p${i}`}>{translateSpeciesIfPossible(x.species, t)}</td>)}
+                      <td key={`${index}-oc`}>{result.overallCoverage.toFixed(3)}</td>
+                      <td key={`${index}-nc`}>{result.coverageNum.toFixed(0)}</td>
+                      <td key={`${index}-mcp`}>{translateSpeciesIfPossible(result.myTeam[result.maximumCoveragePokemonIndex].species, t)}</td>
+                      <td key={`${index}-mc`}>{result.maximumCoverage.toFixed(0)}</td>
+                      <td key={`${index}-dt`} style={{fontSize: "small"}}>
+                        {result.advantageousMatchups.map((x, i) => {
+                          const inner = x.matchups.map((y, j) => {
+                            const playerSpecies = translateSpeciesIfPossible(y.player.species, t);
+                            const opponentSpecies = translateSpeciesIfPossible(y.opponent.species, t);  
+                            return <div key={`${index}-dt-${i}-${j}`}>{`${playerSpecies} -> ${opponentSpecies}: ${y.value.toFixed(0)}`}</div>
+                          })
+
+                          return inner;
+                        })}
                       </td>
                     </tr>                
                   ))}

@@ -6,7 +6,7 @@ import StrengthRow from './StrengthRow';
 import * as Utils from './utils';
 import Matchup from '../models/Matchup';
 import TacticsPattern from '../models/TacticsPattern';
-import { ResultAC, MyTeamResult, OppTeamResult } from '../models/ResultAc';
+import { ResultAC, MyTeamResult, OppTeamResult, ResultWC, MyTeamResultWC } from '../models/ResultAc';
 
 export class CombinationService {
   private strengthRows: StrengthRow[];
@@ -284,6 +284,80 @@ export class CombinationService {
     result = Object.assign(result, {strongestMyTeamIndex, value});
 
     result.myTeamResults.sort((a, b) => b.value - a.value); // higher values come first
+
+    return result;
+  }
+
+  calcTeamCombinationsWithCoverage(teamPokemons: PokemonStrategy[], opponentPokemons: PokemonStrategy[]) {
+    const matchupValueThreshold = 100;
+
+    const myTeamCombinations = Utils.threeOfSixCombinations(teamPokemons);
+
+    let result: ResultWC = { myTeamResults: [], strongestMyTeamIndex: -1, indivisualCoverage: 0};
+    myTeamCombinations.forEach(myTeam => {
+      const allMatchups = this.allMatchupValues(myTeam, opponentPokemons);
+      let advantageousMatchups: { poke: PokemonStrategy, matchups: Matchup[] }[] = [];
+
+      const maps = new Map<PokemonStrategy, Matchup[]>();
+      allMatchups.forEach(matchup => {
+        if (matchup.value < matchupValueThreshold) {
+          return;
+        }
+
+        const value = maps.get(matchup.player);
+        if (!value) {
+          maps.set(matchup.player, [matchup]);
+        } else {
+          const matchups = value.concat();
+          matchups.push(matchup);
+          maps.set(matchup.player, matchups);
+        }
+      });
+
+      maps.forEach((value, key) => {
+        advantageousMatchups.push({poke: key, matchups: value});
+      })
+
+      const allOpponents: PokemonStrategy[] = [];
+      advantageousMatchups.forEach(x => x.matchups.forEach(y => allOpponents.push(y.opponent)));
+
+      const uniqueOpponents = Array.from(new Set(allOpponents));
+
+      const overallCoverage = uniqueOpponents.length / opponentPokemons.length;
+      const maximumCoveragePokemonIndex = Utils.maximumIndex(advantageousMatchups, x => x.matchups.length);
+      const maximumCoverage = advantageousMatchups[maximumCoveragePokemonIndex].matchups.length;
+      let coverageNum = 0;
+      advantageousMatchups.forEach(x => coverageNum += x.matchups.length);
+      const myTeamResultWC = { myTeam, advantageousMatchups, maximumCoveragePokemonIndex, maximumCoverage, coverageNum, overallCoverage };
+
+      result.myTeamResults.push(myTeamResultWC);
+    });
+
+    const strongestMyTeamIndex = Utils.maximumIndex<MyTeamResultWC>(result.myTeamResults.filter(y => y.overallCoverage === 1), x => x.maximumCoverage);
+    const indivisualCoverage = result.myTeamResults[strongestMyTeamIndex].maximumCoverage;
+    result = Object.assign(result, {strongestMyTeamIndex, indivisualCoverage});
+
+    result.myTeamResults.sort((a, b) => {
+      if (b.overallCoverage < a.overallCoverage) {
+        return -1;
+      } else if (a.overallCoverage < b.overallCoverage) {
+        return 1;
+      } else {
+        if (b.coverageNum < a.coverageNum) {
+          return -1;
+        } else if (a.coverageNum < b.coverageNum) {
+          return 1;
+        } else {
+          if (b.maximumCoverage < a.maximumCoverage) {
+            return -1;
+          } else if (a.maximumCoverage < b.maximumCoverage) {
+            return 1;
+          } else {
+            return 0;
+          }
+        }
+      }
+    }); // higher values come first
 
     return result;
   }

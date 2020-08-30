@@ -1,5 +1,6 @@
 import PokemonStrategy from "./PokemonStrategy";
 import TacticsPattern from "./TacticsPattern";
+import Matchup from "./Matchup";
 
 export type ResultAC = {
   myTeamResults: MyTeamResult[],
@@ -26,4 +27,19 @@ export type TacticsResult = {
   remainingHpSet: {player: PokemonStrategy, total: number}[], 
   remainingHpMinimumValue: number
   remainingHpMinumumPoke: PokemonStrategy 
+}
+
+export type ResultWC = {
+  myTeamResults: MyTeamResultWC[],
+  strongestMyTeamIndex: number,
+  indivisualCoverage: number  
+}
+
+export type MyTeamResultWC = {
+  myTeam: PokemonStrategy[],
+  advantageousMatchups: { poke: PokemonStrategy, matchups: Matchup[] }[],
+  maximumCoveragePokemonIndex: number,
+  maximumCoverage: number,
+  coverageNum: number,
+  overallCoverage: number
 }
