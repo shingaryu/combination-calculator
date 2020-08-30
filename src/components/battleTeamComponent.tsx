@@ -1,5 +1,5 @@
 import React from 'react';
-import { Container, Row, Col, Table, Tabs, Tab, Modal, Button, Form, InputGroup } from 'react-bootstrap'
+import { Container, Row, Col, Table, Tabs, Tab, Modal, Button } from 'react-bootstrap'
 import { I18nContext } from 'react-i18next';
 import { translateSpeciesIfPossible } from '../services/stringSanitizer';
 import PokemonStrategy from '../models/PokemonStrategy';
@@ -7,6 +7,7 @@ import { CombinationService } from '../services/combination-service';
 import { GraphComponent } from './graphComponent';
 import { defaultTeam } from '../defaultList';
 import { BattleTeamDetailsComponent } from './battleTeamDetailsComponent';
+import { SimpleTeamComponent } from './simpleTeamComponent';
 
 type BattleTeamComponentProps = {
   sortedPokemonList: PokemonStrategy[],
@@ -36,18 +37,12 @@ export class BattleTeamComponent extends React.Component<BattleTeamComponentProp
 
   static contextType = I18nContext;
 
-  onSelectMyPokemons(index: number, pokemonId: string) {
-    const myTeam = this.state.myTeam.concat();
-    const poke = this.props.sortedPokemonList.find(x => x.id === pokemonId) || myTeam[index];
-    myTeam[index] = poke;
-    this.setState( { myTeam: myTeam});
+  onChangeMyPokemons(pokemons: PokemonStrategy[]) {
+    this.setState({ myTeam: pokemons });
   }
 
-  onSelectOppPokemons(index: number, pokemonId: string) {
-    const oppTeam = this.state.oppTeam.concat();
-    const poke = this.props.sortedPokemonList.find(x => x.id === pokemonId) || oppTeam[index];
-    oppTeam[index] = poke;
-    this.setState( { oppTeam: oppTeam});
+  onChangeOppPokemons(pokemons: PokemonStrategy[]) {
+    this.setState({ oppTeam: pokemons });
   }
 
   render() {
@@ -87,35 +82,11 @@ export class BattleTeamComponent extends React.Component<BattleTeamComponentProp
         <Row>
           <Col>
             <h4>My Team</h4>
-            {
-              this.state.myTeam.map((x, i) => (
-                <InputGroup className="mb-2 mr-2" key={`sl-my-${i}`} style={{width: 190}}>
-                  <Form.Control as="select" value={this.state.myTeam[i].id} 
-                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => this.onSelectMyPokemons(i, e.target.value)}>
-                    { this.props.sortedPokemonList.map(poke => (
-                      <option key={`op-my-${poke.id}`} 
-                        value={poke.id}>{translateSpeciesIfPossible(poke.species, t)}</option>
-                    ))}
-                  </Form.Control>
-                </InputGroup>
-              ))
-            }
+            <SimpleTeamComponent num={6} pokemonList={this.props.sortedPokemonList} onChange={(pokemons) => this.onChangeMyPokemons(pokemons)}></SimpleTeamComponent>
           </Col>
           <Col>
             <h4>Opponent's Team</h4>
-            {
-              this.state.oppTeam.map((x, i) => (
-                <InputGroup className="mb-2 mr-2" key={`sl-opp-${i}`} style={{width: 190}}>
-                  <Form.Control as="select" value={this.state.oppTeam[i].id}
-                     onChange={(e: React.ChangeEvent<HTMLInputElement>) => this.onSelectOppPokemons(i, e.target.value)}>
-                    { this.props.sortedPokemonList.map(poke => (
-                      <option key={`op-opp-${poke.id}`} 
-                        value={poke.id}>{translateSpeciesIfPossible(poke.species, t)}</option>
-                    ))}
-                  </Form.Control>
-                </InputGroup>
-              ))
-            }
+            <SimpleTeamComponent num={6} pokemonList={this.props.sortedPokemonList} onChange={(pokemons) => this.onChangeOppPokemons(pokemons)}></SimpleTeamComponent>
           </Col>
         </Row>
         <Row>
