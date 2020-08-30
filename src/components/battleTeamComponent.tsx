@@ -76,6 +76,8 @@ export class BattleTeamComponent extends React.Component<BattleTeamComponentProp
     const resultsMM = this.props.combinationService.calcTeamCombinationsOnMaximumWeakest(this.state.myTeam, this.state.oppTeam);
     const resultsAC = this.props.combinationService.calcTeamCombinationsToAllOpppnentsCombinations(this.state.myTeam, this.state.oppTeam);
 
+    const myTeamToString = this.state.selectedMyTeamIndex !== -1 ? resultsAC.myTeamResults[this.state.selectedMyTeamIndex].myTeam.map(x => translateSpeciesIfPossible(x.species, t)).join(', '): '';
+
     return (
     <>
       <Container fluid className="mt-3">
@@ -180,9 +182,6 @@ export class BattleTeamComponent extends React.Component<BattleTeamComponentProp
                     {resultsAC.myTeamResults[0].myTeam.map((x, i) => 
                       <th key={`h-p${i}`}>{t('search.columnPokemon')}</th>)}
                     <th key='h-v'>Min. Value</th>
-                    {/* <th key='h-t'>On Target</th> */}
-                    {/* <th key='h-d'>Details</th> */}
-                    {/* <th key='h-o'>Overused</th> */}
                     <th key='h-dt'>Details</th>
                   </tr>
                 </thead>
@@ -206,7 +205,7 @@ export class BattleTeamComponent extends React.Component<BattleTeamComponentProp
       </Container>
       <Modal size="lg" show={this.state.modalShow} onHide={() => this.setState({modalShow: false})}>
         <Modal.Header closeButton>
-          <Modal.Title>Details: {this.state.selectedMyTeamIndex}</Modal.Title>
+          <Modal.Title>Details: {this.state.selectedMyTeamIndex+1} ({myTeamToString})</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <BattleTeamDetailsComponent resultAC={resultsAC} selectedMyTeamIndex={this.state.selectedMyTeamIndex} />

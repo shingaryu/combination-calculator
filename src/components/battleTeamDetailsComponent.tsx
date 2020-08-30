@@ -29,7 +29,8 @@ export class BattleTeamDetailsComponent extends React.Component<BattleTeamDetail
     const t = this.context.i18n.t.bind(this.context.i18n);
 
     const selectedMyTeamResult = this.props.resultAC.myTeamResults[this.props.selectedMyTeamIndex];
-    const allOppTeamLabels = selectedMyTeamResult.oppTeamResults.map(x => x.oppTeam.map(y => y.species).join(', '));
+    // const allOppTeamLabels = selectedMyTeamResult.oppTeamResults.map(x => x.oppTeam.map(y => y.species).join(', '));
+    const allOppTeamLabels = selectedMyTeamResult.oppTeamResults.map((x, i) => `Selection ${i + 1}`);
     const allOppTeamDatasets = [
       {
         dataLabel: 'Minimum remaining HP',
@@ -42,8 +43,8 @@ export class BattleTeamDetailsComponent extends React.Component<BattleTeamDetail
       scales: {
         xAxes: [{
           ticks: {
-            minRotation: 90,
-            maxRotation: 90
+            minRotation: 60,
+            maxRotation: 60
           }
         }],
         yAxes: [{
@@ -57,18 +58,19 @@ export class BattleTeamDetailsComponent extends React.Component<BattleTeamDetail
     }
     return (
       <>
-        <h4>Minimum Remaining HP for Each Opponent Selections</h4>
-        <GraphComponent labels={allOppTeamLabels} datasets={allOppTeamDatasets} optionsBar={graphOptions}/>
+        <h4>Minimum Remaining HP for Each Opponent Selection</h4>
+        <GraphComponent labels={allOppTeamLabels} datasets={allOppTeamDatasets} optionsBar={graphOptions}
+          widthVertical={700} heightVertical={250} />
         {/* <GraphComponent labels={allTacticsLabels} datasets={allTacticsDatasets} optionsBar={graphOptions}/> */}
-        <h4>Tactics for each Opponent Selections</h4>
+        <h4 className="mt-3">Tactics for Each Opponent Selection</h4>
         <Table striped bordered hover size="sm">
           <thead>
             <tr>
               <th key='h-i'>Index</th>
                 {selectedMyTeamResult.oppTeamResults[0].oppTeam.map((x, i) => 
                 <th key={`h-p${i}`}>{t('search.columnPokemon')}</th>)}
-              <th key='h-v'>Min. Value</th>
-              <th key='h-dt'>Details</th>
+              <th key='h-v'>Min.</th>
+              <th key='h-dt'>Tactics</th>
             </tr>
           </thead>
           <tbody>
@@ -77,7 +79,7 @@ export class BattleTeamDetailsComponent extends React.Component<BattleTeamDetail
                 <td key={`${index}-i`}>{index + 1}</td>
                 {result.oppTeam.map((x, i) => <td key={`${index}-p${i}`}>{translateSpeciesIfPossible(x.species, t)}</td>)}
                 <td key={`${index}-v`}>{result.value.toFixed(4)}</td>
-                <td key={`${index}-dt`}>
+                <td key={`${index}-dt`} style={{fontSize: "small"}}>
                   {result.tacticsResults[result.bestTacticsIndex].tactics.matchups.map((x, i) => {
                     const playerSpecies = translateSpeciesIfPossible(x.player.species, t);
                     const opponentSpecies = translateSpeciesIfPossible(x.opponent.species, t);
