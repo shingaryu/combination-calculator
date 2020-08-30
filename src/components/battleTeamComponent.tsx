@@ -1,5 +1,5 @@
 import React from 'react';
-import { Container, Row, Col, Table, Tabs, Tab } from 'react-bootstrap'
+import { Container, Row, Col, Table, Tabs, Tab, Modal, Button } from 'react-bootstrap'
 import { I18nContext } from 'react-i18next';
 import { translateSpeciesIfPossible } from '../services/stringSanitizer';
 import { TeamComponent } from './TeamComponent';
@@ -7,6 +7,7 @@ import PokemonStrategy from '../models/PokemonStrategy';
 import { CombinationService } from '../services/combination-service';
 import { GraphComponent } from './graphComponent';
 import { defaultTeam } from '../defaultList';
+import { BattleTeamDetailsComponent } from './battleTeamDetailsComponent';
 
 type BattleTeamComponentProps = {
   sortedPokemonList: PokemonStrategy[],
@@ -15,7 +16,9 @@ type BattleTeamComponentProps = {
 
 type BattleTeamComponentState = {
   myTeam: PokemonStrategy[],
-  oppTeam: PokemonStrategy[]
+  oppTeam: PokemonStrategy[],
+  modalShow: boolean,
+  selectedMyTeamIndex: number
 }
 
 export class BattleTeamComponent extends React.Component<BattleTeamComponentProps, BattleTeamComponentState> {
@@ -27,6 +30,8 @@ export class BattleTeamComponent extends React.Component<BattleTeamComponentProp
     this.state = { 
       myTeam: defaultTeam(pokeList),
       oppTeam: defaultTeam(pokeList),
+      modalShow: false,
+      selectedMyTeamIndex: -1
     };
   }
 
@@ -92,7 +97,7 @@ export class BattleTeamComponent extends React.Component<BattleTeamComponentProp
         </Row>
         <Row>
           <Col>
-          <Tabs id="method-tabs" defaultActiveKey="maximum-minimum" className="mt-3">
+          <Tabs id="method-tabs" defaultActiveKey="tactics-minimax" className="mt-3">
             <Tab eventKey="average-minimum" title="Average Minimum">
               <h4 className="mt-3">Selections (Method: Average Minimum)</h4>
               <Table striped bordered hover size="sm">
@@ -178,6 +183,7 @@ export class BattleTeamComponent extends React.Component<BattleTeamComponentProp
                     {/* <th key='h-t'>On Target</th> */}
                     {/* <th key='h-d'>Details</th> */}
                     {/* <th key='h-o'>Overused</th> */}
+                    <th key='h-dt'>Details</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -186,6 +192,9 @@ export class BattleTeamComponent extends React.Component<BattleTeamComponentProp
                       <td key={`${index}-i`}>{index + 1}</td>
                       {result.myTeam.map((x, i) => <td key={`${index}-p${i}`}>{translateSpeciesIfPossible(x.species, t)}</td>)}
                       <td key={`${index}-v`}>{result.value.toFixed(4)}</td>
+                      <td key={`${index}-dt`}>
+                        <Button variant="outline-dark" size="sm" onClick={() => this.setState({modalShow: true, selectedMyTeamIndex: index})}>Show</Button>
+                      </td>
                     </tr>                
                   ))}
                 </tbody>
@@ -195,6 +204,19 @@ export class BattleTeamComponent extends React.Component<BattleTeamComponentProp
           </Col>
         </Row>
       </Container>
+      <Modal size="lg" show={this.state.modalShow} onHide={() => this.setState({modalShow: false})}>
+        <Modal.Header closeButton>
+          <Modal.Title>Details: {this.state.selectedMyTeamIndex}</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <BattleTeamDetailsComponent resultAC={resultsAC} selectedMyTeamIndex={this.state.selectedMyTeamIndex} />
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="primary" onClick={() => this.setState({modalShow: false})}>
+            Close
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </>
   )};
 }

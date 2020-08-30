@@ -6,6 +6,7 @@ import StrengthRow from './StrengthRow';
 import * as Utils from './utils';
 import Matchup from '../models/Matchup';
 import TacticsPattern from '../models/TacticsPattern';
+import { ResultAC, MyTeamResult, OppTeamResult } from '../models/ResultAc';
 
 export class CombinationService {
   private strengthRows: StrengthRow[];
@@ -245,33 +246,6 @@ export class CombinationService {
   calcTeamCombinationsToAllOpppnentsCombinations(teamPokemons: PokemonStrategy[], opponentPokemons: PokemonStrategy[]) {
     const myTeamCombinations = Utils.threeOfSixCombinations(teamPokemons);
     const oppTeamCombinations = Utils.threeOfSixCombinations(opponentPokemons);
-
-    type ResultAC = {
-      myTeamResults: MyTeamResult[],
-      strongestMyTeamIndex: number, 
-      value: number
-    };
-
-    type MyTeamResult = {
-      myTeam: PokemonStrategy[],
-      oppTeamResults: OppTeamResult[],
-      strongestOppTeamIndex: number, 
-      value: number
-    }
-
-    type OppTeamResult = {
-      oppTeam: PokemonStrategy[],
-      tacticsResults: TacticsResult[],
-      bestTacticsIndex: number, 
-      value: number
-    }
-
-    type TacticsResult = {
-      tactics: TacticsPattern, 
-      remainingHpSet: {player: PokemonStrategy, total: number}[], 
-      remainingHpMinimumValue: number
-      remainingHpMinumumPoke: PokemonStrategy 
-    }
 
     let result: ResultAC = { myTeamResults: [], strongestMyTeamIndex: -1, value: 0};
     myTeamCombinations.forEach(myTeam => {
