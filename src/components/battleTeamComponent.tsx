@@ -8,6 +8,8 @@ import { GraphComponent } from './graphComponent';
 import { defaultTeam } from '../defaultList';
 import { BattleTeamDetailsComponent } from './battleTeamDetailsComponent';
 import { SimpleTeamComponent } from './simpleTeamComponent';
+import { CoverageSelection } from '../services/coverageSelection';
+import { NashEquilibriumSelection } from '../services/nashEquilibriumSelection';
 
 type BattleTeamComponentProps = {
   sortedPokemonList: PokemonStrategy[],
@@ -72,11 +74,14 @@ export class BattleTeamComponent extends React.Component<BattleTeamComponentProp
       }
     }
 
+    const coverageSelection = new CoverageSelection(this.props.combinationService);
+    const nashEquilibriumSelection = new NashEquilibriumSelection(this.props.combinationService);
+
     const resultsAM = this.props.combinationService.calcTeamCombinationsOnAverageWeakest(this.state.myTeam, this.state.oppTeam);
     const resultsMM = this.props.combinationService.calcTeamCombinationsOnMaximumWeakest(this.state.myTeam, this.state.oppTeam);
     const resultsAC = this.props.combinationService.calcTeamCombinationsToAllOpppnentsCombinations(this.state.myTeam, this.state.oppTeam);
-    const resultsWC = this.props.combinationService.calcTeamCombinationsWithCoverage(this.state.myTeam, this.state.oppTeam);
-    const resultsNA = this.props.combinationService.calcMixedNashEquilibrium(this.state.myTeam, this.state.oppTeam);
+    const resultsWC = coverageSelection.evaluate(this.state.myTeam, this.state.oppTeam);
+    const resultsNA = nashEquilibriumSelection.evaluate(this.state.myTeam, this.state.oppTeam);
 
     const myTeamToString = this.state.selectedMyTeamIndex !== -1 ? resultsAC.myTeamResults[this.state.selectedMyTeamIndex].myTeam.map(x => translateSpeciesIfPossible(x.species, t)).join(', '): '';
 
