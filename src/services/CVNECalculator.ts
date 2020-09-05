@@ -12,9 +12,9 @@ type CoverageMatrixRecord = {
   isOppTeamDominant: boolean
 }
 
-export class NashEquilibriumSelection extends SelectionEvaluator {
- 
-  evaluate(teamPokemons: PokemonStrategy[], opponentPokemons: PokemonStrategy[]) {
+// CoVerage Nash Equilibrium
+export class CVNECalculator extends SelectionEvaluator {
+   evaluate(teamPokemons: PokemonStrategy[], opponentPokemons: PokemonStrategy[]) {
     const coverageMatrix = this.calcCoverageMatrix(teamPokemons, opponentPokemons);
     const myTeamCoefMatrix = this.calcMyTeamCoefficientMatrix(coverageMatrix);
     const oppTeamCoefMatrix = this.calcOppTeamCoefficientMatrix(coverageMatrix);

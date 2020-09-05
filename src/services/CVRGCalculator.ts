@@ -3,8 +3,8 @@ import * as Utils from './utils';
 import PokemonStrategy from "../models/PokemonStrategy";
 import { ResultWC, MyTeamResultWC } from "../models/ResultAc";
 
-export class CoverageSelection extends SelectionEvaluator {
-
+// Coverage
+export class CVRGCalculator extends SelectionEvaluator {
   evaluate(teamPokemons: PokemonStrategy[], opponentPokemons: PokemonStrategy[]) {
     const matchupValueThreshold = 100;
 
