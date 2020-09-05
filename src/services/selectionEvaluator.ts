@@ -3,10 +3,11 @@ import PokemonStrategy from "../models/PokemonStrategy";
 import Matchup from "../models/Matchup";
 import StrengthRow from "./StrengthRow";
 import * as Utils from './utils';
+import TacticsPattern from "../models/TacticsPattern";
 
 export class SelectionEvaluator {
-  private combinationService: CombinationService;
-  private strengthRows: StrengthRow[]
+  protected combinationService: CombinationService;
+  protected strengthRows: StrengthRow[]
 
   constructor(combinationService: CombinationService) {
     this.combinationService = combinationService;
@@ -14,7 +15,7 @@ export class SelectionEvaluator {
   }
 
   evaluate(teamPokemons: PokemonStrategy[], opponentPokemons: PokemonStrategy[]) {
-    
+    throw new Error('Method must be overidden by a sub class');
   }
 
   protected allMatchupValues(teamPokemons: PokemonStrategy[], targetPokemons: PokemonStrategy[]): Matchup[] {
@@ -42,6 +43,36 @@ export class SelectionEvaluator {
     }
 
     return matchups;
+  }
+
+  protected DetectOverused(tactics: TacticsPattern) {
+    const remainingHpArray = this.remainingHp(tactics);
+    const overused = remainingHpArray.filter(x => x.total < 0);
+    return overused;
+  }
+
+  protected remainingHp(tactics: TacticsPattern) {
+    const remainingHpArray: Map<PokemonStrategy, number> = new Map();
+    for (let i = 0; i < tactics.matchups.length; i++) {
+      const maxi = tactics.matchups[i];
+      if (remainingHpArray.get(maxi.player) === undefined) {
+        remainingHpArray.set(maxi.player, 1024);
+      }
+
+      let currentHp = remainingHpArray.get(maxi.player);
+      if (currentHp === undefined) {
+        currentHp = 1024;
+      }
+      const updatedHp = currentHp - (1024 - maxi.value);
+      remainingHpArray.set(maxi.player, updatedHp);
+    }
+
+    const overused: {player: PokemonStrategy, total: number}[] = [];
+    remainingHpArray.forEach((value, key) => {
+      overused.push({player: key, total: value});
+    });
+
+    return overused;
   }
 
   protected calcMyTeamResultWC(myTeam: PokemonStrategy[], opponentPokemons: PokemonStrategy[], matchupValueThreshold: number) {

@@ -8,6 +8,9 @@ import { GraphComponent } from './graphComponent';
 import { defaultTeam } from '../defaultList';
 import { BattleTeamDetailsComponent } from './battleTeamDetailsComponent';
 import { SimpleTeamComponent } from './simpleTeamComponent';
+import { MAOPCalculator } from '../services/MAOPCalculator';
+import { MMOPCalculator } from '../services/MMOPCalculator';
+import { MROSCalculator } from '../services/MROSCalculator';
 import { CVRGCalculator } from '../services/CVRGCalculator';
 import { CVNECalculator } from '../services/CVNECalculator';
 
@@ -74,12 +77,15 @@ export class BattleTeamComponent extends React.Component<BattleTeamComponentProp
       }
     }
 
+    const maopCalculator = new MAOPCalculator(this.props.combinationService);
+    const mmopCalculator = new MMOPCalculator(this.props.combinationService);
+    const mrosCalculator = new MROSCalculator(this.props.combinationService);   
     const cvrgCalculator = new CVRGCalculator(this.props.combinationService);
     const cvneCalculator = new CVNECalculator(this.props.combinationService);
 
-    const resultsAM = this.props.combinationService.calcTeamCombinationsOnAverageWeakest(this.state.myTeam, this.state.oppTeam);
-    const resultsMM = this.props.combinationService.calcTeamCombinationsOnMaximumWeakest(this.state.myTeam, this.state.oppTeam);
-    const resultsAC = this.props.combinationService.calcTeamCombinationsToAllOpppnentsCombinations(this.state.myTeam, this.state.oppTeam);
+    const resultsAM = maopCalculator.evaluate(this.state.myTeam, this.state.oppTeam);
+    const resultsMM = mmopCalculator.evaluate(this.state.myTeam, this.state.oppTeam);
+    const resultsAC = mrosCalculator.evaluate(this.state.myTeam, this.state.oppTeam);
     const resultsWC = cvrgCalculator.evaluate(this.state.myTeam, this.state.oppTeam);
     const resultsNA = cvneCalculator.evaluate(this.state.myTeam, this.state.oppTeam);
 

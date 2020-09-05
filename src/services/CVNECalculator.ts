@@ -16,8 +16,8 @@ type CoverageMatrixRecord = {
 export class CVNECalculator extends SelectionEvaluator {
    evaluate(teamPokemons: PokemonStrategy[], opponentPokemons: PokemonStrategy[]) {
     const coverageMatrix = this.calcCoverageMatrix(teamPokemons, opponentPokemons);
-    const myTeamCoefMatrix = this.calcMyTeamCoefficientMatrix(coverageMatrix);
-    const oppTeamCoefMatrix = this.calcOppTeamCoefficientMatrix(coverageMatrix);
+    // const myTeamCoefMatrix = this.calcMyTeamCoefficientMatrix(coverageMatrix);
+    // const oppTeamCoefMatrix = this.calcOppTeamCoefficientMatrix(coverageMatrix);
     // try {
     //   const myTeamInverseMatrix = this.calcInverseMatrix(myTeamCoefMatrix);
     //   const oppTeamInverseMatrix = this.calcInverseMatrix(oppTeamCoefMatrix);
@@ -41,12 +41,10 @@ export class CVNECalculator extends SelectionEvaluator {
   private calcPureNashEquilibriums(gainMatrix: CoverageMatrixRecord[][]) {
     // mark player strategies
     for (let i = 0; i < gainMatrix[0].length; i++) {
-      let maximumIndex = -1;
       let maximum = Number.MIN_SAFE_INTEGER;
       for (let j = 0; j < gainMatrix.length; j++) {
         if (gainMatrix[j][i].myTeamCoverage > maximum) {
           maximum = gainMatrix[j][i].myTeamCoverage;
-          maximumIndex = j;
         }
       }
 
@@ -55,18 +53,14 @@ export class CVNECalculator extends SelectionEvaluator {
           gainMatrix[j][i].isMyTeamDominant = true;
         }
       }
-
-      // gainMatrix[maximumIndex][i].isMyTeamDominant = true;
     }
 
     // mark opponent strategies
     for (let i = 0; i < gainMatrix.length; i++) {
-      let maximumIndex = -1;
       let maximum = Number.MIN_SAFE_INTEGER;
       for (let j = 0; j < gainMatrix[i].length; j++) {
         if (gainMatrix[i][j].oppTeamCoverage > maximum) {
           maximum = gainMatrix[i][j].oppTeamCoverage;
-          maximumIndex = j;
         }
       }
 
@@ -75,8 +69,6 @@ export class CVNECalculator extends SelectionEvaluator {
           gainMatrix[i][j].isOppTeamDominant = true;
         }
       }
-
-      // gainMatrix[i][maximumIndex].isOppTeamDominant = true;
     }
   }
 
@@ -151,8 +143,8 @@ export class CVNECalculator extends SelectionEvaluator {
     return matrix;
   }
 
-  private calcInverseMatrix(mat: number[][]) {
-    return math.inv(mat);
-  }
+  // private calcInverseMatrix(mat: number[][]) {
+  //   return math.inv(mat);
+  // }
 
 }
