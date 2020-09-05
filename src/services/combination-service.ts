@@ -14,6 +14,8 @@ type CoverageMatrixRecord = {
   oppTeam: PokemonStrategy[], 
   myTeamCoverage: number, 
   oppTeamCoverage: number
+  isMyTeamDominant: boolean,
+  isOppTeamDominant: boolean
 }
 
 export class CombinationService {
@@ -390,109 +392,100 @@ export class CombinationService {
     return myTeamResultWC;
   }
 
-  // private calcAdvantageousMatchups(allMatchups: Matchup[], matchupValueThreshold: number, isPlayerSide: boolean = true) {
-  //   let advantageousMatchups: { poke: PokemonStrategy, matchups: Matchup[] }[] = [];
-
-  //   const maps = new Map<PokemonStrategy, Matchup[]>();
-  //   allMatchups.forEach(matchup => {
-  //     if (isPlayerSide && matchup.value < matchupValueThreshold) {
-  //       return;
-  //     }
-  //     if (!isPlayerSide && matchup.value > -1 * matchupValueThreshold) {
-  //       return;
-  //     }
-
-  //     const target = isPlayerSide ? matchup.player : matchup.opponent;
-  //     const value = maps.get(target);
-  //     if (!value) {
-  //       maps.set(target, [matchup]);
-  //     } else {
-  //       const matchups = value.concat();
-  //       matchups.push(matchup);
-  //       maps.set(target, matchups);
-  //     }
-  //   });
-
-  //   maps.forEach((value, key) => {
-  //     advantageousMatchups.push({poke: key, matchups: value});
-  //   })
-
-  //   return advantageousMatchups;
-  // }
-
-  // private myTeamResultWCFromAdvantageousMatchups(myTeam: PokemonStrategy[], opponentPokemons: PokemonStrategy[], advantageousMatchups: {poke: PokemonStrategy, matchups: Matchup[]}[],
-  //   isPlayerSide: boolean = true) {
-  //   const allOpponents: PokemonStrategy[] = [];
-  //   advantageousMatchups.forEach(x => x.matchups.forEach(y => allOpponents.push(isPlayerSide ? y.opponent: y.player)));
-
-  //   const uniqueOpponents = Array.from(new Set(allOpponents));
-
-  //   const overallCoverage = uniqueOpponents.length / opponentPokemons.length;
-  //   const maximumCoveragePokemonIndex = Utils.maximumIndex(advantageousMatchups, x => x.matchups.length);
-  //   const maximumCoverage = advantageousMatchups[maximumCoveragePokemonIndex].matchups.length;
-  //   let coverageNum = 0;
-  //   advantageousMatchups.forEach(x => coverageNum += x.matchups.length);
-  //   const myTeamResultWC = { myTeam, advantageousMatchups, maximumCoveragePokemonIndex, maximumCoverage, coverageNum, overallCoverage };
-
-  //   return myTeamResultWC;
-  // }
-
   calcMixedNashEquilibrium(teamPokemons: PokemonStrategy[], opponentPokemons: PokemonStrategy[]) {
     const coverageMatrix = this.calcCoverageMatrix(teamPokemons, opponentPokemons);
     const myTeamCoefMatrix = this.calcMyTeamCoefficientMatrix(coverageMatrix);
     const oppTeamCoefMatrix = this.calcOppTeamCoefficientMatrix(coverageMatrix);
-    try {
-      const myTeamInverseMatrix = this.calcInverseMatrix(myTeamCoefMatrix);
-      const oppTeamInverseMatrix = this.calcInverseMatrix(oppTeamCoefMatrix);
+    // try {
+    //   const myTeamInverseMatrix = this.calcInverseMatrix(myTeamCoefMatrix);
+    //   const oppTeamInverseMatrix = this.calcInverseMatrix(oppTeamCoefMatrix);
 
-      const myTeamB = [];
-      for (let i = 0; i < myTeamInverseMatrix.length -1; i++) {
-        myTeamB.push(0);        
-      }
-      myTeamB.push(1);
-      const myTeamProbablities = math.multiply(myTeamB, myTeamInverseMatrix);
-      console.log(myTeamProbablities)
-      return myTeamProbablities;
+    //   const myTeamB = [];
+    //   for (let i = 0; i < myTeamInverseMatrix.length -1; i++) {
+    //     myTeamB.push(0);        
+    //   }
+    //   myTeamB.push(1);
+    //   const myTeamProbablities = math.multiply(myTeamB, myTeamInverseMatrix);
+    //   console.log(myTeamProbablities)
+    //   return myTeamProbablities;
 
-    } catch (e) {
-      console.log(e);
-    }
+    // } catch (e) {
+    //   console.log(e);
+    // }
 
+    return coverageMatrix;
   }
 
-  calcCoverageMatrix(teamPokemons: PokemonStrategy[], opponentPokemons: PokemonStrategy[]) {
+  private calcPureNashEquilibriums(gainMatrix: CoverageMatrixRecord[][]) {
+    // mark player strategies
+    for (let i = 0; i < gainMatrix[0].length; i++) {
+      let maximumIndex = -1;
+      let maximum = Number.MIN_SAFE_INTEGER;
+      for (let j = 0; j < gainMatrix.length; j++) {
+        if (gainMatrix[j][i].myTeamCoverage > maximum) {
+          maximum = gainMatrix[j][i].myTeamCoverage;
+          maximumIndex = j;
+        }
+      }
+
+      for (let j = 0; j < gainMatrix.length; j++) {
+        if (gainMatrix[j][i].myTeamCoverage === maximum) {
+          gainMatrix[j][i].isMyTeamDominant = true;
+        }
+      }
+
+      // gainMatrix[maximumIndex][i].isMyTeamDominant = true;
+    }
+
+    // mark opponent strategies
+    for (let i = 0; i < gainMatrix.length; i++) {
+      let maximumIndex = -1;
+      let maximum = Number.MIN_SAFE_INTEGER;
+      for (let j = 0; j < gainMatrix[i].length; j++) {
+        if (gainMatrix[i][j].oppTeamCoverage > maximum) {
+          maximum = gainMatrix[i][j].oppTeamCoverage;
+          maximumIndex = j;
+        }
+      }
+
+      for (let j = 0; j < gainMatrix[i].length; j++) {
+        if (gainMatrix[i][j].oppTeamCoverage === maximum) {
+          gainMatrix[i][j].isOppTeamDominant = true;
+        }
+      }
+
+      // gainMatrix[i][maximumIndex].isOppTeamDominant = true;
+    }
+  }
+
+  private calcCoverageMatrix(teamPokemons: PokemonStrategy[], opponentPokemons: PokemonStrategy[]) {
     const matchupValueThreshold = 100;
 
-    const myTeamCombinations = Utils.threeOfSixCombinations(teamPokemons).slice(0, 2);
-    const oppTeamCombinations = Utils.threeOfSixCombinations(opponentPokemons).slice(0, 2);
+    const myTeamCombinations = Utils.threeOfSixCombinations(teamPokemons).slice(0, 20);
+    const oppTeamCombinations = Utils.threeOfSixCombinations(opponentPokemons).slice(0, 20);
+
+    // const myTeamCombinations = Utils.threeOfSixCombinations(teamPokemons);
+    // const oppTeamCombinations = Utils.threeOfSixCombinations(opponentPokemons);
 
     let result: CoverageMatrixRecord[][] = [];
     myTeamCombinations.forEach(myTeam => {
       const myTeamRecords: any[] = [];
       oppTeamCombinations.forEach(oppTeam => {
-        // const allMatchupsFromMySide = this.allMatchupValues(myTeam, oppTeam);
-        // const advantageousMatchupsFromMySide = this.calcAdvantageousMatchups(allMatchupsFromMySide, matchupValueThreshold);
-        // const myTeamResultWCFromMySide = this.myTeamResultWCFromAdvantageousMatchups(myTeam, opponentPokemons, advantageousMatchupsFromMySide);
         const myTeamResultWCFromMySide = this.calcMyTeamResultWC(myTeam, oppTeam, matchupValueThreshold);
-
-        // const allMatchupsFromOppSide = this.allMatchupValues(oppTeam, myTeam);
-        // const advantageousMatchupsFromOppSide = this.calcAdvantageousMatchups(allMatchupsFromOppSide, matchupValueThreshold);
-        // const myTeamResultWCFromOppSide = this.myTeamResultWCFromAdvantageousMatchups(myTeam, opponentPokemons, advantageousMatchupsFromOppSide);
         const myTeamResultWCFromOppSide = this.calcMyTeamResultWC(oppTeam, myTeam, matchupValueThreshold);
-
-        // const myTeamCoverage = allMatchups.filter(x => x.value >= matchupValueThreshold).length;
-        // const oppTeamCoverage = allMatchups.filter(x => x.value <= -1 * matchupValueThreshold).length;
-        
-        const rand1 = Math.random() * 0.1 + 0.95;
-        const rand2 = Math.random() * 0.1 + 0.95;
-        const record = { myTeam, oppTeam, myTeamCoverage: myTeamResultWCFromMySide.coverageNum*rand1, oppTeamCoverage: myTeamResultWCFromOppSide.coverageNum*rand2, 
-          overallCoverageMyTeam: myTeamResultWCFromMySide.overallCoverage, overallCoverageOppTeam: myTeamResultWCFromOppSide.overallCoverage };
+       
+        // const rand1 = Math.random() * 0.1 + 0.95;
+        // const rand2 = Math.random() * 0.1 + 0.95;
+        const record = { myTeam, oppTeam, myTeamCoverage: myTeamResultWCFromMySide.coverageNum, oppTeamCoverage: myTeamResultWCFromOppSide.coverageNum, 
+          overallCoverageMyTeam: myTeamResultWCFromMySide.overallCoverage, overallCoverageOppTeam: myTeamResultWCFromOppSide.overallCoverage,
+          isMyTeamDominant: false, isOppTeamDominant: false };
         myTeamRecords.push(record);
       });
 
       result.push(myTeamRecords);
     });
 
+    this.calcPureNashEquilibriums(result);
     return result;
   }
 

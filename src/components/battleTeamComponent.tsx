@@ -241,6 +241,32 @@ export class BattleTeamComponent extends React.Component<BattleTeamComponentProp
                 </tbody>
               </Table> 
             </Tab>
+            <Tab eventKey="nash-equilibrium" title="Nash Equilibrium">
+              <h4 className="mt-3">Selections (Method: Coverage)</h4>
+              <Table striped bordered hover size="sm">
+                <thead>
+                  <tr>
+                    <th></th>
+                    {resultsNA[0].map((x, i) => 
+                      <th key={`h-p${i}`}>{i + 1}
+                        {resultsNA[0][i].oppTeam.map((y, j) => (<div style={{fontSize: "small"}} key={`h-p${i}-${j}`}>{translateSpeciesIfPossible(y.species, t)}</div>))}
+                      </th>)}
+                  </tr>
+                </thead>
+                <tbody>
+                  {resultsNA.map((result, index) => (
+                    <tr key={index}>
+                      <td key={`${index}-i`}>{index + 1}
+                        {result[0].myTeam.map((x, i) => <div style={{fontSize: "small"}} key={`${index}-p${i}`}>{translateSpeciesIfPossible(x.species, t)}</div>)}
+                      </td>
+                      {result.map((x, i) => 
+                        <td style={{backgroundColor: (x.isMyTeamDominant&&x.isOppTeamDominant)?'lightskyblue': 'initial'}} key={`${index}-mm${i}`}>{`(${x.isMyTeamDominant?'!': ''}${x.myTeamCoverage}, ${x.isOppTeamDominant?'!':''}${x.oppTeamCoverage})`}</td>
+                      )}
+                    </tr>                
+                  ))}
+                </tbody>
+              </Table> 
+            </Tab>
           </Tabs>
           </Col>
         </Row>
