@@ -69,12 +69,12 @@ export class SearchComponent extends React.Component<SearchComponentProps, Searc
                 <Form.Control as="select" onChange={(e: React.ChangeEvent<HTMLInputElement>) => this.onChangeSearchSettings(e)}>
                   <option value="0">{t('search.targetStrenthComplement')}</option>
                   <option value="1">{t('search.weakestPointImmunity')}</option>
-                  <option value="2">Set custom targets</option>
-                  <option value="3">Overall minus</option>
+                  <option value="2">{t('search.toCustomTargets')}</option>
+                  <option value="3">{t('search.negativesTotal')}</option>
                 </Form.Control>
               </Form.Group>
               {
-                this.state.evaluationMethod === 2 && <div className="mb-2">Targets</div>
+                this.state.evaluationMethod === 2 && <div className="mb-2">{t('search.selectTargetUpToN').replace('{n}', this.state.numOfTargetHolders)}</div>
               }
               {
                 this.state.evaluationMethod === 2 && [...Array(this.state.numOfTargetHolders)].map((x, i) => {
