@@ -98,21 +98,6 @@ export class TeamBuilderComponent extends React.Component<TeamBuilderComponentPr
     return sortedPokemonList;
   }
 
-  toTeamPokemonIndices(pokemons: PokemonStrategy[]) {
-    const indices = pokemons.map(ps => this.state.teamPokemonList.findIndex(pl => ps.id === pl.id));
-    indices.sort((a, b) => {
-      if (a < b) {
-        return -1;
-      } else if (b < a) {
-        return 1;
-      } else {
-        return 0;
-      }
-    });
-
-    return indices;
-  }
-
   render() {
     const t = this.context.i18n.t.bind(this.context.i18n);
 
