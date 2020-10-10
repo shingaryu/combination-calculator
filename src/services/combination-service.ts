@@ -63,7 +63,7 @@ export class CombinationService {
     return combinedVector;
   }
 
-  calcTargetStrengthsComplement(teamPokemons: PokemonStrategy[], selectedTargets: PokemonStrategy[], compatibleStrTypes: string[]) {
+  calcTargetStrengthsComplement(teamPokemons: PokemonStrategy[], teamList: PokemonStrategy[], selectedTargets: PokemonStrategy[], compatibleStrTypes: string[]) {
     if (!teamPokemons || teamPokemons.length === 0) {
       return [];
     }
@@ -74,6 +74,9 @@ export class CombinationService {
 
     const results: SearchResult[] = [];
     targetStrengthRows.forEach(row => {
+      if (teamList.find(x => x.id === row.strategyId) === undefined) {
+        return;
+      }
       const filteredVector = this.filterAndSortStrVectorByTargets(row.vector, selectedTargets);
       results.push({
         pokemonIds: [ row.index.toString() ],
@@ -87,7 +90,7 @@ export class CombinationService {
     return results;
   }
 
-  calcWeakestPointImmunity(teamPokemons: PokemonStrategy[], selectedTargets: PokemonStrategy[]) {
+  calcWeakestPointImmunity(teamPokemons: PokemonStrategy[], teamList: PokemonStrategy[], selectedTargets: PokemonStrategy[]) {
     if (!teamPokemons || teamPokemons.length === 0) {
       return [];
     }
@@ -100,6 +103,9 @@ export class CombinationService {
 
     const results: SearchResult[] = [];
     targetStrengthRows.forEach(row => {
+      if (teamList.find(x => x.id === row.strategyId) === undefined) {
+        return;
+      }
       const filteredVector = this.filterAndSortStrVectorByTargets(row.vector, selectedTargets);
       results.push({
         pokemonIds: [ row.index.toString() ],
@@ -114,7 +120,7 @@ export class CombinationService {
     return results;    
   }
 
-  calcImmunityToCustomTargets(teamPokemons: PokemonStrategy[], selectedTargets: PokemonStrategy[], targetIds: string[]) {
+  calcImmunityToCustomTargets(teamPokemons: PokemonStrategy[], teamList: PokemonStrategy[], selectedTargets: PokemonStrategy[], targetIds: string[]) {
     if (!teamPokemons || teamPokemons.length === 0) {
       return [];
     }
@@ -127,6 +133,9 @@ export class CombinationService {
 
     const results: SearchResult[] = [];
     targetStrengthRows.forEach(row => {
+      if (teamList.find(x => x.id === row.strategyId) === undefined) {
+        return;
+      }
       const vectorWithId: any[] = [];
       row.vector.forEach((val, i) => {
         vectorWithId.push({targetId: this.targetPokeIds[i], value: val});
@@ -149,7 +158,7 @@ export class CombinationService {
     return results;    
   }
 
-  calcOverallMinus(teamPokemons: PokemonStrategy[], selectedTargets: PokemonStrategy[]) {
+  calcOverallMinus(teamPokemons: PokemonStrategy[], teamList: PokemonStrategy[], selectedTargets: PokemonStrategy[]) {
     if (!teamPokemons || teamPokemons.length === 0) {
       return [];
     }
@@ -159,6 +168,9 @@ export class CombinationService {
 
     const results: SearchResult[] = [];
     targetStrengthRows.forEach(row => {
+      if (teamList.find(x => x.id === row.strategyId) === undefined) {
+        return;
+      }
       const filteredVector = this.filterAndSortStrVectorByTargets(row.vector, selectedTargets);
       const overallVector = Utils.addVectors(combinedVector, filteredVector);
       let minusSum = 0.0;

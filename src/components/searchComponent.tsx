@@ -6,7 +6,7 @@ import PokemonStrategy from '../models/PokemonStrategy';
 import SearchSettings from '../models/searchSettings';
 
 type SearchComponentProps = {
-  pokemonList: PokemonStrategy[],
+  targetsList: PokemonStrategy[],
   onChange: (settings: SearchSettings) => void
 }
 
@@ -83,7 +83,7 @@ export class SearchComponent extends React.Component<SearchComponentProps, Searc
                       {/* <Form.Label>Targets</Form.Label> */}
                       <Form.Control as="select" onChange={(e: React.ChangeEvent<HTMLInputElement>) => this.onSelectTargets(i, e.target.value)}>
                         <option key={`op-${i}-empty`} />
-                        { this.props.pokemonList.map((poke) => (
+                        { this.props.targetsList.map((poke) => (
                           <option key={`op-${i}-${poke.id}`} 
                             value={poke.id}>{translateSpeciesIfPossible(poke.species, t)}</option>
                         ))}

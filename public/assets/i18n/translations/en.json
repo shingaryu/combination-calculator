@@ -11,6 +11,7 @@
   "tab": {
     "titleGraph": "Chart",
     "titleSearch": "Search",
+    "titleTeamListSelect": "Team(List)",
     "titleTargetSelect": "Targets"
   },
   "team": {
@@ -40,6 +41,9 @@
     "title": "Strength Values to Targets",
     "teamStrengthValue": "Team strength value",
     "selectedPokemonStrengthValue": "Selected pokemon strength value"
+  },
+  "teamListSelect": {
+    "title": "Select candidates you can set as team members"
   },
   "targetSelect": {
     "title": "Select targets to show"

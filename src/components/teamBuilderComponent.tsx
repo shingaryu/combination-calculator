@@ -15,7 +15,7 @@ import SearchSettings from '../models/searchSettings';
 import PokemonStrategy from '../models/PokemonStrategy';
 import { TFunction } from 'i18next';
 import SearchResult from '../models/searchResult';
-import { defaultTeam, defaultTargets } from '../defaultList';
+import { defaultTeam, defaultTeamList, defaultTargets } from '../defaultList';
 
 type TeamBuilderComponentProps = {
 
@@ -26,6 +26,7 @@ type TeamBuilderComponentState = {
   teamPokemons: PokemonStrategy[],
   searchSettings: SearchSettings,
   strVectorColumns: string[],
+  selectedTeamList: PokemonStrategy[],
   selectedTargets: PokemonStrategy[],
   teamPokemonList: PokemonStrategy[]
 }
@@ -41,6 +42,7 @@ export class TeamBuilderComponent extends React.Component<TeamBuilderComponentPr
       teamPokemons: [],
       searchSettings: { evaluationMethod: 0 },
       strVectorColumns: [],
+      selectedTeamList: [],
       selectedTargets: [],
       teamPokemonList: []
     };
@@ -54,6 +56,7 @@ export class TeamBuilderComponent extends React.Component<TeamBuilderComponentPr
       this.setState({ 
         loading: false,
         teamPokemons: defaultTeam(pokemonStrategies),
+        selectedTeamList: defaultTeamList(pokemonStrategies),
         selectedTargets: defaultTargets(pokemonStrategies),
         strVectorColumns: targetPokemonNames,
         teamPokemonList: pokemonStrategies,
@@ -75,6 +78,12 @@ export class TeamBuilderComponent extends React.Component<TeamBuilderComponentPr
 
   onSearchSettingsChange(settings: SearchSettings) {
     this.setState({ searchSettings: settings });
+  }
+
+  onChangeSelectedTeamList(pokemons: PokemonStrategy[]) {
+    console.log('Team list selection changed');
+    console.log(pokemons.map(x => x.id));
+    this.setState({ selectedTeamList: pokemons });
   }
 
   onChangeSelectedTargets(pokemons: PokemonStrategy[]) {
@@ -106,6 +115,7 @@ export class TeamBuilderComponent extends React.Component<TeamBuilderComponentPr
     } else {    
       const sortedPokemonList = this.sortByTranslatedName(t, this.state.teamPokemonList);
       const sortedTeam = this.sortByTranslatedName(t, this.state.teamPokemons);
+      const sortedTeamList = this.sortByTranslatedName(t, this.state.selectedTeamList);
       const sortedTargets = this.sortByTranslatedName(t, this.state.selectedTargets);
       const graphLabels = sortedTargets.map(x => translateSpeciesIfPossible(x.species, t));
 
@@ -120,14 +130,14 @@ export class TeamBuilderComponent extends React.Component<TeamBuilderComponentPr
 
       let results: SearchResult[] = [];
       if (this.state.searchSettings.evaluationMethod === 0) {
-        results = this.combinationService.calcTargetStrengthsComplement(sortedTeam, sortedTargets, ['Sweeper', 'Tank', 'Wall']);
+        results = this.combinationService.calcTargetStrengthsComplement(sortedTeam, sortedTeamList, sortedTargets, ['Sweeper', 'Tank', 'Wall']);
       } else if (this.state.searchSettings.evaluationMethod === 1) {
-        results = this.combinationService.calcWeakestPointImmunity(sortedTeam, sortedTargets);
+        results = this.combinationService.calcWeakestPointImmunity(sortedTeam, sortedTeamList, sortedTargets);
       } else if (this.state.searchSettings.evaluationMethod === 2 && this.state.searchSettings.targets) {
-        results = this.combinationService.calcImmunityToCustomTargets(sortedTeam, sortedTargets, 
+        results = this.combinationService.calcImmunityToCustomTargets(sortedTeam, sortedTeamList, sortedTargets, 
           this.state.searchSettings.targets.filter(idStr => idStr));
       } else if (this.state.searchSettings.evaluationMethod === 3) {
-        results = this.combinationService.calcOverallMinus(sortedTeam, sortedTargets);
+        results = this.combinationService.calcOverallMinus(sortedTeam, sortedTeamList, sortedTargets);
       }
 
       return (
@@ -148,7 +158,7 @@ export class TeamBuilderComponent extends React.Component<TeamBuilderComponentPr
             </Row>
             <Row className="mt-3">
               <Col>
-                <TeamComponent num={6} pokemonList={sortedPokemonList} onChange={(pokemons: PokemonStrategy[]) => this.onChangeTeamPokemons(pokemons)}></TeamComponent>
+                <TeamComponent num={6} pokemonList={sortedTeamList} onChange={(pokemons: PokemonStrategy[]) => this.onChangeTeamPokemons(pokemons)}></TeamComponent>
               </Col>
             </Row>
             <Row>
@@ -158,11 +168,32 @@ export class TeamBuilderComponent extends React.Component<TeamBuilderComponentPr
                     <GraphComponent labels={graphLabels} datasets={graphDatasets}/>
                   </Tab>
                   <Tab eventKey="search" title={t('tab.titleSearch')}>
-                    <SearchComponent pokemonList={sortedPokemonList} onChange={(settings: SearchSettings) => this.onSearchSettingsChange(settings)}></SearchComponent>
+                    <SearchComponent targetsList={sortedTargets} onChange={(settings: SearchSettings) => this.onSearchSettingsChange(settings)}></SearchComponent>
                     <SearchResultComponent searchResult={results} />
                   </Tab>
+                  <Tab eventKey="team-list-select" title={t('tab.titleTeamListSelect')}>
+                    <Row className="mt-3 ml-2">
+                      <Col>
+                      <h4>{t('teamListSelect.title')}</h4>
+                      </Col>
+                    </Row>
+                    <Row className="mt-3 ml-2">
+                      <Col>
+                        <TargetSelectComponent pokemonList={sortedPokemonList} defaultList={defaultTeamList(this.state.teamPokemonList)} onChange={(pokemons: PokemonStrategy[]) => this.onChangeSelectedTeamList(pokemons)} />
+                      </Col>
+                    </Row>
+                  </Tab>
                   <Tab eventKey="target-select" title={t('tab.titleTargetSelect')}>
-                    <TargetSelectComponent pokemonList={sortedPokemonList} onChange={(pokemons: PokemonStrategy[]) => this.onChangeSelectedTargets(pokemons)} />
+                    <Row className="mt-3 ml-2">
+                      <Col>
+                      <h4>{t('targetSelect.title')}</h4>
+                      </Col>
+                    </Row>
+                    <Row className="mt-3 ml-2">
+                      <Col>
+                        <TargetSelectComponent pokemonList={sortedPokemonList} defaultList={defaultTargets(this.state.teamPokemonList)} onChange={(pokemons: PokemonStrategy[]) => this.onChangeSelectedTargets(pokemons)} />
+                      </Col>
+                    </Row>
                   </Tab>
                   <Tab eventKey="battle-team" title="Battle Team">
                     <BattleTeamComponent sortedPokemonList={sortedPokemonList} combinationService={this.combinationService} />
