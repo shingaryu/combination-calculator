@@ -28,7 +28,7 @@ type TeamBuilderComponentState = {
   strVectorColumns: string[],
   selectedTeamList: PokemonStrategy[],
   selectedTargets: PokemonStrategy[],
-  teamPokemonList: PokemonStrategy[]
+  allStrategies: PokemonStrategy[]
 }
 
 export class TeamBuilderComponent extends React.Component<TeamBuilderComponentProps, TeamBuilderComponentState> {
@@ -44,7 +44,7 @@ export class TeamBuilderComponent extends React.Component<TeamBuilderComponentPr
       strVectorColumns: [],
       selectedTeamList: [],
       selectedTargets: [],
-      teamPokemonList: []
+      allStrategies: []
     };
 
     Promise.all([
@@ -59,7 +59,7 @@ export class TeamBuilderComponent extends React.Component<TeamBuilderComponentPr
         selectedTeamList: defaultTeamList(pokemonStrategies),
         selectedTargets: defaultTargets(pokemonStrategies),
         strVectorColumns: targetPokemonNames,
-        teamPokemonList: pokemonStrategies,
+        allStrategies: pokemonStrategies,
       });      
     }, error => {
       this.setState({ loading: false });
@@ -113,7 +113,7 @@ export class TeamBuilderComponent extends React.Component<TeamBuilderComponentPr
     if (this.state.loading) {
       return <span>Loading...</span>
     } else {    
-      const sortedPokemonList = this.sortByTranslatedName(t, this.state.teamPokemonList);
+      const sortedAllStrategies = this.sortByTranslatedName(t, this.state.allStrategies);
       const sortedTeam = this.sortByTranslatedName(t, this.state.teamPokemons);
       const sortedTeamList = this.sortByTranslatedName(t, this.state.selectedTeamList);
       const sortedTargets = this.sortByTranslatedName(t, this.state.selectedTargets);
@@ -137,7 +137,7 @@ export class TeamBuilderComponent extends React.Component<TeamBuilderComponentPr
         results = this.combinationService.calcImmunityToCustomTargets(sortedTeam, sortedTeamList, sortedTargets, 
           this.state.searchSettings.targets.filter(idStr => idStr));
       } else if (this.state.searchSettings.evaluationMethod === 3) {
-        results = this.combinationService.calcOverallMinus(sortedTeam, sortedTeamList, sortedTargets);
+        results = this.combinationService.calcNegativesTotal(sortedTeam, sortedTeamList, sortedTargets);
       }
 
       return (
@@ -179,7 +179,7 @@ export class TeamBuilderComponent extends React.Component<TeamBuilderComponentPr
                     </Row>
                     <Row className="mt-3 ml-2">
                       <Col>
-                        <TargetSelectComponent pokemonList={sortedPokemonList} defaultList={defaultTeamList(this.state.teamPokemonList)} onChange={(pokemons: PokemonStrategy[]) => this.onChangeSelectedTeamList(pokemons)} />
+                        <TargetSelectComponent pokemonList={sortedAllStrategies} defaultList={defaultTeamList(this.state.allStrategies)} onChange={(pokemons: PokemonStrategy[]) => this.onChangeSelectedTeamList(pokemons)} />
                       </Col>
                     </Row>
                   </Tab>
@@ -191,12 +191,12 @@ export class TeamBuilderComponent extends React.Component<TeamBuilderComponentPr
                     </Row>
                     <Row className="mt-3 ml-2">
                       <Col>
-                        <TargetSelectComponent pokemonList={sortedPokemonList} defaultList={defaultTargets(this.state.teamPokemonList)} onChange={(pokemons: PokemonStrategy[]) => this.onChangeSelectedTargets(pokemons)} />
+                        <TargetSelectComponent pokemonList={sortedAllStrategies} defaultList={defaultTargets(this.state.allStrategies)} onChange={(pokemons: PokemonStrategy[]) => this.onChangeSelectedTargets(pokemons)} />
                       </Col>
                     </Row>
                   </Tab>
                   <Tab eventKey="battle-team" title="Battle Team">
-                    <BattleTeamComponent sortedPokemonList={sortedPokemonList} combinationService={this.combinationService} />
+                    <BattleTeamComponent sortedPokemonList={sortedAllStrategies} combinationService={this.combinationService} />
                   </Tab>
                 </Tabs>    
               </Col>

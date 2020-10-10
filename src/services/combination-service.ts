@@ -158,7 +158,7 @@ export class CombinationService {
     return results;    
   }
 
-  calcOverallMinus(teamPokemons: PokemonStrategy[], teamList: PokemonStrategy[], selectedTargets: PokemonStrategy[]) {
+  calcNegativesTotal(teamPokemons: PokemonStrategy[], teamList: PokemonStrategy[], selectedTargets: PokemonStrategy[]) {
     if (!teamPokemons || teamPokemons.length === 0) {
       return [];
     }
