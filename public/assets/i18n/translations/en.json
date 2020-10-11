@@ -11,6 +11,7 @@
   "tab": {
     "titleGraph": "Chart",
     "titleSearch": "Search",
+    "titleTeamListSelect": "Team(List)",
     "titleTargetSelect": "Targets"
   },
   "team": {
@@ -28,6 +29,9 @@
     "evaluationMethod": "Evaluation method",
     "targetStrenthComplement": "Target strength complement",
     "weakestPointImmunity": "Immunity to weakest point",
+    "toCustomTargets": "To Custom Targets",
+    "selectTargetUpToN": "Select targets up to {n}",
+    "negativesTotal": "Negatives Total",
     "resultTitle": "Search Result",
     "columnRank": "#",
     "columnPokemon": "Pokémon",
@@ -37,6 +41,9 @@
     "title": "Strength Values to Targets",
     "teamStrengthValue": "Team strength value",
     "selectedPokemonStrengthValue": "Selected pokemon strength value"
+  },
+  "teamListSelect": {
+    "title": "Select candidates you can set as team members"
   },
   "targetSelect": {
     "title": "Select targets to show"

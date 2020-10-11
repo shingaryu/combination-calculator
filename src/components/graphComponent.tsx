@@ -5,7 +5,22 @@ import MediaQuery from "react-responsive";
 import { useTranslation } from 'react-i18next';
 import './graphComponent.css'
 
-export const GraphComponent = (props) => {
+type GraphComponentProps = {
+  labels: string[],
+  datasets: {
+    dataLabel: string;
+    values: number[];
+    colorRGB: number[];
+  }[],
+  heightVertical?: number,
+  widthVertical?: number,
+  heightHorizontal?: number,
+  widthHorizontal?: number,
+  optionsBar?: any,
+  optionsHorizontal?: any
+}
+
+export const GraphComponent: React.FunctionComponent<GraphComponentProps> = (props) => {
   const labels = props.labels;
   const datasets = props.datasets;
   const { t } = useTranslation();
@@ -39,7 +54,8 @@ export const GraphComponent = (props) => {
           stepSize: 1024
         }
       }]
-    }
+    },
+    ...props.optionsBar
   }  
 
   const chartOptionsHorizontal = {
@@ -53,7 +69,8 @@ export const GraphComponent = (props) => {
           stepSize: 2048,
         }
       }]
-    }
+    },
+    ...props.optionsHorizontal
   }  
 
   return (
@@ -67,7 +84,7 @@ export const GraphComponent = (props) => {
         <Row>
           <Col>
           <MediaQuery query="(max-width: 767px)">
-            <div style={{height: 16 * (labels.length + 4)}}>
+            <div style={{height: props.heightHorizontal || 16 * (labels.length + 4)}}>
               <HorizontalBar
                 data={data}
                 options={chartOptionsHorizontal}
@@ -76,7 +93,7 @@ export const GraphComponent = (props) => {
           </MediaQuery>
           <MediaQuery query="(min-width: 768px)">
             <div className="chart-area">
-              <div style={{height: 500, width: 22 * (labels.length + 2)}}>
+              <div style={{height: props.heightVertical || 500, width: props.widthVertical || 22 * (labels.length + 2)}}>
                 <Bar
                   data={data}
                   options={chartOptionsBar}

@@ -3,19 +3,35 @@ import { Container, Row, Col, InputGroup, FormControl, Button, Modal } from 'rea
 import './teamComponent.css'
 import { I18nContext } from 'react-i18next';
 import { translateSpeciesIfPossible } from '../services/stringSanitizer';
+import PokemonStrategy from '../models/PokemonStrategy';
+import { defaultTeam } from '../defaultList';
 
-export class TeamComponent extends React.Component {
-  constructor(props) {
+type TeamComponentProps = {
+  num: number,
+  pokemonList: PokemonStrategy[],
+  onChange: (pokemons: PokemonStrategy[]) => void
+}
+
+type TeamComponentState = {
+  pokemonSlots: { poke: PokemonStrategy, enabled: boolean }[],
+  showModal: false,
+  editingSlot: number,
+  selectedPoke: PokemonStrategy | null,
+  modalShow: boolean
+}
+
+export class TeamComponent extends React.Component<TeamComponentProps, TeamComponentState> {
+  constructor(props: TeamComponentProps) {
     super(props);
     if (!this.props.num || this.props.num < 1) {
       throw new Error ('Error: team length must be more than 0');
     }
 
+    const defaultTeamPokemons = defaultTeam(this.props.pokemonList);
     const pokemonSlots = [];
-    const defaultTeamIndices = ["0", "49", "33", "12", "43", "39"];
     for (let i = 0; i < this.props.num; i++) {
       pokemonSlots[i] = {
-        id: defaultTeamIndices[i],
+        poke: defaultTeamPokemons[i],
         enabled: true
       }
     }
@@ -23,76 +39,68 @@ export class TeamComponent extends React.Component {
     this.state = {
       pokemonSlots: pokemonSlots,
       showModal: false,
-      editingSlot: null,
-      selectedPokeIndex: null
+      editingSlot: -1,
+      selectedPoke: null,
+      modalShow: false
     }
   }
 
   static contextType = I18nContext;
 
-  onCheckboxChange(num, event) {
+  onCheckboxChange(num: number, event: React.ChangeEvent<HTMLInputElement>) {
     const pokemons = this.state.pokemonSlots.concat();
     pokemons[num].enabled = event.target.checked;
 
     this.setState({
-      pokemons: pokemons
+      pokemonSlots: pokemons
     });
 
-    this.props.onChange(this.validTeamPokemonIndices());
+    this.props.onChange(this.validTeamPokemons());
   }
 
-  onInputChange(num, event) {
-    const pokemons = this.state.pokemonSlots.concat();
-    pokemons[num].id = event.target.value;
-
-    this.setState({
-      pokemons: pokemons
-    });
-
-    this.props.onChange(this.validTeamPokemonIndices());
-  }
-
-  onModalOpen(slotToBeEdited) {
+  onModalOpen(slotToBeEdited: number) {
     this.setState({
       modalShow: true,
       editingSlot: slotToBeEdited,
-      selectedPokeIndex: this.state.pokemonSlots[slotToBeEdited].id
+      selectedPoke: this.state.pokemonSlots[slotToBeEdited].poke
     });    
   }
 
   onModalCancel() {
     this.setState({
       modalShow: false,
-      // editingSlot: null,
-      selectedPokeIndex: null
+      // editingSlot: -1,
+      selectedPoke: null
     });
   }
 
   onModalApply() {
     const pokemons = this.state.pokemonSlots.concat();
-    pokemons[this.state.editingSlot].id = this.state.selectedPokeIndex;
+    if (this.state.selectedPoke) {
+      pokemons[this.state.editingSlot].poke = this.state.selectedPoke;
+    }
 
     this.setState({
-      pokemons: pokemons,
+      pokemonSlots: pokemons,
       modalShow: false,
-      // editingSlot: null,
-      selectedPokeIndex: null
+      // editingSlot: -1,
+      selectedPoke: null
     });
 
-    this.props.onChange(this.validTeamPokemonIndices());
+    this.props.onChange(this.validTeamPokemons());
   }
 
-  onClickPokemonCard(index) {
+  onClickPokemonCard(poke: PokemonStrategy) {
     this.setState({
-      selectedPokeIndex: index
+      selectedPoke: poke
     });
   }
 
-  validTeamPokemonIndices() {
-    return this.state.pokemonSlots.filter(x => x.enabled && x.id !== "-1").map(y => y.id);
+  validTeamPokemons() {
+    return this.state.pokemonSlots.filter(x => x.enabled).map(y => y.poke);
   }
 
-  pokemonStrategyCard(poke, isSelected) {
+  pokemonStrategyCard(poke: PokemonStrategy, isSelected: boolean) {
     const t = this.context.i18n.t.bind(this.context.i18n);
 
     const card = (
@@ -131,19 +139,19 @@ export class TeamComponent extends React.Component {
               <Col>
                 <div>
                     {
-                      this.state.pokemonSlots && this.state.pokemonSlots.map((poke, slot) => 
-                      <div className="inputgroup-container" key={slot} >
+                      this.state.pokemonSlots && this.state.pokemonSlots.map((slot, slotNum) => 
+                      <div className="inputgroup-container" key={slotNum} >
                         <div>
                           <InputGroup className="mb-2 mr-2" style={{width: 200}}>
                             <InputGroup.Prepend>
-                              <InputGroup.Checkbox checked={poke.enabled} onChange={(e) => this.onCheckboxChange(slot, e)}/>
+                              <InputGroup.Checkbox checked={slot.enabled} onChange={(e) => this.onCheckboxChange(slotNum, e)}/>
                             </InputGroup.Prepend>
-                            <FormControl value={translateSpeciesIfPossible(this.props.pokemonList[poke.id].species, t)} placeholder={t('team.slotPlaceholder')} 
-                              readOnly onClick={() => this.onModalOpen(slot)}/>
+                            <FormControl value={translateSpeciesIfPossible(slot.poke.species, t)} placeholder={t('team.slotPlaceholder')} 
+                              readOnly onClick={() => this.onModalOpen(slotNum)}/>
                           </InputGroup>
                         </div>
                         <div className="set-button-line">
-                          <Button variant="outline-dark" size="sm" onClick={() => this.onModalOpen(slot)}>{t('team.set')}</Button>
+                          <Button variant="outline-dark" size="sm" onClick={() => this.onModalOpen(slotNum)}>{t('team.set')}</Button>
                         </div>
                       </div>
                       )
@@ -160,9 +168,9 @@ export class TeamComponent extends React.Component {
         </Modal.Header>
         <Modal.Body>
           <div className='str-list'>
-            {this.props.pokemonList.map((poke, index) => 
-              <div key={poke.id} onClick={() => this.onClickPokemonCard(index)}>
-                {this.pokemonStrategyCard(poke, index == this.state.selectedPokeIndex)}
+            {this.props.pokemonList.map(poke => 
+              <div key={poke.id} onClick={() => this.onClickPokemonCard(poke)}>
+                {this.pokemonStrategyCard(poke, poke.id === this.state.selectedPoke?.id)}
               </div>
             )}
           </div>

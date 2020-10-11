@@ -11,6 +11,7 @@
   "tab": {
     "titleGraph": "グラフ",
     "titleSearch": "検索",
+    "titleTeamListSelect": "PT候補選択",
     "titleTargetSelect": "仮想敵選択"
   },
   "team": {
@@ -28,6 +29,9 @@
     "evaluationMethod": "評価方法",
     "targetStrenthComplement": "PTとの相性補完",
     "weakestPointImmunity": "PTが最も苦手なポケモンへの強さ",
+    "toCustomTargets": "指定した仮想敵への評価値",
+    "selectTargetUpToN": "仮想敵を{n}匹まで選択",
+    "negativesTotal": "PTの苦手の合計",
     "resultTitle": "検索結果",
     "columnRank": "順位",
     "columnPokemon": "ポケモン",
@@ -37,6 +41,9 @@
     "title": "各仮想敵への強さ評価",
     "teamStrengthValue": "パーティーの総合力",
     "selectedPokemonStrengthValue": "選択中のポケモン"
+  },
+  "teamListSelect": {
+    "title": "パーティ設定の候補を選択"
   },
   "targetSelect": {
     "title": "表示する仮想敵を選択"

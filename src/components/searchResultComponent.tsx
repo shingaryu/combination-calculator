@@ -3,11 +3,17 @@ import { Container, Row, Col, Table } from 'react-bootstrap'
 import './searchResultComponent.css'
 import { I18nContext } from 'react-i18next';
 import { translateSpeciesIfPossible } from '../services/stringSanitizer';
+import SearchResult from '../models/searchResult';
 
-export class SearchResultComponent extends React.Component {
-  constructor(props) {
-    super(props);
-  }
+type SearchResultComponentProps = {
+  searchResult: SearchResult[]
+}
+
+type SearchResultComponentState = {
+
+}
+
+export class SearchResultComponent extends React.Component<SearchResultComponentProps, SearchResultComponentState> {
 
   static contextType = I18nContext;
 
@@ -32,7 +38,7 @@ export class SearchResultComponent extends React.Component {
               <tr>
                 <th key='h-i'>{t('search.columnRank')}</th>
                 {this.props.searchResult.length===0?
-                  <th key={`h-p0`}>Pokemon</th>:
+                  <th key={`h-p0`}>{t('search.columnPokemon')}</th>:
                   this.props.searchResult[0].pokemonIds.map((x, i) => <th key={`h-p${i}`}>{t('search.columnPokemon')}</th>)
                 }
                 <th key='h-v'>{t('search.columnValue')}</th>
