@@ -29,10 +29,12 @@
     "react-i18next": "^11.5.0",
     "react-responsive": "^8.0.3",
     "react-scripts": "3.4.0",
+    "serve": "^11.3.2",
     "typescript": "^3.9.7"
   },
   "scripts": {
     "start": "react-scripts start",
+    "start-prod": "serve -s build",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
