@@ -163,7 +163,7 @@ export class TeamBuilderComponent extends React.Component<TeamBuilderComponentPr
             </Row>
             <Row>
               <Col>
-                <Tabs id="function-tabs" defaultActiveKey="graph" className="mt-3">
+                <Tabs id="function-tabs" defaultActiveKey="battle-team" className="mt-3">
                   <Tab eventKey="graph" title={t('tab.titleGraph')}>
                     <GraphComponent labels={graphLabels} datasets={graphDatasets}/>
                   </Tab>
@@ -195,9 +195,9 @@ export class TeamBuilderComponent extends React.Component<TeamBuilderComponentPr
                       </Col>
                     </Row>
                   </Tab>
-                  {/* <Tab eventKey="battle-team" title="Battle Team">
+                  <Tab eventKey="battle-team" title="Battle Team">
                     <BattleTeamComponent sortedPokemonList={sortedAllStrategies} combinationService={this.combinationService} />
-                  </Tab> */}
+                  </Tab>
                 </Tabs>    
               </Col>
             </Row>
