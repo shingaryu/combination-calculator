@@ -13,6 +13,7 @@ import { MMOPCalculator } from '../services/MMOPCalculator';
 import { MROSCalculator } from '../services/MROSCalculator';
 import { CVRGCalculator } from '../services/CVRGCalculator';
 import { CVNECalculator } from '../services/CVNECalculator';
+import { BattleTeamResultCard } from './battleTeamResultCard';
 
 type BattleTeamComponentProps = {
   sortedPokemonList: PokemonStrategy[],
@@ -112,7 +113,7 @@ export class BattleTeamComponent extends React.Component<BattleTeamComponentProp
         </Row>
         <Row>
           <Col>
-          <Tabs id="method-tabs" defaultActiveKey="tactics-minimax" className="mt-3">
+          <Tabs id="method-tabs" defaultActiveKey="maximum-minimum" className="mt-3">
             <Tab eventKey="average-minimum" title="Average Minimum">
               <h4 className="mt-3">Selections (Method: Average Minimum)</h4>
               <Table striped bordered hover size="sm">
@@ -141,7 +142,11 @@ export class BattleTeamComponent extends React.Component<BattleTeamComponentProp
             </Tab>
             <Tab eventKey="maximum-minimum" title="Maximum Minimum">
               <h4 className="mt-3">Selections (Method: Maximum Minimum)</h4>
-              <Table striped bordered hover size="sm">
+                {resultsMM.map((result, index) => 
+                  <BattleTeamResultCard result={result} index={index + 1} />
+                )}
+
+              {/* <Table striped bordered hover size="sm">                
                 <thead>
                   <tr>
                     <th key='h-i'>{t('search.columnRank')}</th>
@@ -184,7 +189,7 @@ export class BattleTeamComponent extends React.Component<BattleTeamComponentProp
                     </tr>                
                   ))}
                 </tbody>
-              </Table> 
+              </Table>  */}
             </Tab>
             <Tab eventKey="tactics-minimax" title="Tactics Minimax">
               <h4 className="mt-3">Selections (Method: Tactics Minimax)</h4>
