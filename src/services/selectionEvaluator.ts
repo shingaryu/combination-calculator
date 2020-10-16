@@ -18,7 +18,7 @@ export class SelectionEvaluator {
     throw new Error('Method must be overidden by a sub class');
   }
 
-  protected allMatchupValues(teamPokemons: PokemonStrategy[], targetPokemons: PokemonStrategy[]): Matchup[] {
+  public allMatchupValues(teamPokemons: PokemonStrategy[], targetPokemons: PokemonStrategy[]): Matchup[] {
     const pokemonVectors = teamPokemons.map(pokeStrategy => {
       const row = this.strengthRows.find(x => x.strategyId === pokeStrategy.id);
       if (!row) {

@@ -14,6 +14,9 @@ import { MROSCalculator } from '../services/MROSCalculator';
 import { CVRGCalculator } from '../services/CVRGCalculator';
 import { CVNECalculator } from '../services/CVNECalculator';
 import { BattleTeamResultCard } from './battleTeamResultCard';
+import { MMOPDetails } from './MMOPDetails';
+import BattleTeamSearchResult from '../models/BattleTeamSearchResult';
+import Matchup from '../models/Matchup';
 
 type BattleTeamComponentProps = {
   sortedPokemonList: PokemonStrategy[],
@@ -24,7 +27,10 @@ type BattleTeamComponentState = {
   myTeam: PokemonStrategy[],
   oppTeam: PokemonStrategy[],
   modalShow: boolean,
-  selectedMyTeamIndex: number
+  selectedMyTeamIndex: number,
+  mmopModalShow: boolean,
+  mmopModalIndex: number,
+  mmopDetailsProps: any
 }
 
 export class BattleTeamComponent extends React.Component<BattleTeamComponentProps, BattleTeamComponentState> {
@@ -37,7 +43,10 @@ export class BattleTeamComponent extends React.Component<BattleTeamComponentProp
       myTeam: defaultTeam(pokeList),
       oppTeam: defaultTeam(pokeList),
       modalShow: false,
-      selectedMyTeamIndex: -1
+      selectedMyTeamIndex: -1,
+      mmopDetailsProps: {},
+      mmopModalIndex: -1,
+      mmopModalShow: false
     };
   }
 
@@ -49,6 +58,17 @@ export class BattleTeamComponent extends React.Component<BattleTeamComponentProp
 
   onChangeOppPokemons(pokemons: PokemonStrategy[]) {
     this.setState({ oppTeam: pokemons });
+  }
+
+  onMMOPDetailClick(index: number, result: BattleTeamSearchResult, matchups: Matchup[]) {
+    const mmopDetailsProps: any = {
+      index: index,
+      result: result,
+      myTeam: this.state.myTeam,
+      oppTeam: this.state.oppTeam,
+      matchups: matchups
+    }
+    this.setState({ mmopModalIndex: index, mmopModalShow: true, mmopDetailsProps: mmopDetailsProps});
   }
 
   render() {
@@ -83,7 +103,8 @@ export class BattleTeamComponent extends React.Component<BattleTeamComponentProp
     const mrosCalculator = new MROSCalculator(this.props.combinationService);   
     const cvrgCalculator = new CVRGCalculator(this.props.combinationService);
     const cvneCalculator = new CVNECalculator(this.props.combinationService);
-
+    
+    const matchups = mmopCalculator.allMatchupValues(this.state.myTeam, this.state.oppTeam);
     const resultsAM = maopCalculator.evaluate(this.state.myTeam, this.state.oppTeam);
     const resultsMM = mmopCalculator.evaluate(this.state.myTeam, this.state.oppTeam);
     const resultsAC = mrosCalculator.evaluate(this.state.myTeam, this.state.oppTeam);
@@ -143,7 +164,7 @@ export class BattleTeamComponent extends React.Component<BattleTeamComponentProp
             <Tab eventKey="maximum-minimum" title="Maximum Minimum">
               <h4 className="mt-3">Selections (Method: Maximum Minimum)</h4>
                 {resultsMM.map((result, index) => 
-                  <BattleTeamResultCard result={result} index={index + 1} />
+                  <BattleTeamResultCard result={result} index={index + 1} onDetailClick={() => this.onMMOPDetailClick(index, result, matchups, )}/>
                 )}
 
               {/* <Table striped bordered hover size="sm">                
@@ -296,6 +317,21 @@ export class BattleTeamComponent extends React.Component<BattleTeamComponentProp
         </Modal.Body>
         <Modal.Footer>
           <Button variant="primary" onClick={() => this.setState({modalShow: false})}>
+            Close
+          </Button>
+        </Modal.Footer>
+      </Modal>
+      <Modal size="lg" show={this.state.mmopModalShow} onHide={() => this.setState({mmopModalShow: false})}>
+        <Modal.Header closeButton>
+          <Modal.Title>Details: {this.state.mmopModalIndex}</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <MMOPDetails index={this.state.mmopDetailsProps.index} result={this.state.mmopDetailsProps.result} 
+            myTeam={this.state.mmopDetailsProps.myTeam} oppTeam={this.state.mmopDetailsProps.oppTeam}
+            matchups={this.state.mmopDetailsProps.matchups} />
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="primary" onClick={() => this.setState({mmopModalShow: false})}>
             Close
           </Button>
         </Modal.Footer>

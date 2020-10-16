@@ -7,7 +7,8 @@ import { translateSpeciesIfPossible } from '../services/stringSanitizer';
 
 type BattleTeamResultCardProps = {
   index: number,
-  result: BattleTeamSearchResult
+  result: BattleTeamSearchResult,
+  onDetailClick: () => void
 }
 
 export const BattleTeamResultCard: React.FunctionComponent<BattleTeamResultCardProps> = (props) => {
@@ -28,7 +29,7 @@ export const BattleTeamResultCard: React.FunctionComponent<BattleTeamResultCardP
           </div>
         </div>
         <div className="button-area">
-          <Button variant="outline-dark" size="sm">Show Detail</Button>
+          <Button variant="outline-dark" size="sm" onClick={() => props.onDetailClick()}>Show Detail</Button>
         </div>
       </div>    
     </>
