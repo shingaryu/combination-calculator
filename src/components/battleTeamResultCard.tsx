@@ -20,7 +20,7 @@ export const BattleTeamResultCard: React.FunctionComponent<BattleTeamResultCardP
         <div className="text-area">
           <div>
             <span>{props.index}. Evaluation: </span>
-            <span className={props.result.value < 0? "value-text color-red": "value-text color-blue"}>
+            <span className={props.result.value < 0? "value-text color-blue": "value-text color-red"}>
               {props.result.value.toFixed(0)}
             </span> 
           </div>

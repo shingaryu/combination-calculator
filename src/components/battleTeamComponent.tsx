@@ -323,7 +323,7 @@ export class BattleTeamComponent extends React.Component<BattleTeamComponentProp
       </Modal>
       <Modal size="lg" show={this.state.mmopModalShow} onHide={() => this.setState({mmopModalShow: false})}>
         <Modal.Header closeButton>
-          <Modal.Title>Details: {this.state.mmopModalIndex}</Modal.Title>
+          <Modal.Title>Details: {this.state.mmopModalIndex + 1}</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <MMOPDetails index={this.state.mmopDetailsProps.index} result={this.state.mmopDetailsProps.result} 
