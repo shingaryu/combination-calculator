@@ -3,17 +3,20 @@ import PokemonStrategy from '../models/PokemonStrategy';
 import StrengthTableLoader from './strengthTableLoader';
 import StrengthRow from './StrengthRow';
 import * as Utils from './utils';
+import { getPokemonStrategies } from '../api/pokemonStrategiesApi';
 
 // used like singleton
 class MasterDataService {
   private strengthRows: StrengthRow[];
   private targetPokeNames: string[];
   private targetPokeIds: string[];
+  private allPokemonStrategies: PokemonStrategy[];
 
   constructor() {
     this.strengthRows = [];
     this.targetPokeNames = [];
     this.targetPokeIds = [];
+    this.allPokemonStrategies = [];
   }
 
   // needs to be called manually, before using any of class methods
@@ -23,6 +26,8 @@ class MasterDataService {
     this.strengthRows = loader.getStrengthRows();
     this.targetPokeNames = loader.getTargetPokeNames();
     this.targetPokeIds = loader.getTargetPokeIds();
+
+    this.allPokemonStrategies = (await getPokemonStrategies()).data;
   }
 
   getStrengthRows() {
@@ -38,6 +43,10 @@ class MasterDataService {
 
   getAllTargetPokemonNames() {
     return this.targetPokeNames;
+  }
+
+  getAllPokemonStrategies() {
+    return this.allPokemonStrategies;
   }
 
   strValuesOfTeamStrategies(teamPokemons: PokemonStrategy[], selectedTargets: PokemonStrategy[]) {

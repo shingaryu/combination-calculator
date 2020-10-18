@@ -5,7 +5,6 @@ import { GraphComponent } from './graphComponent';
 import { TeamComponent } from './TeamComponent';
 import { masterDataService } from '../services/masterDataService';
 import { SearchResultComponent } from './searchResultComponent';
-import { getPokemonStrategies } from '../api/pokemonStrategiesApi';
 import { I18nContext } from 'react-i18next';
 import { translateSpeciesIfPossible } from '../services/stringSanitizer';
 import './teamBuilderComponent.css'
@@ -44,11 +43,8 @@ export class TeamBuilderComponent extends React.Component<TeamBuilderComponentPr
       allStrategies: []
     };
 
-    Promise.all([
-      masterDataService.loadMasterData(),
-      getPokemonStrategies()
-    ]).then(returns => {
-      const pokemonStrategies = returns[1].data;
+    masterDataService.loadMasterData().then(() => {
+      const pokemonStrategies = masterDataService.getAllPokemonStrategies();
       const targetPokemonNames = masterDataService.getAllTargetPokemonNames();
       this.setState({ 
         loading: false,
