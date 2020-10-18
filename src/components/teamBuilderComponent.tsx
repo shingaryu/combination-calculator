@@ -174,7 +174,7 @@ export class TeamBuilderComponent extends React.Component<TeamBuilderComponentPr
                   </Row>
                 </Tab>
                 <Tab eventKey="battle-team" title="Battle Team">
-                  <BattleTeamComponent sortedPokemonList={sortedAllStrategies} />
+                  <BattleTeamComponent myTeam={this.state.teamPokemons} sortedPokemonList={sortedAllStrategies} />
                 </Tab>
               </Tabs>    
             </Col>

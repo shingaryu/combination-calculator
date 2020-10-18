@@ -18,11 +18,11 @@ import { MMOPResults } from './MMOPResults';
 import { MAOPResults } from './MAOPResults';
 
 type BattleTeamComponentProps = {
+  myTeam: PokemonStrategy[],
   sortedPokemonList: PokemonStrategy[],
 }
 
 type BattleTeamComponentState = {
-  myTeam: PokemonStrategy[],
   oppTeam: PokemonStrategy[],
   modalShow: boolean,
   selectedMyTeamIndex: number,
@@ -38,7 +38,6 @@ export class BattleTeamComponent extends React.Component<BattleTeamComponentProp
     const pokeList = this.props.sortedPokemonList;
 
     this.state = { 
-      myTeam: defaultTeam(pokeList),
       oppTeam: defaultTeam(pokeList),
       modalShow: false,
       selectedMyTeamIndex: -1,
@@ -50,10 +49,6 @@ export class BattleTeamComponent extends React.Component<BattleTeamComponentProp
 
   static contextType = I18nContext;
 
-  onChangeMyPokemons(pokemons: PokemonStrategy[]) {
-    this.setState({ myTeam: pokemons });
-  }
-
   onChangeOppPokemons(pokemons: PokemonStrategy[]) {
     this.setState({ oppTeam: pokemons });
   }
@@ -62,7 +57,7 @@ export class BattleTeamComponent extends React.Component<BattleTeamComponentProp
     const mmopDetailsProps: any = {
       index: index,
       result: result,
-      myTeam: this.state.myTeam,
+      myTeam: this.props.myTeam,
       oppTeam: this.state.oppTeam,
       matchups: matchups
     }
@@ -73,12 +68,12 @@ export class BattleTeamComponent extends React.Component<BattleTeamComponentProp
     const t = this.context.i18n.t.bind(this.context.i18n);
 
     const graphLabels = this.state.oppTeam.map(x => translateSpeciesIfPossible(x.species, t));
-    const graphDataSets = this.state.myTeam.map((myPoke, i) => {
+    const graphDataSets = this.props.myTeam.map((myPoke, i) => {
       const strValues = masterDataService.strValuesOfTeamStrategies([myPoke], this.state.oppTeam);
       const graphDataset = {
         dataLabel: translateSpeciesIfPossible(myPoke.species, t),
         values: strValues,
-        colorRGB: [255 / (this.state.myTeam.length - 1) * i, 99, 132]
+        colorRGB: [255 / (this.props.myTeam.length - 1) * i, 99, 132]
       };
 
       return graphDataset;
@@ -100,9 +95,9 @@ export class BattleTeamComponent extends React.Component<BattleTeamComponentProp
     const cvrgCalculator = new CVRGCalculator();
     const cvneCalculator = new CVNECalculator();
     
-    const resultsAC = mrosCalculator.evaluate(this.state.myTeam, this.state.oppTeam);
-    const resultsWC = cvrgCalculator.evaluate(this.state.myTeam, this.state.oppTeam);
-    const resultsNA = cvneCalculator.evaluate(this.state.myTeam, this.state.oppTeam);
+    const resultsAC = mrosCalculator.evaluate(this.props.myTeam, this.state.oppTeam);
+    const resultsWC = cvrgCalculator.evaluate(this.props.myTeam, this.state.oppTeam);
+    const resultsNA = cvneCalculator.evaluate(this.props.myTeam, this.state.oppTeam);
 
     const myTeamToString = this.state.selectedMyTeamIndex !== -1 ? resultsAC.myTeamResults[this.state.selectedMyTeamIndex].myTeam.map(x => translateSpeciesIfPossible(x.species, t)).join(', '): '';
 
@@ -110,10 +105,6 @@ export class BattleTeamComponent extends React.Component<BattleTeamComponentProp
     <>
       <Container fluid className="mt-3">
         <Row>
-          <Col>
-            <h4>My Team</h4>
-            <SimpleTeamComponent num={6} pokemonList={this.props.sortedPokemonList} onChange={(pokemons) => this.onChangeMyPokemons(pokemons)}></SimpleTeamComponent>
-          </Col>
           <Col>
             <h4>Opponent's Team</h4>
             <SimpleTeamComponent num={6} pokemonList={this.props.sortedPokemonList} onChange={(pokemons) => this.onChangeOppPokemons(pokemons)}></SimpleTeamComponent>
@@ -130,11 +121,11 @@ export class BattleTeamComponent extends React.Component<BattleTeamComponentProp
           <Tabs id="method-tabs" defaultActiveKey="maximum-minimum" className="mt-3">
             <Tab eventKey="average-minimum" title="Average Minimum">
               <h4 className="mt-3">Selections (Method: Average Minimum)</h4>
-              <MAOPResults myTeam={this.state.myTeam} oppTeam={this.state.oppTeam}/>
+              <MAOPResults myTeam={this.props.myTeam} oppTeam={this.state.oppTeam}/>
             </Tab>
             <Tab eventKey="maximum-minimum" title="Maximum Minimum">
               <h4 className="mt-3">Selections (Method: Maximum Minimum)</h4>
-              <MMOPResults myTeam={this.state.myTeam} oppTeam={this.state.oppTeam}/>
+              <MMOPResults myTeam={this.props.myTeam} oppTeam={this.state.oppTeam}/>
             </Tab>
             <Tab eventKey="tactics-minimax" title="Tactics Minimax">
               <h4 className="mt-3">Selections (Method: Tactics Minimax)</h4>
