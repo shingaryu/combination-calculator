@@ -8,16 +8,14 @@ import { GraphComponent } from './graphComponent';
 import { defaultTeam } from '../defaultList';
 import { BattleTeamDetailsComponent } from './battleTeamDetailsComponent';
 import { SimpleTeamComponent } from './simpleTeamComponent';
-import { MAOPCalculator } from '../services/MAOPCalculator';
-import { MMOPCalculator } from '../services/MMOPCalculator';
 import { MROSCalculator } from '../services/MROSCalculator';
 import { CVRGCalculator } from '../services/CVRGCalculator';
 import { CVNECalculator } from '../services/CVNECalculator';
-import { BattleTeamResultCard } from './battleTeamResultCard';
 import { MMOPDetails } from './MMOPDetails';
 import BattleTeamSearchResult from '../models/BattleTeamSearchResult';
 import Matchup from '../models/Matchup';
 import { MMOPResults } from './MMOPResults';
+import { MAOPResults } from './MAOPResults';
 
 type BattleTeamComponentProps = {
   sortedPokemonList: PokemonStrategy[],
@@ -98,15 +96,10 @@ export class BattleTeamComponent extends React.Component<BattleTeamComponentProp
       }
     }
 
-    const maopCalculator = new MAOPCalculator();
-    const mmopCalculator = new MMOPCalculator();
     const mrosCalculator = new MROSCalculator();
     const cvrgCalculator = new CVRGCalculator();
     const cvneCalculator = new CVNECalculator();
     
-    const matchups = mmopCalculator.allMatchupValues(this.state.myTeam, this.state.oppTeam);
-    const resultsAM = maopCalculator.evaluate(this.state.myTeam, this.state.oppTeam);
-    const resultsMM = mmopCalculator.evaluate(this.state.myTeam, this.state.oppTeam);
     const resultsAC = mrosCalculator.evaluate(this.state.myTeam, this.state.oppTeam);
     const resultsWC = cvrgCalculator.evaluate(this.state.myTeam, this.state.oppTeam);
     const resultsNA = cvneCalculator.evaluate(this.state.myTeam, this.state.oppTeam);
@@ -137,29 +130,7 @@ export class BattleTeamComponent extends React.Component<BattleTeamComponentProp
           <Tabs id="method-tabs" defaultActiveKey="maximum-minimum" className="mt-3">
             <Tab eventKey="average-minimum" title="Average Minimum">
               <h4 className="mt-3">Selections (Method: Average Minimum)</h4>
-              <Table striped bordered hover size="sm">
-                <thead>
-                  <tr>
-                    <th key='h-i'>{t('search.columnRank')}</th>
-                    {resultsAM.length===0?
-                      <th key={`h-p0`}>Pokemon</th>:
-                      resultsAM[0].pokemons.map((x, i) => <th key={`h-p${i}`}>{t('search.columnPokemon')}</th>)
-                    }
-                    <th key='h-v'>Min. Value</th>
-                    <th key='h-t'>On Target</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {resultsAM.map((result, index) => (
-                    <tr key={index}>
-                      <td key={`${index}-i`}>{index + 1}</td>
-                      {result.pokemons.map((x, i) => <td key={`${index}-p${i}`}>{translateSpeciesIfPossible(x.species, t)}</td>)}
-                      <td key={`${index}-v`}>{result.value.toFixed(4)}</td>
-                      <td key={`${index}-tn`}>{translateSpeciesIfPossible(result.minimumValueTargetPoke.species ?? '', t)}</td>
-                    </tr>                
-                  ))}
-                </tbody>
-              </Table> 
+              <MAOPResults myTeam={this.state.myTeam} oppTeam={this.state.oppTeam}/>
             </Tab>
             <Tab eventKey="maximum-minimum" title="Maximum Minimum">
               <h4 className="mt-3">Selections (Method: Maximum Minimum)</h4>
