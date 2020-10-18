@@ -9,14 +9,12 @@ import { defaultTeam } from '../defaultList';
 import { BattleTeamDetailsComponent } from './battleTeamDetailsComponent';
 import { SimpleTeamComponent } from './simpleTeamComponent';
 import { MROSCalculator } from '../services/MROSCalculator';
-import { CVRGCalculator } from '../services/CVRGCalculator';
 import { CVNECalculator } from '../services/CVNECalculator';
 import { MMOPDetails } from './MMOPDetails';
-import BattleTeamSearchResult from '../models/BattleTeamSearchResult';
-import Matchup from '../models/Matchup';
 import { MMOPResults } from './MMOPResults';
 import { MAOPResults } from './MAOPResults';
 import { CVRGResults } from './CVRGResults';
+import { EventEmitter } from 'events';
 
 type BattleTeamComponentProps = {
   myTeam: PokemonStrategy[],
@@ -48,21 +46,16 @@ export class BattleTeamComponent extends React.Component<BattleTeamComponentProp
     };
   }
 
+  private shuffleEvent = new EventEmitter();
+
   static contextType = I18nContext;
 
   onChangeOppPokemons(pokemons: PokemonStrategy[]) {
     this.setState({ oppTeam: pokemons });
   }
 
-  onMMOPDetailClick(index: number, result: BattleTeamSearchResult, matchups: Matchup[]) {
-    const mmopDetailsProps: any = {
-      index: index,
-      result: result,
-      myTeam: this.props.myTeam,
-      oppTeam: this.state.oppTeam,
-      matchups: matchups
-    }
-    this.setState({ mmopModalIndex: index, mmopModalShow: true, mmopDetailsProps: mmopDetailsProps});
+  onShuffleClick() {
+    this.shuffleEvent.emit('event');
   }
 
   render() {
@@ -106,7 +99,13 @@ export class BattleTeamComponent extends React.Component<BattleTeamComponentProp
         <Row>
           <Col>
             <h4>{t('battleTeam.selectOpponentTeam')}</h4>
-            <SimpleTeamComponent num={6} pokemonList={this.props.sortedPokemonList} onChange={(pokemons) => this.onChangeOppPokemons(pokemons)}></SimpleTeamComponent>
+            <SimpleTeamComponent num={6} pokemonList={this.props.sortedPokemonList} onChange={(pokemons) => this.onChangeOppPokemons(pokemons)}
+              shuffleEvent={this.shuffleEvent}></SimpleTeamComponent>
+          </Col>
+        </Row>
+        <Row>
+          <Col>
+            <Button variant="outline-dark" size="sm" style={{ marginLeft: 80 }} onClick={() => this.onShuffleClick()}>Shuffle</Button>
           </Col>
         </Row>
         {/* <Row>

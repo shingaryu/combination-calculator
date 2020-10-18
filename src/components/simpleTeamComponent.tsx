@@ -4,11 +4,13 @@ import { I18nContext } from 'react-i18next';
 import { translateSpeciesIfPossible } from '../services/stringSanitizer';
 import PokemonStrategy from '../models/PokemonStrategy';
 import { defaultTeam } from '../defaultList';
+import { EventEmitter } from 'events';
 
 type SimpleTeamComponentProps = {
   num: number,
   pokemonList: PokemonStrategy[],
-  onChange: (pokemons: PokemonStrategy[]) => void
+  onChange: (pokemons: PokemonStrategy[]) => void,
+  shuffleEvent?: EventEmitter
 }
 
 type SimpleTeamComponentState = {
@@ -23,7 +25,7 @@ export class SimpleTeamComponent extends React.Component<SimpleTeamComponentProp
     }
 
     const defaultTeamPokemons = defaultTeam(this.props.pokemonList);
-    const pokemonSlots = [];
+    const pokemonSlots: any[] = [];
     for (let i = 0; i < this.props.num; i++) {
       pokemonSlots[i] = {
         poke: defaultTeamPokemons[i],
@@ -34,6 +36,30 @@ export class SimpleTeamComponent extends React.Component<SimpleTeamComponentProp
     this.state = {
       pokemonSlots: pokemonSlots,
     }
+
+    props.shuffleEvent?.on('event', () => {
+      if (!pokemonSlots) {
+        return;
+      }
+
+      const slots = this.state.pokemonSlots.concat();
+      const storedIndices: number[] = [];
+      slots.filter(x => x.enabled).forEach(x => {
+        let duplicated = true;
+        let randomIndex = -1;
+        while (duplicated && (this.props.pokemonList.length - storedIndices.length > 0)) {
+          randomIndex = Math.floor(Math.random() * this.props.pokemonList.length);
+          duplicated = storedIndices.indexOf(randomIndex) >= 0;
+        }
+        
+        if (randomIndex > 0) {
+          x.poke = this.props.pokemonList[randomIndex];
+        }
+      })
+
+      this.setState({ pokemonSlots: slots });
+      this.props.onChange(this.validTeamPokemons());
+    });
   }
 
   static contextType = I18nContext;
