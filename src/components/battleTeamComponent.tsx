@@ -3,8 +3,8 @@ import { Container, Row, Col, Table, Tabs, Tab, Modal, Button } from 'react-boot
 import { I18nContext } from 'react-i18next';
 import { translateSpeciesIfPossible } from '../services/stringSanitizer';
 import PokemonStrategy from '../models/PokemonStrategy';
-import { masterDataService } from '../services/masterDataService';
-import { GraphComponent } from './graphComponent';
+// import { masterDataService } from '../services/masterDataService';
+// import { GraphComponent } from './graphComponent';
 import { defaultTeam } from '../defaultList';
 import { BattleTeamDetailsComponent } from './battleTeamDetailsComponent';
 import { SimpleTeamComponent } from './simpleTeamComponent';
@@ -67,29 +67,29 @@ export class BattleTeamComponent extends React.Component<BattleTeamComponentProp
   render() {
     const t = this.context.i18n.t.bind(this.context.i18n);
 
-    const graphLabels = this.state.oppTeam.map(x => translateSpeciesIfPossible(x.species, t));
-    const graphDataSets = this.props.myTeam.map((myPoke, i) => {
-      const strValues = masterDataService.strValuesOfTeamStrategies([myPoke], this.state.oppTeam);
-      const graphDataset = {
-        dataLabel: translateSpeciesIfPossible(myPoke.species, t),
-        values: strValues,
-        colorRGB: [255 / (this.props.myTeam.length - 1) * i, 99, 132]
-      };
+    // const graphLabels = this.state.oppTeam.map(x => translateSpeciesIfPossible(x.species, t));
+    // const graphDataSets = this.props.myTeam.map((myPoke, i) => {
+    //   const strValues = masterDataService.strValuesOfTeamStrategies([myPoke], this.state.oppTeam);
+    //   const graphDataset = {
+    //     dataLabel: translateSpeciesIfPossible(myPoke.species, t),
+    //     values: strValues,
+    //     colorRGB: [255 / (this.props.myTeam.length - 1) * i, 99, 132]
+    //   };
 
-      return graphDataset;
-    })
+    //   return graphDataset;
+    // })
 
-    const chartOptionsBar = {
-      scales: {
-        yAxes: [{
-          ticks: {
-            min: -1024,
-            max: 1024,
-            stepSize: 512
-          }
-        }]
-      }
-    }
+    // const chartOptionsBar = {
+    //   scales: {
+    //     yAxes: [{
+    //       ticks: {
+    //         min: -1024,
+    //         max: 1024,
+    //         stepSize: 512
+    //       }
+    //     }]
+    //   }
+    // }
 
     const mrosCalculator = new MROSCalculator();
     const cvrgCalculator = new CVRGCalculator();
@@ -110,12 +110,12 @@ export class BattleTeamComponent extends React.Component<BattleTeamComponentProp
             <SimpleTeamComponent num={6} pokemonList={this.props.sortedPokemonList} onChange={(pokemons) => this.onChangeOppPokemons(pokemons)}></SimpleTeamComponent>
           </Col>
         </Row>
-        <Row>
+        {/* <Row>
           <Col>
             <h4>Individual strength values to the opponent team</h4>
             <GraphComponent labels={graphLabels} datasets={graphDataSets} heightVertical={200} widthVertical={800} optionsBar={chartOptionsBar} />
           </Col>
-        </Row>
+        </Row> */}
         <Row>
           <Col>
           <Tabs id="method-tabs" defaultActiveKey="maximum-minimum" className="mt-3">
