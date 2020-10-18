@@ -54,7 +54,7 @@ export class MMOPResults extends React.Component<MMOPResultsProps, MMOPResultsSt
     return (
     <>
       {resultsMM.map((result, index) => 
-        <BattleTeamResultCard key={index} result={result} index={index + 1} onDetailClick={() => this.onMMOPDetailClick(index, result, matchups, )}/>
+        <BattleTeamResultCard key={index} index={index + 1} value={result.value} pokemonSet={result.pokemons} onDetailClick={() => this.onMMOPDetailClick(index, result, matchups, )}/>
       )}
 
       <Modal size="lg" show={this.state.modalShow} onHide={() => this.setState({modalShow: false})}>

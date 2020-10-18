@@ -54,7 +54,7 @@ export class MAOPResults extends React.Component<MAOPResultsProps, MAOPResultsSt
     return (
     <>
       {resultsMA.map((result, index) => 
-        <BattleTeamResultCard key={index} result={result} index={index + 1} onDetailClick={() => this.onMAOPDetailClick(index, result, matchups, )}/>
+        <BattleTeamResultCard key={index} index={index + 1} value={result.value} pokemonSet={result.pokemons} onDetailClick={() => this.onMAOPDetailClick(index, result, matchups, )}/>
       )}
 
       <Modal size="lg" show={this.state.modalShow} onHide={() => this.setState({modalShow: false})}>

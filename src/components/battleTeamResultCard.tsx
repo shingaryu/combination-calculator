@@ -2,12 +2,13 @@ import React from 'react';
 import { Button } from "react-bootstrap";
 import { useTranslation } from 'react-i18next';
 import './battleTeamResultCard.css'
-import BattleTeamSearchResult from '../models/BattleTeamSearchResult';
 import { translateSpeciesIfPossible } from '../services/stringSanitizer';
+import PokemonStrategy from '../models/PokemonStrategy';
 
 type BattleTeamResultCardProps = {
   index: number,
-  result: BattleTeamSearchResult,
+  value: number,
+  pokemonSet: PokemonStrategy[],
   onDetailClick: () => void
 }
 
@@ -20,12 +21,12 @@ export const BattleTeamResultCard: React.FunctionComponent<BattleTeamResultCardP
         <div className="text-area">
           <div>
             <span>{props.index}. {t('battleTeam.evaluation')}: </span>
-            <span className={props.result.value < 0? "value-text color-blue": "value-text color-red"}>
-              {props.result.value.toFixed(0)}
+            <span className={props.value < 0? "value-text color-blue": "value-text color-red"}>
+              {props.value.toFixed(0)}
             </span> 
           </div>
           <div className="pokemon-name">
-            {props.result.pokemons.map(x => translateSpeciesIfPossible(x.species, t)).join(', ')}
+            {props.pokemonSet.map(x => translateSpeciesIfPossible(x.species, t)).join(', ')}
           </div>
         </div>
         <div className="button-area">
