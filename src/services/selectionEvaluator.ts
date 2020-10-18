@@ -103,7 +103,7 @@ export class SelectionEvaluator {
 
     if (advantageousMatchups.length === 0) {
       const myTeamResultWC = { myTeam, advantageousMatchups, maximumCoveragePokemonIndex: 0, maximumCoverage: 0, 
-        coverageNum: 0, overallCoverage: 0 };
+        coverageNum: 0, overallCoverage: 0, evaluationValue: 0 };
       return myTeamResultWC;
     }
 
@@ -117,7 +117,8 @@ export class SelectionEvaluator {
     const maximumCoverage = advantageousMatchups[maximumCoveragePokemonIndex].matchups.length;
     let coverageNum = 0;
     advantageousMatchups.forEach(x => coverageNum += x.matchups.length);
-    const myTeamResultWC = { myTeam, advantageousMatchups, maximumCoveragePokemonIndex, maximumCoverage, coverageNum, overallCoverage };
+    const evaluationValue = overallCoverage * 1000 + coverageNum * 10 + maximumCoverage * 1;
+    const myTeamResultWC = { myTeam, advantageousMatchups, maximumCoveragePokemonIndex, maximumCoverage, coverageNum, overallCoverage, evaluationValue };
 
     // const myTeamResultWC = this.myTeamResultWCFromAdvantageousMatchups(myTeam, opponentPokemons, advantageousMatchups);
 
