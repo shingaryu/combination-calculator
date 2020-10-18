@@ -173,7 +173,7 @@ export class TeamBuilderComponent extends React.Component<TeamBuilderComponentPr
                     </Col>
                   </Row>
                 </Tab>
-                <Tab eventKey="battle-team" title="Battle Team">
+                <Tab eventKey="battle-team" title={t('tab.titleBattleTeam')}>
                   <BattleTeamComponent myTeam={this.state.teamPokemons} sortedPokemonList={sortedAllStrategies} />
                 </Tab>
               </Tabs>    

@@ -12,7 +12,8 @@
     "titleGraph": "Chart",
     "titleSearch": "Search",
     "titleTeamListSelect": "Team(List)",
-    "titleTargetSelect": "Targets"
+    "titleTargetSelect": "Targets",
+    "titleBattleTeam": "Battle Team"
   },
   "team": {
     "title": "Your Team",
@@ -47,6 +48,26 @@
   },
   "targetSelect": {
     "title": "Select targets to show"
+  },
+  "battleTeam": {
+    "selectOpponentTeam": "Set opponent's team",
+    "tab": {
+      "titleMAOP": "Minimum Average",
+      "titleMMOP": "Minimum Maximum",
+      "titleCVRG": "Coverage"
+    },
+    "evaluation": "Evaluation",
+    "detail": "detail",
+    "MAOP": {
+      "title": "Selections (Minimum Average to Opponent Pokemon)"
+    },
+    "MMOP": {
+      "title": "Selections (Minimum Maximum to Opponent Pokemon)",
+      "overused": "overused"
+    },
+    "CVRG": {
+      "title": "Selections (Coverage)"
+    }
   },
   "reference": {
     "title": "Reference (evaluation method of matchups)",

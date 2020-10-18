@@ -106,7 +106,7 @@ export class BattleTeamComponent extends React.Component<BattleTeamComponentProp
       <Container fluid className="mt-3">
         <Row>
           <Col>
-            <h4>Opponent's Team</h4>
+            <h4>{t('battleTeam.selectOpponentTeam')}</h4>
             <SimpleTeamComponent num={6} pokemonList={this.props.sortedPokemonList} onChange={(pokemons) => this.onChangeOppPokemons(pokemons)}></SimpleTeamComponent>
           </Col>
         </Row>
@@ -119,12 +119,12 @@ export class BattleTeamComponent extends React.Component<BattleTeamComponentProp
         <Row>
           <Col>
           <Tabs id="method-tabs" defaultActiveKey="maximum-minimum" className="mt-3">
-            <Tab eventKey="average-minimum" title="Average Minimum">
-              <h4 className="mt-3">Selections (Method: Average Minimum)</h4>
+            <Tab eventKey="average-minimum" title={t('battleTeam.tab.titleMAOP')}>
+              <h4 className="mt-3">{t('battleTeam.MAOP.title')}</h4>
               <MAOPResults myTeam={this.props.myTeam} oppTeam={this.state.oppTeam}/>
             </Tab>
-            <Tab eventKey="maximum-minimum" title="Maximum Minimum">
-              <h4 className="mt-3">Selections (Method: Maximum Minimum)</h4>
+            <Tab eventKey="maximum-minimum" title={t('battleTeam.tab.titleMMOP')}>
+              <h4 className="mt-3">{t('battleTeam.MMOP.title')}</h4>
               <MMOPResults myTeam={this.props.myTeam} oppTeam={this.state.oppTeam}/>
             </Tab>
             <Tab eventKey="tactics-minimax" title="Tactics Minimax">
@@ -153,8 +153,8 @@ export class BattleTeamComponent extends React.Component<BattleTeamComponentProp
                 </tbody>
               </Table> 
             </Tab>
-            <Tab eventKey="coverage" title="Coverage">
-              <h4 className="mt-3">Selections (Method: Coverage)</h4>
+            <Tab eventKey="coverage" title={t('battleTeam.tab.titleCVRG')}>
+              <h4 className="mt-3">{t('battleTeam.CVRG.title')}</h4>
               <Table striped bordered hover size="sm">
                 <thead>
                   <tr>

@@ -57,7 +57,7 @@ export const MMOPDetails: React.FunctionComponent<MMOPDetailsProps> = (props) =>
           )}            
         </tbody>
       </Table>
-      <div>Overused</div>
+      <div>{t('battleTeam.MMOP.overused')}</div>
       {props.result.overused?.map((info: any, index: number) => {
         const fromPokemon = info.player;
         const valueInt = Math.round(info.total);

@@ -12,7 +12,8 @@
     "titleGraph": "グラフ",
     "titleSearch": "検索",
     "titleTeamListSelect": "PT候補選択",
-    "titleTargetSelect": "仮想敵選択"
+    "titleTargetSelect": "仮想敵選択",
+    "titleBattleTeam": "選出計算"
   },
   "team": {
     "title": "パーティーを設定",
@@ -47,6 +48,26 @@
   },
   "targetSelect": {
     "title": "表示する仮想敵を選択"
+  },
+  "battleTeam": {
+    "selectOpponentTeam": "相手のパーティを設定",
+    "tab": {
+      "titleMAOP": "平均値最小法",
+      "titleMMOP": "最大値最小法",
+      "titleCVRG": "対面カバー率"
+    },
+    "evaluation": "評価値",
+    "detail": "詳細",
+    "MAOP": {
+      "title": "選出ごとの評価値 (平均値最小法)"
+    },
+    "MMOP": {
+      "title": "選出ごとの評価値 (最大値最小法)",
+      "overused": "役割集中"
+    },
+    "CVRG": {
+      "title": "選出ごとの評価値 (対面カバー率)"
+    }
   },
   "reference": {
     "title": "参考 (対面相性評価の方法)",

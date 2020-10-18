@@ -19,7 +19,7 @@ export const BattleTeamResultCard: React.FunctionComponent<BattleTeamResultCardP
       <div className="result-card">
         <div className="text-area">
           <div>
-            <span>{props.index}. Evaluation: </span>
+            <span>{props.index}. {t('battleTeam.evaluation')}: </span>
             <span className={props.result.value < 0? "value-text color-blue": "value-text color-red"}>
               {props.result.value.toFixed(0)}
             </span> 
@@ -29,7 +29,7 @@ export const BattleTeamResultCard: React.FunctionComponent<BattleTeamResultCardP
           </div>
         </div>
         <div className="button-area">
-          <Button variant="outline-dark" size="sm" onClick={() => props.onDetailClick()}>Show Detail</Button>
+          <Button variant="outline-dark" size="sm" onClick={() => props.onDetailClick()}>{t('battleTeam.detail')}</Button>
         </div>
       </div>    
     </>
