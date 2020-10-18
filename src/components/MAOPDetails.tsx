@@ -46,7 +46,7 @@ export const MAOPDetails: React.FunctionComponent<MAOPDetailsProps> = (props) =>
                 }
 
                 return (
-                  <td key={`r-${i}-d-${i+1}`} className={(isMyPokeInResult?" ":"color-lightgray") + (matchup.value<0?"color-blue":"color-red")}>
+                  <td key={`r-${i}-d-${i+1}`} className={(isMyPokeInResult?" ":"color-lightgray ") + (matchup.value<0?"color-blue":"color-red")}>
                     {matchup.value.toFixed(0)}
                   </td>                
                 );
