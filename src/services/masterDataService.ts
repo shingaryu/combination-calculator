@@ -4,6 +4,7 @@ import StrengthTableLoader from './strengthTableLoader';
 import StrengthRow from './StrengthRow';
 import * as Utils from './utils';
 import { getPokemonStrategies } from '../api/pokemonStrategiesApi';
+import { wrapPromise } from './wrapPromise';
 
 // used like singleton
 class MasterDataService {
@@ -214,5 +215,6 @@ class MasterDataService {
 }
 
 const instance = new MasterDataService();
+const loadMasterDataResource = wrapPromise(instance.loadMasterData());
 
-export { instance as masterDataService };
+export { instance as masterDataService, loadMasterDataResource };
