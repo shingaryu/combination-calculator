@@ -17,6 +17,7 @@ import { BattleTeamResultCard } from './battleTeamResultCard';
 import { MMOPDetails } from './MMOPDetails';
 import BattleTeamSearchResult from '../models/BattleTeamSearchResult';
 import Matchup from '../models/Matchup';
+import { MMOPResults } from './MMOPResults';
 
 type BattleTeamComponentProps = {
   sortedPokemonList: PokemonStrategy[],
@@ -162,54 +163,7 @@ export class BattleTeamComponent extends React.Component<BattleTeamComponentProp
             </Tab>
             <Tab eventKey="maximum-minimum" title="Maximum Minimum">
               <h4 className="mt-3">Selections (Method: Maximum Minimum)</h4>
-                {resultsMM.map((result, index) => 
-                  <BattleTeamResultCard result={result} index={index + 1} onDetailClick={() => this.onMMOPDetailClick(index, result, matchups, )}/>
-                )}
-
-              {/* <Table striped bordered hover size="sm">                
-                <thead>
-                  <tr>
-                    <th key='h-i'>{t('search.columnRank')}</th>
-                    {resultsMM.length===0?
-                      <th key={`h-p0`}>Pokemon</th>:
-                      resultsMM[0].pokemons.map((x, i) => <th key={`h-p${i}`}>{t('search.columnPokemon')}</th>)
-                    }
-                    <th key='h-v'>Min. Value</th>
-                    <th key='h-t'>On Target</th>
-                    <th key='h-d'>Details</th>
-                    <th key='h-o'>Overused</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {resultsMM.map((result, index) => (
-                    <tr key={index}>
-                      <td key={`${index}-i`}>{index + 1}</td>
-                      {result.pokemons.map((x, i) => <td key={`${index}-p${i}`}>{translateSpeciesIfPossible(x.species, t)}</td>)}
-                      <td key={`${index}-v`}>{result.value.toFixed(4)}</td>
-                      <td key={`${index}-tn`}>{translateSpeciesIfPossible(result.minimumValueTargetPoke.species ?? '', t)}</td>
-                      <td>
-                        {result.tacticsPattern?.matchups?.map((maximum, index) => {
-                          const toTarget = maximum.opponent;
-                          const fromPokemon = maximum.player;
-                          const valueInt = Math.round(maximum.value);
-                          return (
-                            <div key={`em-${index}`}>{`To: ${translateSpeciesIfPossible(toTarget.species, t)} From: ${translateSpeciesIfPossible(fromPokemon.species, t)} Value: ${valueInt}`}</div>
-                          );
-                        })}
-                      </td>
-                      <td>
-                        {result.overused?.map((info: any, index: number) => {
-                          const fromPokemon = info.player;
-                          const valueInt = Math.round(info.total);
-                          return (
-                            <div key={`ou-${index}`}>{`${translateSpeciesIfPossible(fromPokemon.species, t)}: ${valueInt}`}</div>
-                          );
-                        })}
-                      </td>
-                    </tr>                
-                  ))}
-                </tbody>
-              </Table>  */}
+              <MMOPResults myTeam={this.state.myTeam} oppTeam={this.state.oppTeam}/>
             </Tab>
             <Tab eventKey="tactics-minimax" title="Tactics Minimax">
               <h4 className="mt-3">Selections (Method: Tactics Minimax)</h4>
