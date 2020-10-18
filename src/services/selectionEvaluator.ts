@@ -1,4 +1,4 @@
-import { CombinationService } from "./combination-service";
+import { masterDataService } from "./masterDataService";
 import PokemonStrategy from "../models/PokemonStrategy";
 import Matchup from "../models/Matchup";
 import StrengthRow from "./StrengthRow";
@@ -6,12 +6,10 @@ import * as Utils from './utils';
 import TacticsPattern from "../models/TacticsPattern";
 
 export class SelectionEvaluator {
-  protected combinationService: CombinationService;
   protected strengthRows: StrengthRow[]
 
-  constructor(combinationService: CombinationService) {
-    this.combinationService = combinationService;
-    this.strengthRows = combinationService.getStrengthRows();
+  constructor() {
+    this.strengthRows = masterDataService.getStrengthRows();
   }
 
   evaluate(teamPokemons: PokemonStrategy[], opponentPokemons: PokemonStrategy[]) {
@@ -25,7 +23,7 @@ export class SelectionEvaluator {
         throw new Error('Error: team pokemon does not exist in strength rows');
       }
 
-      const filteredVector = this.combinationService.filterAndSortStrVectorByTargets(row.vector, targetPokemons);
+      const filteredVector = masterDataService.filterAndSortStrVectorByTargets(row.vector, targetPokemons);
       
       return filteredVector;
     });

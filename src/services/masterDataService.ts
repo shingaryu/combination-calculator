@@ -4,7 +4,8 @@ import StrengthTableLoader from './strengthTableLoader';
 import StrengthRow from './StrengthRow';
 import * as Utils from './utils';
 
-export class CombinationService {
+// used like singleton
+class MasterDataService {
   private strengthRows: StrengthRow[];
   private targetPokeNames: string[];
   private targetPokeIds: string[];
@@ -15,6 +16,7 @@ export class CombinationService {
     this.targetPokeIds = [];
   }
 
+  // needs to be called manually, before using any of class methods
   async loadMasterData() {
     const loader = new StrengthTableLoader();
     await loader.loadMasterData();
@@ -22,7 +24,7 @@ export class CombinationService {
     this.targetPokeNames = loader.getTargetPokeNames();
     this.targetPokeIds = loader.getTargetPokeIds();
   }
-  
+
   getStrengthRows() {
     return this.strengthRows;
   }
@@ -201,3 +203,7 @@ export class CombinationService {
     return newVector;
   }
 }
+
+const instance = new MasterDataService();
+
+export { instance as masterDataService };

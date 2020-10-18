@@ -3,7 +3,7 @@ import { Container, Row, Col, Table, Tabs, Tab, Modal, Button } from 'react-boot
 import { I18nContext } from 'react-i18next';
 import { translateSpeciesIfPossible } from '../services/stringSanitizer';
 import PokemonStrategy from '../models/PokemonStrategy';
-import { CombinationService } from '../services/combination-service';
+import { masterDataService } from '../services/masterDataService';
 import { GraphComponent } from './graphComponent';
 import { defaultTeam } from '../defaultList';
 import { BattleTeamDetailsComponent } from './battleTeamDetailsComponent';
@@ -16,7 +16,6 @@ import { CVNECalculator } from '../services/CVNECalculator';
 
 type BattleTeamComponentProps = {
   sortedPokemonList: PokemonStrategy[],
-  combinationService: CombinationService,
 }
 
 type BattleTeamComponentState = {
@@ -55,7 +54,7 @@ export class BattleTeamComponent extends React.Component<BattleTeamComponentProp
 
     const graphLabels = this.state.oppTeam.map(x => translateSpeciesIfPossible(x.species, t));
     const graphDataSets = this.state.myTeam.map((myPoke, i) => {
-      const strValues = this.props.combinationService.strValuesOfTeamStrategies([myPoke], this.state.oppTeam);
+      const strValues = masterDataService.strValuesOfTeamStrategies([myPoke], this.state.oppTeam);
       const graphDataset = {
         dataLabel: translateSpeciesIfPossible(myPoke.species, t),
         values: strValues,
@@ -77,11 +76,11 @@ export class BattleTeamComponent extends React.Component<BattleTeamComponentProp
       }
     }
 
-    const maopCalculator = new MAOPCalculator(this.props.combinationService);
-    const mmopCalculator = new MMOPCalculator(this.props.combinationService);
-    const mrosCalculator = new MROSCalculator(this.props.combinationService);   
-    const cvrgCalculator = new CVRGCalculator(this.props.combinationService);
-    const cvneCalculator = new CVNECalculator(this.props.combinationService);
+    const maopCalculator = new MAOPCalculator();
+    const mmopCalculator = new MMOPCalculator();
+    const mrosCalculator = new MROSCalculator();   
+    const cvrgCalculator = new CVRGCalculator();
+    const cvneCalculator = new CVNECalculator();
 
     const resultsAM = maopCalculator.evaluate(this.state.myTeam, this.state.oppTeam);
     const resultsMM = mmopCalculator.evaluate(this.state.myTeam, this.state.oppTeam);

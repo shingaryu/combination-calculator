@@ -3,7 +3,7 @@ import { Container, Row, Col, Tabs, Tab } from 'react-bootstrap'
 import { SearchComponent } from './searchComponent';
 import { GraphComponent } from './graphComponent';
 import { TeamComponent } from './TeamComponent';
-import { CombinationService } from '../services/combination-service';
+import { masterDataService } from '../services/masterDataService';
 import { SearchResultComponent } from './searchResultComponent';
 import { getPokemonStrategies } from '../api/pokemonStrategiesApi';
 import { I18nContext } from 'react-i18next';
@@ -32,11 +32,8 @@ type TeamBuilderComponentState = {
 }
 
 export class TeamBuilderComponent extends React.Component<TeamBuilderComponentProps, TeamBuilderComponentState> {
-  private combinationService: CombinationService
-
   constructor(props: TeamBuilderComponentProps) {
     super(props);
-    this.combinationService = new CombinationService();
     this.state = { 
       loading: true,
       teamPokemons: [],
@@ -48,11 +45,11 @@ export class TeamBuilderComponent extends React.Component<TeamBuilderComponentPr
     };
 
     Promise.all([
-      this.combinationService.loadMasterData(),
+      masterDataService.loadMasterData(),
       getPokemonStrategies()
     ]).then(returns => {
       const pokemonStrategies = returns[1].data;
-      const targetPokemonNames = this.combinationService.getAllTargetPokemonNames();
+      const targetPokemonNames = masterDataService.getAllTargetPokemonNames();
       this.setState({ 
         loading: false,
         teamPokemons: defaultTeam(pokemonStrategies),
@@ -119,7 +116,7 @@ export class TeamBuilderComponent extends React.Component<TeamBuilderComponentPr
       const sortedTargets = this.sortByTranslatedName(t, this.state.selectedTargets);
       const graphLabels = sortedTargets.map(x => translateSpeciesIfPossible(x.species, t));
 
-      let teamStrengthValues = this.combinationService.strValuesOfTeamStrategies(sortedTeam, sortedTargets);
+      let teamStrengthValues = masterDataService.strValuesOfTeamStrategies(sortedTeam, sortedTargets);
       const graphDatasets = [
         {
           dataLabel: t('graph.teamStrengthValue'),
@@ -130,14 +127,14 @@ export class TeamBuilderComponent extends React.Component<TeamBuilderComponentPr
 
       let results: SearchResult[] = [];
       if (this.state.searchSettings.evaluationMethod === 0) {
-        results = this.combinationService.calcTargetStrengthsComplement(sortedTeam, sortedTeamList, sortedTargets, ['Sweeper', 'Tank', 'Wall']);
+        results = masterDataService.calcTargetStrengthsComplement(sortedTeam, sortedTeamList, sortedTargets, ['Sweeper', 'Tank', 'Wall']);
       } else if (this.state.searchSettings.evaluationMethod === 1) {
-        results = this.combinationService.calcWeakestPointImmunity(sortedTeam, sortedTeamList, sortedTargets);
+        results = masterDataService.calcWeakestPointImmunity(sortedTeam, sortedTeamList, sortedTargets);
       } else if (this.state.searchSettings.evaluationMethod === 2 && this.state.searchSettings.targets) {
-        results = this.combinationService.calcImmunityToCustomTargets(sortedTeam, sortedTeamList, sortedTargets, 
+        results = masterDataService.calcImmunityToCustomTargets(sortedTeam, sortedTeamList, sortedTargets, 
           this.state.searchSettings.targets.filter(idStr => idStr));
       } else if (this.state.searchSettings.evaluationMethod === 3) {
-        results = this.combinationService.calcNegativesTotal(sortedTeam, sortedTeamList, sortedTargets);
+        results = masterDataService.calcNegativesTotal(sortedTeam, sortedTeamList, sortedTargets);
       }
 
       return (
@@ -196,7 +193,7 @@ export class TeamBuilderComponent extends React.Component<TeamBuilderComponentPr
                     </Row>
                   </Tab>
                   {/* <Tab eventKey="battle-team" title="Battle Team">
-                    <BattleTeamComponent sortedPokemonList={sortedAllStrategies} combinationService={this.combinationService} />
+                    <BattleTeamComponent sortedPokemonList={sortedAllStrategies} masterDataService={masterDataService} />
                   </Tab> */}
                 </Tabs>    
               </Col>
