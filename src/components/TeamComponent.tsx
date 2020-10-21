@@ -5,6 +5,7 @@ import { I18nContext } from 'react-i18next';
 import { translateSpeciesIfPossible } from '../services/stringSanitizer';
 import PokemonStrategy from '../models/PokemonStrategy';
 import { defaultTeam } from '../defaultList';
+import Autosuggest from 'react-autosuggest';
 
 type TeamComponentProps = {
   num: number,
@@ -17,7 +18,9 @@ type TeamComponentState = {
   showModal: false,
   editingSlot: number,
   selectedPoke: PokemonStrategy | null,
-  modalShow: boolean
+  modalShow: boolean,
+  suggestions: any[],
+  pokeValue: string
 }
 
 export class TeamComponent extends React.Component<TeamComponentProps, TeamComponentState> {
@@ -41,11 +44,17 @@ export class TeamComponent extends React.Component<TeamComponentProps, TeamCompo
       showModal: false,
       editingSlot: -1,
       selectedPoke: null,
-      modalShow: false
+      modalShow: false,
+      suggestions: [],
+      pokeValue: ""
     }
+
+    this.translatedPokenames = [];
   }
 
   static contextType = I18nContext;
+
+  private translatedPokenames: string[];
 
   onCheckboxChange(num: number, event: React.ChangeEvent<HTMLInputElement>) {
     const pokemons = this.state.pokemonSlots.concat();
@@ -100,6 +109,46 @@ export class TeamComponent extends React.Component<TeamComponentProps, TeamCompo
     return this.state.pokemonSlots.filter(x => x.enabled).map(y => y.poke);
   }
 
+  getSuggestions(userInput: string) {
+    const inputValue = userInput;
+    const inputLength = inputValue.length;
+  
+    return inputLength === 0 ? [] : this.translatedPokenames.filter(name =>
+      name.slice(0, inputLength) === inputValue
+    );
+  };
+
+  getSuggestionValue(suggestion: any) {
+    return suggestion;
+  }
+
+  renderSuggestion(suggestion: any) {
+    return (
+      <div>
+        {suggestion}
+      </div>
+    );
+  }
+
+  onSuggestionsFetchRequested = ({ value }: any) => {
+    this.setState({
+      suggestions: this.getSuggestions(value)
+    });
+  };
+
+  onSuggestionsClearRequested = () => {
+    this.setState({
+      suggestions: []
+    });
+  };
+
+  onChange = (event: any, { newValue }: any, t: any) => {
+    console.log('onchange ' + newValue);
+    this.setState({
+      pokeValue: newValue
+    });
+  };
+
   pokemonStrategyCard(poke: PokemonStrategy, isSelected: boolean) {
     const t = this.context.i18n.t.bind(this.context.i18n);
 
@@ -125,6 +174,14 @@ export class TeamComponent extends React.Component<TeamComponentProps, TeamCompo
   render() {
     const t = this.context.i18n.t.bind(this.context.i18n);
 
+    this.translatedPokenames = this.props.pokemonList.map(x => translateSpeciesIfPossible(x.species, t));
+
+    // // Autosuggest will pass through all these props to the input.
+    // const inputPropsTemplate = {
+    //   placeholder: 'Type a pokemon name',
+    //   onChange: this.onChange
+    // };
+
     return (
     <>
       <Container fluid className="mb-3">
@@ -146,8 +203,8 @@ export class TeamComponent extends React.Component<TeamComponentProps, TeamCompo
                             <InputGroup.Prepend>
                               <InputGroup.Checkbox checked={slot.enabled} onChange={(e) => this.onCheckboxChange(slotNum, e)}/>
                             </InputGroup.Prepend>
-                            <FormControl value={translateSpeciesIfPossible(slot.poke.species, t)} placeholder={t('team.slotPlaceholder')} 
-                              readOnly onClick={() => this.onModalOpen(slotNum)}/>
+                            {/* <FormControl value={translateSpeciesIfPossible(slot.poke.species, t)} placeholder={t('team.slotPlaceholder')} 
+                              /> */}
                           </InputGroup>
                         </div>
                         <div className="set-button-line">
@@ -157,6 +214,14 @@ export class TeamComponent extends React.Component<TeamComponentProps, TeamCompo
                       )
                     }
                 </div>
+                <Autosuggest
+                  suggestions={this.state.suggestions}
+                  onSuggestionsFetchRequested={(arg: {value: any}) => this.onSuggestionsFetchRequested(arg)}
+                  onSuggestionsClearRequested={() => this.onSuggestionsClearRequested()}
+                  getSuggestionValue={(sug: any) => this.getSuggestionValue(sug)}
+                  renderSuggestion={(sug: any) => this.renderSuggestion(sug)}
+                  inputProps={{placeholder: 'Type a pokemon name', onChange: (event: any, { newValue }: any) => this.onChange(event, { newValue }, t), value: this.state.pokeValue}}
+                />
               </Col>
             </Row>
           </Col>
