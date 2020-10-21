@@ -14,7 +14,7 @@ type TeamComponentProps = {
 }
 
 type TeamComponentState = {
-  pokemonSlots: { poke: PokemonStrategy, enabled: boolean }[],
+  pokemonSlots: { poke: PokemonStrategy, enabled: boolean, inputText: string }[],
   showModal: false,
   editingSlot: number,
   selectedPoke: PokemonStrategy | null,
@@ -35,7 +35,8 @@ export class TeamComponent extends React.Component<TeamComponentProps, TeamCompo
     for (let i = 0; i < this.props.num; i++) {
       pokemonSlots[i] = {
         poke: defaultTeamPokemons[i],
-        enabled: true
+        enabled: true,
+        inputText: defaultTeamPokemons[i].species
       }
     }
 
@@ -122,11 +123,21 @@ export class TeamComponent extends React.Component<TeamComponentProps, TeamCompo
     return suggestion;
   }
 
+  renderInputComponent(inputProps: any) {
+    return (
+    // <div>
+    //   <input {...inputProps} />
+    //   <div>custom stuff</div>
+    // </div>
+    <FormControl {...inputProps}/>
+    )
+  }
+
   renderSuggestion(suggestion: any) {
     return (
-      <div>
+      <span>
         {suggestion}
-      </div>
+      </span>
     );
   }
 
@@ -147,6 +158,18 @@ export class TeamComponent extends React.Component<TeamComponentProps, TeamCompo
     this.setState({
       pokeValue: newValue
     });
+  };
+
+  onChangeInput = (slotNum: number, event: any, { newValue }: any) => {
+    console.log(`onchange: slot ${slotNum} value ${newValue}`);
+    const pokemons = this.state.pokemonSlots.concat();
+    pokemons[slotNum].inputText = newValue;
+
+    this.setState({
+      pokemonSlots: pokemons
+    });
+
+    this.props.onChange(this.validTeamPokemons());
   };
 
   pokemonStrategyCard(poke: PokemonStrategy, isSelected: boolean) {
@@ -199,12 +222,21 @@ export class TeamComponent extends React.Component<TeamComponentProps, TeamCompo
                       this.state.pokemonSlots && this.state.pokemonSlots.map((slot, slotNum) => 
                       <div className="inputgroup-container" key={slotNum} >
                         <div>
-                          <InputGroup className="mb-2 mr-2" style={{width: 200}}>
+                          <InputGroup className="mb-2 mr-2" style={{width: 250}}>
                             <InputGroup.Prepend>
                               <InputGroup.Checkbox checked={slot.enabled} onChange={(e) => this.onCheckboxChange(slotNum, e)}/>
                             </InputGroup.Prepend>
                             {/* <FormControl value={translateSpeciesIfPossible(slot.poke.species, t)} placeholder={t('team.slotPlaceholder')} 
                               /> */}
+                            <Autosuggest
+                              suggestions={this.state.suggestions}
+                              onSuggestionsFetchRequested={this.onSuggestionsFetchRequested}
+                              onSuggestionsClearRequested={this.onSuggestionsClearRequested}
+                              getSuggestionValue={this.getSuggestionValue}
+                              renderInputComponent={this.renderInputComponent}
+                              renderSuggestion={this.renderSuggestion}
+                              inputProps={{placeholder: t('team.slotPlaceholder'), onChange: (event: any, { newValue }: any) => this.onChangeInput(slotNum, event, { newValue }), value: this.state.pokemonSlots[slotNum].inputText}}
+                            />
                           </InputGroup>
                         </div>
                         <div className="set-button-line">
@@ -216,10 +248,11 @@ export class TeamComponent extends React.Component<TeamComponentProps, TeamCompo
                 </div>
                 <Autosuggest
                   suggestions={this.state.suggestions}
-                  onSuggestionsFetchRequested={(arg: {value: any}) => this.onSuggestionsFetchRequested(arg)}
-                  onSuggestionsClearRequested={() => this.onSuggestionsClearRequested()}
-                  getSuggestionValue={(sug: any) => this.getSuggestionValue(sug)}
-                  renderSuggestion={(sug: any) => this.renderSuggestion(sug)}
+                  onSuggestionsFetchRequested={this.onSuggestionsFetchRequested}
+                  onSuggestionsClearRequested={this.onSuggestionsClearRequested}
+                  getSuggestionValue={this.getSuggestionValue}
+                  renderInputComponent={this.renderInputComponent}
+                  renderSuggestion={this.renderSuggestion}
                   inputProps={{placeholder: 'Type a pokemon name', onChange: (event: any, { newValue }: any) => this.onChange(event, { newValue }, t), value: this.state.pokeValue}}
                 />
               </Col>
