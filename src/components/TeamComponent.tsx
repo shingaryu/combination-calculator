@@ -37,7 +37,7 @@ export class TeamComponentRaw extends React.Component<TeamComponentProps, TeamCo
       pokemonSlots[i] = {
         poke: defaultTeamPokemons[i],
         enabled: true,
-        inputText: defaultTeamPokemons[i].species
+        inputText: translateSpeciesIfPossible(defaultTeamPokemons[i].species, this.props.t)
       }
     }
 
@@ -124,10 +124,6 @@ export class TeamComponentRaw extends React.Component<TeamComponentProps, TeamCo
 
   renderInputComponent(inputProps: any) {
     return (
-    // <div>
-    //   <input {...inputProps} />
-    //   <div>custom stuff</div>
-    // </div>
     <FormControl {...inputProps}/>
     )
   }
