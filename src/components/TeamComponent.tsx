@@ -1,17 +1,18 @@
 import React from 'react';
 import { Container, Row, Col, InputGroup, FormControl, Button, Modal } from 'react-bootstrap'
 import './teamComponent.css'
-import { I18nContext } from 'react-i18next';
+import { WithTranslation } from 'react-i18next';
 import { translateSpeciesIfPossible } from '../services/stringSanitizer';
 import PokemonStrategy from '../models/PokemonStrategy';
 import { defaultTeam } from '../defaultList';
 import Autosuggest from 'react-autosuggest';
+import { withTranslation } from 'react-i18next';
 
 type TeamComponentProps = {
   num: number,
   pokemonList: PokemonStrategy[],
-  onChange: (pokemons: PokemonStrategy[]) => void
-}
+  onChange: (pokemons: PokemonStrategy[]) => void,
+} & WithTranslation
 
 type TeamComponentState = {
   pokemonSlots: { poke: PokemonStrategy, enabled: boolean, inputText: string }[],
@@ -23,7 +24,7 @@ type TeamComponentState = {
   pokeValue: string
 }
 
-export class TeamComponent extends React.Component<TeamComponentProps, TeamComponentState> {
+export class TeamComponentRaw extends React.Component<TeamComponentProps, TeamComponentState> {
   constructor(props: TeamComponentProps) {
     super(props);
     if (!this.props.num || this.props.num < 1) {
@@ -52,8 +53,6 @@ export class TeamComponent extends React.Component<TeamComponentProps, TeamCompo
 
     this.translatedPokenames = [];
   }
-
-  static contextType = I18nContext;
 
   private translatedPokenames: string[];
 
@@ -173,7 +172,7 @@ export class TeamComponent extends React.Component<TeamComponentProps, TeamCompo
   };
 
   pokemonStrategyCard(poke: PokemonStrategy, isSelected: boolean) {
-    const t = this.context.i18n.t.bind(this.context.i18n);
+    const { t } = this.props;
 
     const card = (
       <>
@@ -195,7 +194,7 @@ export class TeamComponent extends React.Component<TeamComponentProps, TeamCompo
   }
 
   render() {
-    const t = this.context.i18n.t.bind(this.context.i18n);
+    const { t } = this.props;
 
     this.translatedPokenames = this.props.pokemonList.map(x => translateSpeciesIfPossible(x.species, t));
 
@@ -262,7 +261,7 @@ export class TeamComponent extends React.Component<TeamComponentProps, TeamCompo
       </Container>
       <Modal size="lg" show={this.state.modalShow} onHide={() => this.onModalCancel()}>
         <Modal.Header closeButton>
-          <Modal.Title>{t('team.modal.title').replace('{num}', this.state.editingSlot + 1)}</Modal.Title>
+          <Modal.Title>{t('team.modal.title').replace('{num}', (this.state.editingSlot + 1).toString())}</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <div className='str-list'>
@@ -285,3 +284,5 @@ export class TeamComponent extends React.Component<TeamComponentProps, TeamCompo
     </>
   )};
 }
+
+export const TeamComponent = withTranslation()(TeamComponentRaw);
