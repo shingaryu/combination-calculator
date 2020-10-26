@@ -124,7 +124,7 @@ export class TeamComponentRaw extends React.Component<TeamComponentProps, TeamCo
 
   renderInputComponent(inputProps: any) {
     return (
-    <FormControl {...inputProps}/>
+      <FormControl {...inputProps}/>
     )
   }
 
@@ -157,6 +157,9 @@ export class TeamComponentRaw extends React.Component<TeamComponentProps, TeamCo
 
   onChangeInput = (slotNum: number, event: any, { newValue }: any) => {
     console.log(`onchange: slot ${slotNum} value ${newValue}`);
+
+    const currentValids = this.validTeamPokemons();
+
     const pokemons = this.state.pokemonSlots.concat();
     pokemons[slotNum].inputText = newValue;
 

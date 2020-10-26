@@ -4,7 +4,7 @@ import { I18nContext } from 'react-i18next';
 import { translateSpeciesIfPossible } from '../services/stringSanitizer';
 import PokemonStrategy from '../models/PokemonStrategy';
 // import { masterDataService } from '../services/masterDataService';
-// import { GraphComponent } from './graphComponent';
+import { GraphComponent } from './graphComponent';
 import { defaultTeam } from '../defaultList';
 import { BattleTeamDetailsComponent } from './battleTeamDetailsComponent';
 import { SimpleTeamComponent } from './simpleTeamComponent';
@@ -15,6 +15,8 @@ import { MMOPResults } from './MMOPResults';
 import { MAOPResults } from './MAOPResults';
 import { CVRGResults } from './CVRGResults';
 import { EventEmitter } from 'events';
+import { MMOPCalculator } from '../services/MMOPCalculator';
+import BattleTeamSearchResult from '../models/BattleTeamSearchResult';
 
 type BattleTeamComponentProps = {
   myTeam: PokemonStrategy[],
@@ -58,6 +60,65 @@ export class BattleTeamComponent extends React.Component<BattleTeamComponentProp
     this.shuffleEvent.emit('event');
   }
 
+  // randomOppTeam() {
+  //   const pokeList = this.props.sortedPokemonList.concat();
+  //   const teamNum = 6;
+  //   const storedIndices: number[] = [];
+  //   for (let i = 0; i < teamNum; i++) {
+  //     let duplicated = true;
+  //     let randomIndex = -1;
+  //     while (duplicated && (pokeList.length - storedIndices.length > 0)) {
+  //       randomIndex = Math.floor(Math.random() * pokeList.length);
+  //       duplicated = storedIndices.indexOf(randomIndex) >= 0;
+  //     }
+      
+  //     if (randomIndex > 0) {
+  //       storedIndices.push(randomIndex);
+  //     }      
+  //   }
+
+  //   if (storedIndices.length !== 6) {
+  //     throw new Error("Error: Failed to generate random indices");
+  //   }
+
+  //   const team = storedIndices.map(x => pokeList[x]);
+
+  //   return team;
+  // }
+
+  randomOppTeam() {
+    let pokeList = this.props.sortedPokemonList.concat();
+    const teamNum = 6;
+    const team = [];
+    if (pokeList.length < teamNum) {
+      throw new Error("Team length must be longer than slots");
+    }
+
+    for (let i = 0; i < teamNum; i++) {
+      const randomIndex = Math.floor(Math.random() * pokeList.length);
+      team.push(pokeList[randomIndex]);
+      const pokeId = pokeList[randomIndex].id;
+      pokeList = pokeList.filter(x => x.id !== pokeId);
+    }
+
+    return team;
+  }
+
+  battleTeamKey(pokemons: PokemonStrategy[]) {
+    pokemons.sort((a, b) => {
+      if (b.id < a.id) {
+        return -1;
+      } else if (a.id < b.id) {
+        return 1;
+      } else {
+        return 0;
+      }
+    });
+
+    return pokemons.map(x => x.id).join(":");
+
+  }
+
   render() {
     const t = this.context.i18n.t.bind(this.context.i18n);
 
@@ -93,9 +154,82 @@ export class BattleTeamComponent extends React.Component<BattleTeamComponentProp
 
     const myTeamToString = this.state.selectedMyTeamIndex !== -1 ? resultsAC.myTeamResults[this.state.selectedMyTeamIndex].myTeam.map(x => translateSpeciesIfPossible(x.species, t)).join(', '): '';
 
+    const mmopCalculator = new MMOPCalculator();
+    const repetition = 100;
+    const mmopResults: BattleTeamSearchResult[][] = [];
+    for (let i = 0; i < repetition; i++) {
+      const randomOpp = this.randomOppTeam();
+      const mmopResult = mmopCalculator.evaluate(this.props.myTeam, randomOpp);
+      mmopResults.push(mmopResult);
+    }
+
+    type battleTeamResult = {
+      mySelection: PokemonStrategy[],
+      value: number
+    }
+
+    const battleTeamMap = new Map<string, battleTeamResult[]>();
+    mmopResults.forEach(thisRepetition => {
+      thisRepetition.forEach(thisSelection => {
+        const key = this.battleTeamKey(thisSelection.pokemons);
+        const value = battleTeamMap.get(key)
+        if (!value) {
+          battleTeamMap.set(key, [{ mySelection: thisSelection.pokemons, value: thisSelection.value}]);
+        } else {
+          value.push({ mySelection: thisSelection.pokemons, value: thisSelection.value});
+          battleTeamMap.set(key, value);
+        }
+      })
+    });
+
+    const statistics: any[] = [];
+    battleTeamMap.forEach((value, key) => {
+      const pokemons = value[0].mySelection;
+      let sum = 0.0;
+      value.forEach(v => sum += v.value);
+      const average = sum / value.length;
+      const mySelectionStr = pokemons.map(x => translateSpeciesIfPossible(x.species, t)).join(', ');
+      statistics.push({mySelection: pokemons, mySelectionStr: mySelectionStr, average: average});
+    })
+
+    const graphLabels = statistics.map(x => x.mySelectionStr);
+    const graphDataSets = [
+      {
+        dataLabel: "Average",
+        values: statistics.map(x => x.average),
+        colorRGB: [128, 99, 132]
+      }
+    ];
+
+    const chartOptionsBar = {
+      scales: {
+        xAxes: [{
+          ticks: {
+            minRotation: 90,
+            maxRotation: 90
+          }
+        }],
+        yAxes: [{
+          ticks: {
+            min: -1024,
+            max: 1024,
+            stepSize: 512
+          }
+        }]
+      }
+    }
+
+
+
     return (
     <>
       <Container fluid className="mt-3">
+        <Row>
+          <Col>
+            <h4>Average evaluate values for each selection</h4>
+            <GraphComponent labels={graphLabels} datasets={graphDataSets} heightVertical={600} widthVertical={800} optionsBar={chartOptionsBar} />
+          </Col>
+        </Row>
         <Row>
           <Col>
             <h4>{t('battleTeam.selectOpponentTeam')}</h4>
