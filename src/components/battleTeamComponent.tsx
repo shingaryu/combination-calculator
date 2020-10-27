@@ -155,8 +155,9 @@ export class BattleTeamComponent extends React.Component<BattleTeamComponentProp
     const myTeamToString = this.state.selectedMyTeamIndex !== -1 ? resultsAC.myTeamResults[this.state.selectedMyTeamIndex].myTeam.map(x => translateSpeciesIfPossible(x.species, t)).join(', '): '';
 
     const mmopCalculator = new MMOPCalculator();
-    const repetition = 100;
+    const repetition = 1000;
     const mmopResults: BattleTeamSearchResult[][] = [];
+    // const randomOpp = this.randomOppTeam();
     for (let i = 0; i < repetition; i++) {
       const randomOpp = this.randomOppTeam();
       const mmopResult = mmopCalculator.evaluate(this.props.myTeam, randomOpp);
@@ -192,6 +193,16 @@ export class BattleTeamComponent extends React.Component<BattleTeamComponentProp
       statistics.push({mySelection: pokemons, mySelectionStr: mySelectionStr, average: average});
     })
 
+    statistics.sort((a, b) => {
+      if (b.mySelectionStr < a.mySelectionStr) {
+        return -1;
+      } else if (a.mySelectionStr < b.mySelectionStr) {
+        return 1;
+      } else {
+        return 0;
+      }
+    });
+
     const graphLabels = statistics.map(x => x.mySelectionStr);
     const graphDataSets = [
       {
@@ -219,6 +230,56 @@ export class BattleTeamComponent extends React.Component<BattleTeamComponentProp
       }
     }
 
+    const battleTeamMapInd = new Map<string, battleTeamResult[]>();
+
+    const staticticsInd: any[] = [];
+    const mapInd = new Map
+
+    this.props.myTeam.forEach(myPoke => {
+      const myPokeValues: number[] = [];
+      mmopResults.forEach(thisRepetition => {
+        thisRepetition.forEach(thisSelection => {
+          // myPoke is contributing to this opponents team in this my team selection
+          if (thisSelection.tacticsPattern?.matchups.find(x => x.player.id === myPoke.id)) {
+            myPokeValues.push(thisSelection.value);
+          }
+        })
+      });
+
+      let sum = 0.0;
+      myPokeValues.forEach(v => sum += v);
+      const average = sum / myPokeValues.length;
+
+      staticticsInd.push({myPoke: myPoke, average: average});
+    })
+
+
+    const graphLabelsInd = staticticsInd.map(x => translateSpeciesIfPossible(x.myPoke.species, t));
+    const graphDataSetsInd = [
+      {
+        dataLabel: "Average",
+        values: staticticsInd.map(x => x.average),
+        colorRGB: [76, 99, 132]
+      }
+    ];
+
+    const chartOptionsBarInd = {
+      scales: {
+        xAxes: [{
+          ticks: {
+            minRotation: 0,
+            maxRotation: 0
+          }
+        }],
+        yAxes: [{
+          ticks: {
+            min: -128,
+            max: 128,
+            stepSize: 32
+          }
+        }]
+      }
+    }
 
 
     return (
@@ -228,6 +289,8 @@ export class BattleTeamComponent extends React.Component<BattleTeamComponentProp
           <Col>
             <h4>Average evaluate values for each selection</h4>
             <GraphComponent labels={graphLabels} datasets={graphDataSets} heightVertical={600} widthVertical={800} optionsBar={chartOptionsBar} />
+            <h4>Average evaluate values for each Pokemon</h4>
+            <GraphComponent labels={graphLabelsInd} datasets={graphDataSetsInd} heightVertical={300} widthVertical={800} optionsBar={chartOptionsBarInd} />
           </Col>
         </Row>
         <Row>
