@@ -306,7 +306,7 @@ export class TeamComponentRaw extends React.Component<TeamComponentProps, TeamCo
                 <Button variant="outline-dark" size="sm" onClick={() => this.onModalOpen(slotNum)}>{t('team.set')}</Button>
               </div>
               <div className="details-line">
-                <OverlayTrigger trigger={['focus']} placement="bottom" overlay={this.pokemonDetailsPopover(slot.poke)}>
+                <OverlayTrigger trigger={['hover', 'focus']} placement="bottom" overlay={this.pokemonDetailsPopover(slot.poke)}>
                   <Button variant="outline-dark" size="sm" disabled={!slot.poke}>{t('team.detail')}</Button>
                 </OverlayTrigger>
               </div>                        
