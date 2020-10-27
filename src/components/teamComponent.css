@@ -36,10 +36,11 @@
 
 .react-autosuggest__container {
   position: relative;
+  width: 150px;
 }
 
 .react-autosuggest__input {
-  width: 240px;
+  /* width: 240px; */
   height: 30px;
   padding: 10px 20px;
   font-family: Helvetica, sans-serif;
@@ -90,4 +91,22 @@
 
 .react-autosuggest__suggestion--highlighted {
   background-color: #ddd;
+}
+
+.details-line {
+  line-height: 32px;
+}
+
+.details-row {
+  display: table-row;
+}
+
+.details-param {
+  display: table-cell;
+  font-weight: 600;
+  padding-right: 10px;
+}
+
+.details-value {
+  display: table-cell;
 }
