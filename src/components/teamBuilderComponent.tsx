@@ -124,19 +124,14 @@ export class TeamBuilderComponent extends React.Component<TeamBuilderComponentPr
         <Container fluid className="mt-3">
           <Row>
             <Col>
-              <Container style={{marginLeft: 0}}>
-                <Row>
-                  <Col>
-                    <h4>{t('overview.title')}</h4>
-                    <p>{t('overview.textline1')}</p>
-                    <p>{t('overview.textline2')}</p>
-                  </Col>
-                </Row>
-            </Container>
+              <h4>{t('overview.title')}</h4>
+              <p>{t('overview.textline1')}</p>
+              <p>{t('overview.textline2')}</p>
             </Col>
           </Row>
           <Row className="mt-3">
             <Col>
+              <h4>{t('team.title')}</h4>
               <TeamComponent num={6} pokemonList={sortedTeamList} onChange={(pokemons: PokemonStrategy[]) => this.onChangeTeamPokemons(pokemons)}></TeamComponent>
             </Col>
           </Row>
@@ -144,43 +139,41 @@ export class TeamBuilderComponent extends React.Component<TeamBuilderComponentPr
             <Col>
               <Tabs id="function-tabs" defaultActiveKey="graph" className="mt-3">
                 <Tab eventKey="graph" title={t('tab.titleGraph')}>
-                  <Container fluid>
-                    <Row className="mt-3">
-                      <Col>
-                        <h4>{t('graph.title')}</h4>
-                        <GraphComponent labels={graphLabels} datasets={graphDatasets}/>
-                      </Col>
-                    </Row>
-                    <Row className="mt-2">
-                      <Col>
-                        <StatisticalEvaluation myTeam={this.state.teamPokemons} sortedPokemonList={sortedTargets} />
-                      </Col>
-                    </Row>
-                  </Container>
+                  <Row className="mt-3">
+                    <Col>
+                      <h4>{t('graph.title')}</h4>
+                      <GraphComponent labels={graphLabels} datasets={graphDatasets}/>
+                    </Col>
+                  </Row>
+                  <Row className="mt-2">
+                    <Col>
+                      <StatisticalEvaluation myTeam={this.state.teamPokemons} sortedPokemonList={sortedTargets} />
+                    </Col>
+                  </Row>
                 </Tab>
                 <Tab eventKey="search" title={t('tab.titleSearch')}>
                   <SearchComponent targetsList={sortedTargets} onChange={(settings: SearchSettings) => this.onSearchSettingsChange(settings)}></SearchComponent>
                   <SearchResultComponent searchResult={results} />
                 </Tab>
                 <Tab eventKey="team-list-select" title={t('tab.titleTeamListSelect')}>
-                  <Row className="mt-3 ml-2">
+                  <Row className="mt-3">
                     <Col>
                     <h4>{t('teamListSelect.title')}</h4>
                     </Col>
                   </Row>
-                  <Row className="mt-3 ml-2">
+                  <Row className="mt-3">
                     <Col>
                       <TargetSelectComponent pokemonList={sortedAllStrategies} defaultList={defaultTeamList(this.state.allStrategies)} onChange={(pokemons: PokemonStrategy[]) => this.onChangeSelectedTeamList(pokemons)} />
                     </Col>
                   </Row>
                 </Tab>
                 <Tab eventKey="target-select" title={t('tab.titleTargetSelect')}>
-                  <Row className="mt-3 ml-2">
+                  <Row className="mt-3">
                     <Col>
                     <h4>{t('targetSelect.title')}</h4>
                     </Col>
                   </Row>
-                  <Row className="mt-3 ml-2">
+                  <Row className="mt-3">
                     <Col>
                       <TargetSelectComponent pokemonList={sortedAllStrategies} defaultList={defaultTargets(this.state.allStrategies)} onChange={(pokemons: PokemonStrategy[]) => this.onChangeSelectedTargets(pokemons)} />
                     </Col>

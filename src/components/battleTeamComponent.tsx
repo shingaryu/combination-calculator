@@ -1,5 +1,5 @@
 import React from 'react';
-import { Container, Row, Col, Table, Tabs, Tab, Modal, Button } from 'react-bootstrap'
+import { Row, Col, Table, Tabs, Tab, Modal, Button } from 'react-bootstrap'
 import { I18nContext } from 'react-i18next';
 import { translateSpeciesIfPossible } from '../services/stringSanitizer';
 import PokemonStrategy from '../models/PokemonStrategy';
@@ -95,96 +95,94 @@ export class BattleTeamComponent extends React.Component<BattleTeamComponentProp
 
     return (
     <>
-      <Container fluid className="mt-3">
-        <Row>
-          <Col>
-            <h4>{t('battleTeam.selectOpponentTeam')}</h4>
-            <SimpleTeamComponent num={6} pokemonList={this.props.sortedPokemonList} onChange={(pokemons) => this.onChangeOppPokemons(pokemons)}
-              shuffleEvent={this.shuffleEvent}></SimpleTeamComponent>
-          </Col>
-        </Row>
-        <Row>
-          <Col>
-            <Button variant="outline-dark" size="sm" style={{ marginLeft: 80 }} onClick={() => this.onShuffleClick()}>Shuffle</Button>
-          </Col>
-        </Row>
-        {/* <Row>
-          <Col>
-            <h4>Individual strength values to the opponent team</h4>
-            <GraphComponent labels={graphLabels} datasets={graphDataSets} heightVertical={200} widthVertical={800} optionsBar={chartOptionsBar} />
-          </Col>
-        </Row> */}
-        <Row>
-          <Col>
-          <Tabs id="method-tabs" defaultActiveKey="maximum-minimum" className="mt-3">
-            <Tab eventKey="average-minimum" title={t('battleTeam.tab.titleMAOP')}>
-              <h4 className="mt-3">{t('battleTeam.MAOP.title')}</h4>
-              <MAOPResults myTeam={this.props.myTeam} oppTeam={this.state.oppTeam}/>
-            </Tab>
-            <Tab eventKey="maximum-minimum" title={t('battleTeam.tab.titleMMOP')}>
-              <h4 className="mt-3">{t('battleTeam.MMOP.title')}</h4>
-              <MMOPResults myTeam={this.props.myTeam} oppTeam={this.state.oppTeam}/>
-            </Tab>
-            <Tab eventKey="tactics-minimax" title="Tactics Minimax">
-              <h4 className="mt-3">Selections (Method: Tactics Minimax)</h4>
-              <Table striped bordered hover size="sm">
-                <thead>
-                  <tr>
-                    <th key='h-i'>{t('search.columnRank')}</th>
-                    {resultsAC.myTeamResults[0].myTeam.map((x, i) => 
-                      <th key={`h-p${i}`}>{t('search.columnPokemon')}</th>)}
-                    <th key='h-v'>Min. Value</th>
-                    <th key='h-dt'>Details</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {resultsAC.myTeamResults.map((result, index) => (
-                    <tr key={index}>
-                      <td key={`${index}-i`}>{index + 1}</td>
-                      {result.myTeam.map((x, i) => <td key={`${index}-p${i}`}>{translateSpeciesIfPossible(x.species, t)}</td>)}
-                      <td key={`${index}-v`}>{result.value.toFixed(4)}</td>
-                      <td key={`${index}-dt`}>
-                        <Button variant="outline-dark" size="sm" onClick={() => this.setState({modalShow: true, selectedMyTeamIndex: index})}>Show</Button>
-                      </td>
-                    </tr>                
-                  ))}
-                </tbody>
-              </Table> 
-            </Tab>
-            <Tab eventKey="coverage" title={t('battleTeam.tab.titleCVRG')}>
-              <h4 className="mt-3">{t('battleTeam.CVRG.title')}</h4>
-              <CVRGResults myTeam={this.props.myTeam} oppTeam={this.state.oppTeam} />
-            </Tab>
-            <Tab eventKey="nash-equilibrium" title="Nash Equilibrium">
-              <h4 className="mt-3">Selections (Method: Coverage)</h4>
-              <Table striped bordered hover size="sm">
-                <thead>
-                  <tr>
-                    <th></th>
-                    {resultsNA[0].map((x, i) => 
-                      <th key={`h-p${i}`}>{i + 1}
-                        {resultsNA[0][i].oppTeam.map((y, j) => (<div style={{fontSize: "small"}} key={`h-p${i}-${j}`}>{translateSpeciesIfPossible(y.species, t)}</div>))}
-                      </th>)}
-                  </tr>
-                </thead>
-                <tbody>
-                  {resultsNA.map((result, index) => (
-                    <tr key={index}>
-                      <td key={`${index}-i`}>{index + 1}
-                        {result[0].myTeam.map((x, i) => <div style={{fontSize: "small"}} key={`${index}-p${i}`}>{translateSpeciesIfPossible(x.species, t)}</div>)}
-                      </td>
-                      {result.map((x, i) => 
-                        <td style={{backgroundColor: (x.isMyTeamDominant&&x.isOppTeamDominant)?'lightskyblue': 'initial'}} key={`${index}-mm${i}`}>{`(${x.isMyTeamDominant?'!': ''}${x.myTeamCoverage}, ${x.isOppTeamDominant?'!':''}${x.oppTeamCoverage})`}</td>
-                      )}
-                    </tr>                
-                  ))}
-                </tbody>
-              </Table> 
-            </Tab>
-          </Tabs>
-          </Col>
-        </Row>
-      </Container>
+      <Row className="mt-3">
+        <Col>
+          <h4>{t('battleTeam.selectOpponentTeam')}</h4>
+          <SimpleTeamComponent num={6} pokemonList={this.props.sortedPokemonList} onChange={(pokemons) => this.onChangeOppPokemons(pokemons)}
+            shuffleEvent={this.shuffleEvent}></SimpleTeamComponent>
+        </Col>
+      </Row>
+      <Row>
+        <Col>
+          <Button variant="outline-dark" size="sm" style={{ marginLeft: 80 }} onClick={() => this.onShuffleClick()}>Shuffle</Button>
+        </Col>
+      </Row>
+      {/* <Row>
+        <Col>
+          <h4>Individual strength values to the opponent team</h4>
+          <GraphComponent labels={graphLabels} datasets={graphDataSets} heightVertical={200} widthVertical={800} optionsBar={chartOptionsBar} />
+        </Col>
+      </Row> */}
+      <Row>
+        <Col>
+        <Tabs id="method-tabs" defaultActiveKey="maximum-minimum" className="mt-3">
+          <Tab eventKey="average-minimum" title={t('battleTeam.tab.titleMAOP')}>
+            <h4 className="mt-3">{t('battleTeam.MAOP.title')}</h4>
+            <MAOPResults myTeam={this.props.myTeam} oppTeam={this.state.oppTeam}/>
+          </Tab>
+          <Tab eventKey="maximum-minimum" title={t('battleTeam.tab.titleMMOP')}>
+            <h4 className="mt-3">{t('battleTeam.MMOP.title')}</h4>
+            <MMOPResults myTeam={this.props.myTeam} oppTeam={this.state.oppTeam}/>
+          </Tab>
+          <Tab eventKey="tactics-minimax" title="Tactics Minimax">
+            <h4 className="mt-3">Selections (Method: Tactics Minimax)</h4>
+            <Table striped bordered hover size="sm">
+              <thead>
+                <tr>
+                  <th key='h-i'>{t('search.columnRank')}</th>
+                  {resultsAC.myTeamResults[0].myTeam.map((x, i) => 
+                    <th key={`h-p${i}`}>{t('search.columnPokemon')}</th>)}
+                  <th key='h-v'>Min. Value</th>
+                  <th key='h-dt'>Details</th>
+                </tr>
+              </thead>
+              <tbody>
+                {resultsAC.myTeamResults.map((result, index) => (
+                  <tr key={index}>
+                    <td key={`${index}-i`}>{index + 1}</td>
+                    {result.myTeam.map((x, i) => <td key={`${index}-p${i}`}>{translateSpeciesIfPossible(x.species, t)}</td>)}
+                    <td key={`${index}-v`}>{result.value.toFixed(4)}</td>
+                    <td key={`${index}-dt`}>
+                      <Button variant="outline-dark" size="sm" onClick={() => this.setState({modalShow: true, selectedMyTeamIndex: index})}>Show</Button>
+                    </td>
+                  </tr>                
+                ))}
+              </tbody>
+            </Table> 
+          </Tab>
+          <Tab eventKey="coverage" title={t('battleTeam.tab.titleCVRG')}>
+            <h4 className="mt-3">{t('battleTeam.CVRG.title')}</h4>
+            <CVRGResults myTeam={this.props.myTeam} oppTeam={this.state.oppTeam} />
+          </Tab>
+          <Tab eventKey="nash-equilibrium" title="Nash Equilibrium">
+            <h4 className="mt-3">Selections (Method: Coverage)</h4>
+            <Table striped bordered hover size="sm">
+              <thead>
+                <tr>
+                  <th></th>
+                  {resultsNA[0].map((x, i) => 
+                    <th key={`h-p${i}`}>{i + 1}
+                      {resultsNA[0][i].oppTeam.map((y, j) => (<div style={{fontSize: "small"}} key={`h-p${i}-${j}`}>{translateSpeciesIfPossible(y.species, t)}</div>))}
+                    </th>)}
+                </tr>
+              </thead>
+              <tbody>
+                {resultsNA.map((result, index) => (
+                  <tr key={index}>
+                    <td key={`${index}-i`}>{index + 1}
+                      {result[0].myTeam.map((x, i) => <div style={{fontSize: "small"}} key={`${index}-p${i}`}>{translateSpeciesIfPossible(x.species, t)}</div>)}
+                    </td>
+                    {result.map((x, i) => 
+                      <td style={{backgroundColor: (x.isMyTeamDominant&&x.isOppTeamDominant)?'lightskyblue': 'initial'}} key={`${index}-mm${i}`}>{`(${x.isMyTeamDominant?'!': ''}${x.myTeamCoverage}, ${x.isOppTeamDominant?'!':''}${x.oppTeamCoverage})`}</td>
+                    )}
+                  </tr>                
+                ))}
+              </tbody>
+            </Table> 
+          </Tab>
+        </Tabs>
+        </Col>
+      </Row>
       <Modal size="lg" show={this.state.modalShow} onHide={() => this.setState({modalShow: false})}>
         <Modal.Header closeButton>
           <Modal.Title>Details: {this.state.selectedMyTeamIndex+1} ({myTeamToString})</Modal.Title>

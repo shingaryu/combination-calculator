@@ -1,5 +1,5 @@
 import React from 'react';
-import { Container, Row, Col, InputGroup, FormControl, Button, Modal, Popover, OverlayTrigger } from 'react-bootstrap'
+import { InputGroup, FormControl, Button, Modal, Popover, OverlayTrigger } from 'react-bootstrap'
 import './teamComponent.css'
 import { WithTranslation } from 'react-i18next';
 import { translateSpeciesIfPossible } from '../services/stringSanitizer';
@@ -279,56 +279,41 @@ export class TeamComponentRaw extends React.Component<TeamComponentProps, TeamCo
 
     return (
     <>
-      <Container fluid className="mb-3">
-        <Row>
-          <Col>
-            <Row>
-              <Col>
-               <h4>{t('team.title')}</h4>
-              </Col>
-            </Row>
-            <Row>
-              <Col>
-                <div>
-                    {
-                      this.state.pokemonSlots && this.state.pokemonSlots.map((slot, slotNum) => 
-                      <div className="inputgroup-container" key={slotNum} >
-                        <div>
-                          <InputGroup className="mb-2 mr-2" style={{width: 200}}>
-                            <InputGroup.Prepend>
-                              <InputGroup.Checkbox checked={slot.enabled} onChange={(e) => this.onCheckboxChange(slotNum, e)}/>
-                            </InputGroup.Prepend>
-                            {/* <FormControl value={translateSpeciesIfPossible(slot.poke.species, t)} placeholder={t('team.slotPlaceholder')} 
-                              /> */}
-                            <Autosuggest
-                              suggestions={this.state.suggestions}
-                              onSuggestionsFetchRequested={this.onSuggestionsFetchRequested}
-                              onSuggestionsClearRequested={this.onSuggestionsClearRequested}
-                              onSuggestionSelected={(event: React.FormEvent<any>, data: SuggestionSelectedEventData<PokeNameSuggestion>) => this.onSuggestionSelectedOnSlot(slotNum, event, data)}
-                              getSuggestionValue={this.getSuggestionValue}
-                              renderInputComponent={(inputProps: any) => this.renderInputComponent(inputProps, !this.state.pokemonSlots[slotNum].poke)}
-                              renderSuggestion={this.renderSuggestion}
-                              inputProps={{placeholder: t('team.slotPlaceholder'), onChange: (event: any, { newValue }: any) => this.onChangeInput(slotNum, event, { newValue }), value: this.state.pokemonSlots[slotNum].inputText}}
-                            />
-                          </InputGroup>
-                        </div>
-                        <div className="set-button-line mr-2">
-                          <Button variant="outline-dark" size="sm" onClick={() => this.onModalOpen(slotNum)}>{t('team.set')}</Button>
-                        </div>
-                        <div className="details-line">
-                          <OverlayTrigger trigger={['focus']} placement="bottom" overlay={this.pokemonDetailsPopover(slot.poke)}>
-                            <Button variant="outline-dark" size="sm" disabled={!slot.poke}>{t('team.detail')}</Button>
-                          </OverlayTrigger>
-                        </div>                        
-                      </div>
-                      )
-                    }
-                </div>
-              </Col>
-            </Row>
-          </Col>
-        </Row>
-      </Container>
+      <div>
+          {
+            this.state.pokemonSlots && this.state.pokemonSlots.map((slot, slotNum) => 
+            <div className="inputgroup-container" key={slotNum} >
+              <div>
+                <InputGroup className="mb-2 mr-2" style={{width: 200}}>
+                  <InputGroup.Prepend>
+                    <InputGroup.Checkbox checked={slot.enabled} onChange={(e) => this.onCheckboxChange(slotNum, e)}/>
+                  </InputGroup.Prepend>
+                  {/* <FormControl value={translateSpeciesIfPossible(slot.poke.species, t)} placeholder={t('team.slotPlaceholder')} 
+                    /> */}
+                  <Autosuggest
+                    suggestions={this.state.suggestions}
+                    onSuggestionsFetchRequested={this.onSuggestionsFetchRequested}
+                    onSuggestionsClearRequested={this.onSuggestionsClearRequested}
+                    onSuggestionSelected={(event: React.FormEvent<any>, data: SuggestionSelectedEventData<PokeNameSuggestion>) => this.onSuggestionSelectedOnSlot(slotNum, event, data)}
+                    getSuggestionValue={this.getSuggestionValue}
+                    renderInputComponent={(inputProps: any) => this.renderInputComponent(inputProps, !this.state.pokemonSlots[slotNum].poke)}
+                    renderSuggestion={this.renderSuggestion}
+                    inputProps={{placeholder: t('team.slotPlaceholder'), onChange: (event: any, { newValue }: any) => this.onChangeInput(slotNum, event, { newValue }), value: this.state.pokemonSlots[slotNum].inputText}}
+                  />
+                </InputGroup>
+              </div>
+              <div className="set-button-line mr-2">
+                <Button variant="outline-dark" size="sm" onClick={() => this.onModalOpen(slotNum)}>{t('team.set')}</Button>
+              </div>
+              <div className="details-line">
+                <OverlayTrigger trigger={['focus']} placement="bottom" overlay={this.pokemonDetailsPopover(slot.poke)}>
+                  <Button variant="outline-dark" size="sm" disabled={!slot.poke}>{t('team.detail')}</Button>
+                </OverlayTrigger>
+              </div>                        
+            </div>
+            )
+          }
+      </div>
       <Modal size="lg" show={this.state.modalShow} onHide={() => this.onModalCancel()}>
         <Modal.Header closeButton>
           <Modal.Title>{t('team.modal.title').replace('{num}', (this.state.editingSlot + 1).toString())}</Modal.Title>

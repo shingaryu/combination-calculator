@@ -19,10 +19,10 @@ export const App: React.FunctionComponent = () => {
     <Suspense fallback={<span>Loading translation data...</span>}>
       <I18nextProvider i18n={i18n}>
         <div className="App">
+        <Navbar bg="light">
+          <Navbar.Brand className="nowrap-navbar">Pokémon VGC Team Performance Evaluator</Navbar.Brand>
+        </Navbar>
         <Container fluid>
-          <Navbar bg="light">
-            <Navbar.Brand className="nowrap-navbar">Pokémon VGC Team Performance Evaluator</Navbar.Brand>
-          </Navbar>
           <Suspense fallback={<span>Loading master data...</span>}>
             <TeamBuilderComponent></TeamBuilderComponent>
           </Suspense>
