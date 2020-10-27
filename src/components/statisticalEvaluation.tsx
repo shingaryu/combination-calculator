@@ -53,6 +53,73 @@ class StatisticalEvaluationRaw extends React.Component<StatisticalEvaluationProp
 
   }
 
+  averageRateOfMyTeamSelections(mmopResults: BattleTeamSearchResult[][]) {
+    type battleTeamResult = {
+      mySelection: PokemonStrategy[],
+      value: number
+    }
+
+    const battleTeamMap = new Map<string, battleTeamResult[]>();
+    mmopResults.forEach(thisRepetition => {
+      thisRepetition.forEach(thisSelection => {
+        const key = this.battleTeamKey(thisSelection.pokemons);
+        const value = battleTeamMap.get(key)
+        if (!value) {
+          battleTeamMap.set(key, [{ mySelection: thisSelection.pokemons, value: thisSelection.value}]);
+        } else {
+          value.push({ mySelection: thisSelection.pokemons, value: thisSelection.value});
+          battleTeamMap.set(key, value);
+        }
+      })
+    });
+
+    const statistics: any[] = [];
+    battleTeamMap.forEach((value, key) => {
+      const pokemons = value[0].mySelection;
+      let sum = 0.0;
+      value.forEach(v => sum += v.value);
+      const average = sum / value.length;
+      const mySelectionStr = pokemons.map(x => translateSpeciesIfPossible(x.species, this.props.t)).join(', ');
+      statistics.push({mySelection: pokemons, mySelectionStr: mySelectionStr, average: average, appears: value.length});
+    })
+
+    statistics.sort((a, b) => {
+      if (b.mySelectionStr < a.mySelectionStr) {
+        return -1;
+      } else if (a.mySelectionStr < b.mySelectionStr) {
+        return 1;
+      } else {
+        return 0;
+      }
+    });
+
+    return statistics;
+  }
+
+  averageRateOfMyTeamIndivisuals(mmopResults: BattleTeamSearchResult[][]) {
+    const staticticsInd: any[] = [];
+
+    this.props.myTeam.forEach(myPoke => {
+      const myPokeValues: number[] = [];
+      mmopResults.forEach(thisRepetition => {
+        thisRepetition.forEach(thisSelection => {
+          // myPoke is contributing to this opponents team in this my team selection
+          if (thisSelection.tacticsPattern?.matchups.find(x => x.player.id === myPoke.id)) {
+            myPokeValues.push(thisSelection.value);
+          }
+        })
+      });
+
+      let sum = 0.0;
+      myPokeValues.forEach(v => sum += v);
+      const average = sum / myPokeValues.length;
+
+      staticticsInd.push({myPoke: myPoke, average: average, appears: myPokeValues.length});
+    })
+
+    return staticticsInd;
+  }
+
   averageImmunitiesOfAllTargets(results: BattleTeamSearchResult[][]) {
     // all results for each target = all battles the target appears in
     const allTargets = new Map<string, PokemonStrategy>(); 
@@ -107,52 +174,13 @@ class StatisticalEvaluationRaw extends React.Component<StatisticalEvaluationProp
     const mmopCalculator = new MMOPCalculator();
     const repetition = 1000;
     const mmopResults: BattleTeamSearchResult[][] = [];
-    // const randomOpp = this.randomOppTeam();
     for (let i = 0; i < repetition; i++) {
       const randomOpp = this.randomOppTeam();
       const mmopResult = mmopCalculator.evaluate(this.props.myTeam, randomOpp);
       mmopResults.push(mmopResult);
     }
 
-    type battleTeamResult = {
-      mySelection: PokemonStrategy[],
-      value: number
-    }
-
-    const battleTeamMap = new Map<string, battleTeamResult[]>();
-    mmopResults.forEach(thisRepetition => {
-      thisRepetition.forEach(thisSelection => {
-        const key = this.battleTeamKey(thisSelection.pokemons);
-        const value = battleTeamMap.get(key)
-        if (!value) {
-          battleTeamMap.set(key, [{ mySelection: thisSelection.pokemons, value: thisSelection.value}]);
-        } else {
-          value.push({ mySelection: thisSelection.pokemons, value: thisSelection.value});
-          battleTeamMap.set(key, value);
-        }
-      })
-    });
-
-    const statistics: any[] = [];
-    battleTeamMap.forEach((value, key) => {
-      const pokemons = value[0].mySelection;
-      let sum = 0.0;
-      value.forEach(v => sum += v.value);
-      const average = sum / value.length;
-      const mySelectionStr = pokemons.map(x => translateSpeciesIfPossible(x.species, t)).join(', ');
-      statistics.push({mySelection: pokemons, mySelectionStr: mySelectionStr, average: average, appears: value.length});
-    })
-
-    statistics.sort((a, b) => {
-      if (b.mySelectionStr < a.mySelectionStr) {
-        return -1;
-      } else if (a.mySelectionStr < b.mySelectionStr) {
-        return 1;
-      } else {
-        return 0;
-      }
-    });
-
+    const statistics = this.averageRateOfMyTeamSelections(mmopResults);
     const graphLabels = statistics.map(x => x.mySelectionStr);
     const graphDataSets = [
       {
@@ -180,27 +208,7 @@ class StatisticalEvaluationRaw extends React.Component<StatisticalEvaluationProp
       }
     }
 
-    const staticticsInd: any[] = [];
-
-    this.props.myTeam.forEach(myPoke => {
-      const myPokeValues: number[] = [];
-      mmopResults.forEach(thisRepetition => {
-        thisRepetition.forEach(thisSelection => {
-          // myPoke is contributing to this opponents team in this my team selection
-          if (thisSelection.tacticsPattern?.matchups.find(x => x.player.id === myPoke.id)) {
-            myPokeValues.push(thisSelection.value);
-          }
-        })
-      });
-
-      let sum = 0.0;
-      myPokeValues.forEach(v => sum += v);
-      const average = sum / myPokeValues.length;
-
-      staticticsInd.push({myPoke: myPoke, average: average, appears: myPokeValues.length});
-    })
-
-
+    const staticticsInd = this.averageRateOfMyTeamIndivisuals(mmopResults);
     const graphLabelsInd = staticticsInd.map(x => translateSpeciesIfPossible(x.myPoke.species, t) + ' ' +  x.appears);
     const graphDataSetsInd = [
       {
