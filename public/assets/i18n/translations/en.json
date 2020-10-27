@@ -40,9 +40,13 @@
     "columnValue": "Value"
   },
   "graph": {
-    "title": "Strength Values to Targets",
+    "title": "Strength Values to Targets (Total)",
     "teamStrengthValue": "Team strength value",
-    "selectedPokemonStrengthValue": "Selected pokemon strength value"
+    "selectedPokemonStrengthValue": "Selected pokemon strength value",
+    "titleSelectionUnit": "Strength Values to Targets (Among Selections)",
+    "averageValueAmongAllSelections": "Average among all selections",
+    "titleSelectionEvaluation": "Average Evaluations of Each Selection",
+    "titleIndividualEvaluation": "Average Evaluations of Each Pokemon"
   },
   "teamListSelect": {
     "title": "Select candidates you can set as team members"

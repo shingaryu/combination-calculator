@@ -5,6 +5,7 @@ import PokemonStrategy from '../models/PokemonStrategy';
 import BattleTeamSearchResult from '../models/BattleTeamSearchResult';
 import { MMOPCalculator } from '../services/MMOPCalculator';
 import { withTranslation, WithTranslation } from 'react-i18next';
+import { Col, Row } from 'react-bootstrap';
 
 type StatisticalEvaluationProps = {
   myTeam: PokemonStrategy[],
@@ -186,8 +187,8 @@ class StatisticalEvaluationRaw extends React.Component<StatisticalEvaluationProp
     const fullStrList = statistics.map(x => x.mySelectionFullStr);
     const graphDataSets = [
       {
-        dataLabel: "Average",
-        values: statistics.map(x => x.average),
+        dataLabel: t('graph.averageValueAmongAllSelections'),
+        values: statistics.map(x => x.average.toFixed(0)),
         colorRGB: [128, 99, 132]
       }
     ];
@@ -210,11 +211,11 @@ class StatisticalEvaluationRaw extends React.Component<StatisticalEvaluationProp
     });
 
     const staticticsInd = this.averageRateOfMyTeamIndivisuals(mmopResults);
-    const graphLabelsInd = staticticsInd.map(x => translateSpeciesIfPossible(x.myPoke.species, t) + ' ' +  x.appears);
+    const graphLabelsInd = staticticsInd.map(x => translateSpeciesIfPossible(x.myPoke.species, t));
     const graphDataSetsInd = [
       {
-        dataLabel: "Average",
-        values: staticticsInd.map(x => x.average),
+        dataLabel: t('graph.averageValueAmongAllSelections'),
+        values: staticticsInd.map(x => x.average.toFixed(0)),
         colorRGB: [76, 99, 132]
       }
     ];
@@ -223,23 +224,35 @@ class StatisticalEvaluationRaw extends React.Component<StatisticalEvaluationProp
     const opponentGraphlabels = opponentAverages.map((x: any) => translateSpeciesIfPossible(x.oppPoke.species, t));
     const opponentDatasets = [
       {
-        dataLabel: "Average",
-        values: opponentAverages.map(x => x.average),
+        dataLabel: t('graph.averageValueAmongAllSelections'),
+        values: opponentAverages.map(x => x.average.toFixed(0)),
         colorRGB: [76, 99, 32]
       }
     ];
 
     return (
       <>
-        <h4>Average evaluate values of all targets</h4>
-        <GraphComponent labels={opponentGraphlabels} datasets={opponentDatasets} heightVertical={600}
-          valueMin={-128} valueMax={128} valueStep={32} />
-        <h4>Average evaluate values for each selection</h4>
-        <GraphComponent labels={graphLabels} datasets={graphDataSets} heightVertical={600} widthVertical={800}
-          valueMin={-1024} valueMax={1024} valueStep={512} optionsBar={toolTipOptions(true)} optionsHorizontal={toolTipOptions(false)} />
-        <h4>Average evaluate values for each Pokemon</h4>
-        <GraphComponent labels={graphLabelsInd} datasets={graphDataSetsInd} heightVertical={300} widthVertical={800} 
-          valueMin={-128} valueMax={128} valueStep={32} xTicksRotation={0}/>
+        <Row className="mt-5">
+          <Col>
+            <h4>{t('graph.titleSelectionUnit')}</h4>
+            <GraphComponent labels={opponentGraphlabels} datasets={opponentDatasets} heightVertical={600}
+              valueMin={-128} valueMax={128} valueStep={64} />          
+          </Col>
+        </Row>
+        <Row className="mt-5">
+          <Col>
+            <h4>{t('graph.titleSelectionEvaluation')}</h4>
+            <GraphComponent labels={graphLabels} datasets={graphDataSets} heightVertical={600} widthVertical={800}
+              valueMin={-256} valueMax={256} valueStep={128} optionsBar={toolTipOptions(true)} optionsHorizontal={toolTipOptions(false)} />
+          </Col>
+        </Row>
+        <Row className="mt-5">
+          <Col>
+            <h4>{t('graph.titleIndividualEvaluation')}</h4>
+            <GraphComponent labels={graphLabelsInd} datasets={graphDataSetsInd} heightVertical={300} widthVertical={800}  
+              valueMin={-128} valueMax={128} valueStep={64} xTicksRotation={0}/>
+          </Col>
+        </Row>
       </>
     )
 

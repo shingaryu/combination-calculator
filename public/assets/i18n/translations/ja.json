@@ -40,9 +40,13 @@
     "columnValue": "評価値"
   },
   "graph": {
-    "title": "各仮想敵への強さ評価",
+    "title": "各仮想敵への強さ評価(対面評価値の合計)",
     "teamStrengthValue": "パーティーの総合力",
-    "selectedPokemonStrengthValue": "選択中のポケモン"
+    "selectedPokemonStrengthValue": "選択中のポケモン",
+    "titleSelectionUnit": "各仮想敵への強さ評価(選出単位)",
+    "averageValueAmongAllSelections": "全選出中の平均値",
+    "titleSelectionEvaluation": "各選出の平均評価",
+    "titleIndividualEvaluation": "各ポケモンの平均評価"
   },
   "teamListSelect": {
     "title": "パーティ設定の候補を選択"
