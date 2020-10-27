@@ -187,19 +187,17 @@ export class TeamBuilderComponent extends React.Component<TeamBuilderComponentPr
           </Row>
           <Row className="reference-row">
             <Col>
-              <Container style={{marginLeft: 0}}>
-                <Row>
-                  <Col>
-                    <h5>{t('reference.title')}</h5>
-                    <span>{t('reference.blogTitle')}</span>
-                    <p>
-                      <a href="https://shingaryu.hatenablog.com/entry/2020/02/16/020640" target="_blank" rel="noopener noreferrer">
-                        https://shingaryu.hatenablog.com/entry/2020/02/16/020640
-                      </a>
-                    </p>
-                  </Col>
-                </Row>
-            </Container>
+              <Row>
+                <Col>
+                  <h5>{t('reference.title')}</h5>
+                  <span>{t('reference.blogTitle')}</span>
+                  <p>
+                    <a href="https://shingaryu.hatenablog.com/entry/2020/02/16/020640" target="_blank" rel="noopener noreferrer">
+                      https://shingaryu.hatenablog.com/entry/2020/02/16/020640
+                    </a>
+                  </p>
+                </Col>
+              </Row>
             </Col>
           </Row>
         </Container>
