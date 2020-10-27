@@ -18,7 +18,7 @@
   "team": {
     "title": "パーティーを設定",
     "slotPlaceholder": "",
-    "set": "選択",
+    "set": "リスト",
     "modal": {
       "title": "ポケモンを選択 ({num}番目)",
       "cancel": "キャンセル",

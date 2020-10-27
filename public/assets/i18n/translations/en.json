@@ -18,7 +18,7 @@
   "team": {
     "title": "Your Team",
     "slotPlaceholder": "",
-    "set": "Set",
+    "set": "List",
     "modal": {
       "title": "Select Pokemon ({num}th slot)",
       "cancel": "Cancel",

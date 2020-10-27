@@ -92,6 +92,7 @@ export class TeamComponentRaw extends React.Component<TeamComponentProps, TeamCo
     const pokemons = this.state.pokemonSlots.concat();
     if (this.state.selectedPoke) {
       pokemons[this.state.editingSlot].poke = this.state.selectedPoke;
+      pokemons[this.state.editingSlot].inputText = translateSpeciesIfPossible(this.state.selectedPoke.species, this.props.t);
     }
 
     this.setState({
@@ -290,7 +291,7 @@ export class TeamComponentRaw extends React.Component<TeamComponentProps, TeamCo
                       this.state.pokemonSlots && this.state.pokemonSlots.map((slot, slotNum) => 
                       <div className="inputgroup-container" key={slotNum} >
                         <div>
-                          <InputGroup className="mb-2 mr-2" style={{width: 250}}>
+                          <InputGroup className="mb-2 mr-2" style={{width: 200}}>
                             <InputGroup.Prepend>
                               <InputGroup.Checkbox checked={slot.enabled} onChange={(e) => this.onCheckboxChange(slotNum, e)}/>
                             </InputGroup.Prepend>
@@ -308,9 +309,9 @@ export class TeamComponentRaw extends React.Component<TeamComponentProps, TeamCo
                             />
                           </InputGroup>
                         </div>
-                        {/* <div className="set-button-line">
+                        <div className="set-button-line mr-2">
                           <Button variant="outline-dark" size="sm" onClick={() => this.onModalOpen(slotNum)}>{t('team.set')}</Button>
-                        </div> */}
+                        </div>
                         <div className="details-line">
                           <OverlayTrigger trigger={['focus']} placement="bottom" overlay={this.pokemonDetailsPopover(slot.poke)}>
                             <Button variant="outline-dark" size="sm" disabled={!slot.poke}>{t('team.detail')}</Button>
