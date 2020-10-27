@@ -235,21 +235,21 @@ class StatisticalEvaluationRaw extends React.Component<StatisticalEvaluationProp
         <Row className="mt-5">
           <Col>
             <h4>{t('graph.titleSelectionUnit')}</h4>
-            <GraphComponent labels={opponentGraphlabels} datasets={opponentDatasets} heightVertical={600}
+            <GraphComponent labels={opponentGraphlabels} datasets={opponentDatasets}
               valueMin={-128} valueMax={128} valueStep={64} />          
           </Col>
         </Row>
         <Row className="mt-5">
           <Col>
             <h4>{t('graph.titleSelectionEvaluation')}</h4>
-            <GraphComponent labels={graphLabels} datasets={graphDataSets} heightVertical={600} widthVertical={800}
+            <GraphComponent labels={graphLabels} datasets={graphDataSets} heightVertical={300} widthVertical={800}
               valueMin={-256} valueMax={256} valueStep={128} optionsBar={toolTipOptions(true)} optionsHorizontal={toolTipOptions(false)} />
           </Col>
         </Row>
         <Row className="mt-5">
           <Col>
             <h4>{t('graph.titleIndividualEvaluation')}</h4>
-            <GraphComponent labels={graphLabelsInd} datasets={graphDataSetsInd} heightVertical={300} widthVertical={800}  
+            <GraphComponent labels={graphLabelsInd} datasets={graphDataSetsInd} heightVertical={300} widthVertical={800} 
               valueMin={-128} valueMax={128} valueStep={64} xTicksRotation={0}/>
           </Col>
         </Row>
