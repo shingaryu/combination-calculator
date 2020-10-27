@@ -79,8 +79,9 @@ class StatisticalEvaluationRaw extends React.Component<StatisticalEvaluationProp
       let sum = 0.0;
       value.forEach(v => sum += v.value);
       const average = sum / value.length;
-      const mySelectionStr = pokemons.map(x => translateSpeciesIfPossible(x.species, this.props.t)).join(', ');
-      statistics.push({mySelection: pokemons, mySelectionStr: mySelectionStr, average: average, appears: value.length});
+      const mySelectionStr = pokemons.map(x => translateSpeciesIfPossible(x.species, this.props.t).substring(0, 2)).join(', ');
+      const mySelectionFullStr = pokemons.map(x => translateSpeciesIfPossible(x.species, this.props.t)).join(', ');
+      statistics.push({mySelection: pokemons, mySelectionStr: mySelectionStr, mySelectionFullStr: mySelectionFullStr,  average: average, appears: value.length});
     })
 
     statistics.sort((a, b) => {
@@ -182,6 +183,7 @@ class StatisticalEvaluationRaw extends React.Component<StatisticalEvaluationProp
 
     const statistics = this.averageRateOfMyTeamSelections(mmopResults);
     const graphLabels = statistics.map(x => x.mySelectionStr);
+    const fullStrList = statistics.map(x => x.mySelectionFullStr);
     const graphDataSets = [
       {
         dataLabel: "Average",
@@ -189,6 +191,23 @@ class StatisticalEvaluationRaw extends React.Component<StatisticalEvaluationProp
         colorRGB: [128, 99, 132]
       }
     ];
+
+    const toolTipOptions = (isVertical: boolean) => ({
+      tooltips: {
+        callbacks: {
+          label: (tooltipItem: any, data: any) => {
+            const fullLabel = fullStrList[tooltipItem.index];
+            var label = data.datasets[tooltipItem.datasetIndex].label || '';
+
+            if (label) {
+                label += ': ';
+            }
+            label += isVertical? tooltipItem.yLabel: tooltipItem.xLabel;
+            return [fullLabel, label];
+        }
+        }
+      }
+    });
 
     const staticticsInd = this.averageRateOfMyTeamIndivisuals(mmopResults);
     const graphLabelsInd = staticticsInd.map(x => translateSpeciesIfPossible(x.myPoke.species, t) + ' ' +  x.appears);
@@ -217,7 +236,7 @@ class StatisticalEvaluationRaw extends React.Component<StatisticalEvaluationProp
           valueMin={-128} valueMax={128} valueStep={32} />
         <h4>Average evaluate values for each selection</h4>
         <GraphComponent labels={graphLabels} datasets={graphDataSets} heightVertical={600} widthVertical={800}
-          valueMin={-1024} valueMax={1024} valueStep={512} />
+          valueMin={-1024} valueMax={1024} valueStep={512} optionsBar={toolTipOptions(true)} optionsHorizontal={toolTipOptions(false)} />
         <h4>Average evaluate values for each Pokemon</h4>
         <GraphComponent labels={graphLabelsInd} datasets={graphDataSetsInd} heightVertical={300} widthVertical={800} 
           valueMin={-128} valueMax={128} valueStep={32} xTicksRotation={0}/>
