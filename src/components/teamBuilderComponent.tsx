@@ -15,6 +15,7 @@ import PokemonStrategy from '../models/PokemonStrategy';
 import { TFunction } from 'i18next';
 import SearchResult from '../models/searchResult';
 import { defaultTeam, defaultTeamList, defaultTargets } from '../defaultList';
+import { StatisticalEvaluation } from './statisticalEvaluation';
 
 type TeamBuilderComponentProps = {
 
@@ -144,6 +145,7 @@ export class TeamBuilderComponent extends React.Component<TeamBuilderComponentPr
               <Tabs id="function-tabs" defaultActiveKey="battle-team" className="mt-3">
                 <Tab eventKey="graph" title={t('tab.titleGraph')}>
                   <GraphComponent labels={graphLabels} datasets={graphDatasets}/>
+                  <StatisticalEvaluation myTeam={this.state.teamPokemons} sortedPokemonList={sortedAllStrategies} />
                 </Tab>
                 <Tab eventKey="search" title={t('tab.titleSearch')}>
                   <SearchComponent targetsList={sortedTargets} onChange={(settings: SearchSettings) => this.onSearchSettingsChange(settings)}></SearchComponent>
@@ -175,7 +177,7 @@ export class TeamBuilderComponent extends React.Component<TeamBuilderComponentPr
                 </Tab>
                 <Tab eventKey="battle-team" title={t('tab.titleBattleTeam')}>
                   <BattleTeamComponent myTeam={this.state.teamPokemons} sortedPokemonList={sortedAllStrategies} />
-                </Tab>
+                </Tab>                
               </Tabs>    
             </Col>
           </Row>
