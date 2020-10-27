@@ -53,6 +53,54 @@ class StatisticalEvaluationRaw extends React.Component<StatisticalEvaluationProp
 
   }
 
+  averageImmunitiesOfAllTargets(results: BattleTeamSearchResult[][]) {
+    // all results for each target = all battles the target appears in
+    const allTargets = new Map<string, PokemonStrategy>(); 
+    const allResultsByTargets = new Map<string, BattleTeamSearchResult[]>();
+    results.forEach(thisOppTeam => {
+      thisOppTeam.forEach(thisSelection => {
+        thisSelection.tacticsPattern?.matchups.forEach(thisMatchup => {
+          const key = thisMatchup.opponent.id;
+          const value = allResultsByTargets.get(key);
+          if (!value) {
+            allResultsByTargets.set(key, [thisSelection]);
+            allTargets.set(key, thisMatchup.opponent);
+          } else {
+            value.push(thisSelection);
+            allResultsByTargets.set(key, value);
+          }   
+        })
+      })
+    });
+
+    const averages: any[] = [];
+    allResultsByTargets.forEach((value, key) => {
+      const oppPoke = allTargets.get(key);
+      if (!oppPoke) {
+        throw new Error('opponent pokemon not found!');
+      }
+
+      let sum = 0.0;
+      value.forEach(x => sum += x.value);
+      const average = sum / value.length;
+      averages.push({ oppPoke, average});
+    })
+
+    averages.sort((a, b) => {
+      const translatedA = translateSpeciesIfPossible(a.oppPoke.species, this.props.t);
+      const translatedB = translateSpeciesIfPossible(b.oppPoke.species, this.props.t);
+        if (translatedA < translatedB) {
+          return -1;
+        } else if (translatedB < translatedA) {
+          return 1;
+        } else {
+          return 0;
+        }
+    })
+
+    return averages;
+  }
+
   render() {   
     const t = this.props.t;
 
@@ -92,7 +140,7 @@ class StatisticalEvaluationRaw extends React.Component<StatisticalEvaluationProp
       value.forEach(v => sum += v.value);
       const average = sum / value.length;
       const mySelectionStr = pokemons.map(x => translateSpeciesIfPossible(x.species, t)).join(', ');
-      statistics.push({mySelection: pokemons, mySelectionStr: mySelectionStr, average: average});
+      statistics.push({mySelection: pokemons, mySelectionStr: mySelectionStr, average: average, appears: value.length});
     })
 
     statistics.sort((a, b) => {
@@ -149,11 +197,11 @@ class StatisticalEvaluationRaw extends React.Component<StatisticalEvaluationProp
       myPokeValues.forEach(v => sum += v);
       const average = sum / myPokeValues.length;
 
-      staticticsInd.push({myPoke: myPoke, average: average});
+      staticticsInd.push({myPoke: myPoke, average: average, appears: myPokeValues.length});
     })
 
 
-    const graphLabelsInd = staticticsInd.map(x => translateSpeciesIfPossible(x.myPoke.species, t));
+    const graphLabelsInd = staticticsInd.map(x => translateSpeciesIfPossible(x.myPoke.species, t) + ' ' +  x.appears);
     const graphDataSetsInd = [
       {
         dataLabel: "Average",
@@ -180,8 +228,39 @@ class StatisticalEvaluationRaw extends React.Component<StatisticalEvaluationProp
       }
     }
 
+    const opponentAverages = this.averageImmunitiesOfAllTargets(mmopResults);
+    const opponentGraphlabels = opponentAverages.map((x: any) => translateSpeciesIfPossible(x.oppPoke.species, t));
+    const opponentDatasets = [
+      {
+        dataLabel: "Average",
+        values: opponentAverages.map(x => x.average),
+        colorRGB: [76, 99, 32]
+      }
+    ];
+
+    const chartOptionsOpponent = {
+      scales: {
+        xAxes: [{
+          ticks: {
+            minRotation: 90,
+            maxRotation: 90
+          }
+        }],
+        yAxes: [{
+          ticks: {
+            min: -128,
+            max: 128,
+            stepSize: 32
+          }
+        }]
+      }
+    }
+
+
     return (
       <>
+        <h4>Average evaluate values of all targets</h4>
+        <GraphComponent labels={opponentGraphlabels} datasets={opponentDatasets} heightVertical={600} optionsBar={chartOptionsOpponent} />
         <h4>Average evaluate values for each selection</h4>
         <GraphComponent labels={graphLabels} datasets={graphDataSets} heightVertical={600} widthVertical={800} optionsBar={chartOptionsBar} />
         <h4>Average evaluate values for each Pokemon</h4>
