@@ -142,10 +142,21 @@ export class TeamBuilderComponent extends React.Component<TeamBuilderComponentPr
           </Row>
           <Row>
             <Col>
-              <Tabs id="function-tabs" defaultActiveKey="battle-team" className="mt-3">
+              <Tabs id="function-tabs" defaultActiveKey="graph" className="mt-3">
                 <Tab eventKey="graph" title={t('tab.titleGraph')}>
-                  <GraphComponent labels={graphLabels} datasets={graphDatasets}/>
-                  <StatisticalEvaluation myTeam={this.state.teamPokemons} sortedPokemonList={sortedTargets} />
+                  <Container fluid>
+                    <Row className="mt-3">
+                      <Col>
+                        <h4>{t('graph.title')}</h4>
+                        <GraphComponent labels={graphLabels} datasets={graphDatasets}/>
+                      </Col>
+                    </Row>
+                    <Row className="mt-2">
+                      <Col>
+                        <StatisticalEvaluation myTeam={this.state.teamPokemons} sortedPokemonList={sortedTargets} />
+                      </Col>
+                    </Row>
+                  </Container>
                 </Tab>
                 <Tab eventKey="search" title={t('tab.titleSearch')}>
                   <SearchComponent targetsList={sortedTargets} onChange={(settings: SearchSettings) => this.onSearchSettingsChange(settings)}></SearchComponent>

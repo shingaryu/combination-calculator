@@ -190,24 +190,6 @@ class StatisticalEvaluationRaw extends React.Component<StatisticalEvaluationProp
       }
     ];
 
-    const chartOptionsBar = {
-      scales: {
-        xAxes: [{
-          ticks: {
-            minRotation: 90,
-            maxRotation: 90
-          }
-        }],
-        yAxes: [{
-          ticks: {
-            min: -1024,
-            max: 1024,
-            stepSize: 512
-          }
-        }]
-      }
-    }
-
     const staticticsInd = this.averageRateOfMyTeamIndivisuals(mmopResults);
     const graphLabelsInd = staticticsInd.map(x => translateSpeciesIfPossible(x.myPoke.species, t) + ' ' +  x.appears);
     const graphDataSetsInd = [
@@ -217,24 +199,6 @@ class StatisticalEvaluationRaw extends React.Component<StatisticalEvaluationProp
         colorRGB: [76, 99, 132]
       }
     ];
-
-    const chartOptionsBarInd = {
-      scales: {
-        xAxes: [{
-          ticks: {
-            minRotation: 0,
-            maxRotation: 0
-          }
-        }],
-        yAxes: [{
-          ticks: {
-            min: -128,
-            max: 128,
-            stepSize: 32
-          }
-        }]
-      }
-    }
 
     const opponentAverages = this.averageImmunitiesOfAllTargets(mmopResults);
     const opponentGraphlabels = opponentAverages.map((x: any) => translateSpeciesIfPossible(x.oppPoke.species, t));
@@ -246,33 +210,17 @@ class StatisticalEvaluationRaw extends React.Component<StatisticalEvaluationProp
       }
     ];
 
-    const chartOptionsOpponent = {
-      scales: {
-        xAxes: [{
-          ticks: {
-            minRotation: 90,
-            maxRotation: 90
-          }
-        }],
-        yAxes: [{
-          ticks: {
-            min: -128,
-            max: 128,
-            stepSize: 32
-          }
-        }]
-      }
-    }
-
-
     return (
       <>
         <h4>Average evaluate values of all targets</h4>
-        <GraphComponent labels={opponentGraphlabels} datasets={opponentDatasets} heightVertical={600} optionsBar={chartOptionsOpponent} />
+        <GraphComponent labels={opponentGraphlabels} datasets={opponentDatasets} heightVertical={600}
+          valueMin={-128} valueMax={128} valueStep={32} />
         <h4>Average evaluate values for each selection</h4>
-        <GraphComponent labels={graphLabels} datasets={graphDataSets} heightVertical={600} widthVertical={800} optionsBar={chartOptionsBar} />
+        <GraphComponent labels={graphLabels} datasets={graphDataSets} heightVertical={600} widthVertical={800}
+          valueMin={-1024} valueMax={1024} valueStep={512} />
         <h4>Average evaluate values for each Pokemon</h4>
-        <GraphComponent labels={graphLabelsInd} datasets={graphDataSetsInd} heightVertical={300} widthVertical={800} optionsBar={chartOptionsBarInd} />
+        <GraphComponent labels={graphLabelsInd} datasets={graphDataSetsInd} heightVertical={300} widthVertical={800} 
+          valueMin={-128} valueMax={128} valueStep={32} xTicksRotation={0}/>
       </>
     )
 

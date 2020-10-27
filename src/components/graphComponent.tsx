@@ -1,8 +1,6 @@
 import React from 'react';
-import { Row, Col, Container } from "react-bootstrap";
 import {Bar, HorizontalBar} from 'react-chartjs-2';
 import MediaQuery from "react-responsive";
-import { useTranslation } from 'react-i18next';
 import './graphComponent.css'
 
 type GraphComponentProps = {
@@ -16,6 +14,10 @@ type GraphComponentProps = {
   widthVertical?: number,
   heightHorizontal?: number,
   widthHorizontal?: number,
+  valueMin?: number,
+  valueMax?: number,
+  valueStep?: number,
+  xTicksRotation?: number,
   optionsBar?: any,
   optionsHorizontal?: any
 }
@@ -23,7 +25,6 @@ type GraphComponentProps = {
 export const GraphComponent: React.FunctionComponent<GraphComponentProps> = (props) => {
   const labels = props.labels;
   const datasets = props.datasets;
-  const { t } = useTranslation();
 
   const data = {
     labels: labels,
@@ -38,20 +39,24 @@ export const GraphComponent: React.FunctionComponent<GraphComponentProps> = (pro
     }))
   };
 
+  const valueOrDefault = (value: number | undefined | null, defaultValue: number) => {
+    return (value !== undefined && value !== null) ? value : defaultValue
+  }
+
   const chartOptionsBar = {
     maintainAspectRatio: false,
     scales: {
       xAxes: [{
         ticks: {
-          minRotation: 90,
-          maxRotation: 90
+          minRotation: valueOrDefault(props.xTicksRotation, 90),
+          maxRotation: valueOrDefault(props.xTicksRotation, 90)
         }
       }],
       yAxes: [{
         ticks: {
-          min: -1024*4,
-          max: 1024*4,
-          stepSize: 1024
+          min: valueOrDefault(props.valueMin, -1024*4),
+          max: valueOrDefault(props.valueMax, 1024*4),
+          stepSize: valueOrDefault(props.valueStep, 1024)
         }
       }]
     },
@@ -64,46 +69,35 @@ export const GraphComponent: React.FunctionComponent<GraphComponentProps> = (pro
       xAxes: [{
         position: 'top',
         ticks: {
-          min: -1024*4,
-          max: 1024*4,
-          stepSize: 2048,
+          min: valueOrDefault(props.valueMin, -1024*4),
+          max: valueOrDefault(props.valueMax, 1024*4),
+          stepSize: valueOrDefault(props.valueStep, 2048),
         }
       }]
     },
     ...props.optionsHorizontal
-  }  
+  }
 
   return (
     <>
-      <Container fluid className="mt-3">
-        <Row>
-          <Col>
-            <h4>{t('graph.title')}</h4>
-          </Col>
-        </Row>
-        <Row>
-          <Col>
-          <MediaQuery query="(max-width: 767px)">
-            <div style={{height: props.heightHorizontal || 16 * (labels.length + 4)}}>
-              <HorizontalBar
-                data={data}
-                options={chartOptionsHorizontal}
-              />
-            </div>          
-          </MediaQuery>
-          <MediaQuery query="(min-width: 768px)">
-            <div className="chart-area">
-              <div style={{height: props.heightVertical || 500, width: props.widthVertical || 22 * (labels.length + 2)}}>
-                <Bar
-                  data={data}
-                  options={chartOptionsBar}
-                />
-              </div>
-            </div>
-          </MediaQuery>
-          </Col>
-        </Row>
-      </Container>
+      <MediaQuery query="(max-width: 767px)">
+        <div style={{height: props.heightHorizontal || 16 * (labels.length + 4)}}>
+          <HorizontalBar
+            data={data}
+            options={chartOptionsHorizontal}
+          />
+        </div>          
+      </MediaQuery>
+      <MediaQuery query="(min-width: 768px)">
+        <div className="chart-area">
+          <div style={{height: props.heightVertical || 500, width: props.widthVertical || 22 * (labels.length + 2)}}>
+            <Bar
+              data={data}
+              options={chartOptionsBar}
+            />
+          </div>
+        </div>
+      </MediaQuery>
     </>
   );
 }
