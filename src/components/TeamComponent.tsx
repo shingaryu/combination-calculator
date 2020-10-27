@@ -5,7 +5,7 @@ import { WithTranslation } from 'react-i18next';
 import { translateSpeciesIfPossible } from '../services/stringSanitizer';
 import PokemonStrategy from '../models/PokemonStrategy';
 import { defaultTeam } from '../defaultList';
-import Autosuggest from 'react-autosuggest';
+import Autosuggest, { SuggestionSelectedEventData } from 'react-autosuggest';
 import { withTranslation } from 'react-i18next';
 
 type TeamComponentProps = {
@@ -158,6 +158,18 @@ export class TeamComponentRaw extends React.Component<TeamComponentProps, TeamCo
     });
   };
 
+  onSuggestionSelectedOnSlot = (slotNum: number, event: React.FormEvent<any>, data: SuggestionSelectedEventData<PokeNameSuggestion>) => {
+    console.log(data);
+
+    const pokemons = this.state.pokemonSlots.concat();
+    pokemons[slotNum].poke = data.suggestion.strategy;
+    this.setState({ pokemonSlots: pokemons });
+    this.props.onChange(this.validTeamPokemons());
+
+    // it calls onChange method twice everytime when a suggestion is selected
+    // in onChangeInput() and onSuggestionSelectedOnSlot()
+  }
+
   // called when input control is actually updated
   onChangeInput = (slotNum: number, event: any, { newValue }: any) => {
     console.log(`onchange: slot ${slotNum} value ${newValue}`);
@@ -288,6 +300,7 @@ export class TeamComponentRaw extends React.Component<TeamComponentProps, TeamCo
                               suggestions={this.state.suggestions}
                               onSuggestionsFetchRequested={this.onSuggestionsFetchRequested}
                               onSuggestionsClearRequested={this.onSuggestionsClearRequested}
+                              onSuggestionSelected={(event: React.FormEvent<any>, data: SuggestionSelectedEventData<PokeNameSuggestion>) => this.onSuggestionSelectedOnSlot(slotNum, event, data)}
                               getSuggestionValue={this.getSuggestionValue}
                               renderInputComponent={(inputProps: any) => this.renderInputComponent(inputProps, !this.state.pokemonSlots[slotNum].poke)}
                               renderSuggestion={this.renderSuggestion}
