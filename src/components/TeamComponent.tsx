@@ -1,5 +1,5 @@
 import React from 'react';
-import { Container, Row, Col, InputGroup, FormControl, Button, Modal } from 'react-bootstrap'
+import { Container, Row, Col, InputGroup, FormControl, Button, Modal, Popover, OverlayTrigger } from 'react-bootstrap'
 import './teamComponent.css'
 import { WithTranslation } from 'react-i18next';
 import { translateSpeciesIfPossible } from '../services/stringSanitizer';
@@ -209,6 +209,55 @@ export class TeamComponentRaw extends React.Component<TeamComponentProps, TeamCo
     return card;
   }
 
+  pokemonDetailsPopover(poke: PokemonStrategy | null) {
+    if (!poke) {
+      return <div></div>;
+    }
+
+    const popover = (
+      <Popover id="popover-basic">
+        <Popover.Title as="h3">{translateSpeciesIfPossible(poke.species, this.props.t)}</Popover.Title>
+        <Popover.Content>
+          <div className="details-row">
+            <span className="details-param">Item </span>
+            <span className="details-value">{poke.item}</span>
+          </div>
+          <div className="details-row">
+            <span className="details-param">Ability </span>
+            <span className="details-value">{poke.ability}</span>
+          </div>
+          <div className="details-row">
+            <span className="details-param">Nature </span>
+            <span className="details-value">{poke.nature}</span>
+          </div>
+          <div className="details-row">
+            <span className="details-param">EVs </span>
+            <span className="details-value">{poke.ev_hp}-{poke.ev_atk}-{poke.ev_def}-{poke.ev_spa}-{poke.ev_spd}-{poke.ev_spe}</span>
+          </div>
+          <div className="details-row">
+            <span className="details-param">Move 1 </span>
+            <span className="details-value">{poke.move1}</span>
+          </div>
+          <div className="details-row">
+            <span className="details-param">Move 2 </span>
+            <span className="details-value">{poke.move2}</span>
+          </div>
+          <div className="details-row">
+            <span className="details-param">Move 3 </span>
+            <span className="details-value">{poke.move3}</span>
+          </div>
+          <div className="details-row">
+            <span className="details-param">Move 4 </span>
+            <span className="details-value">{poke.move4}</span>
+          </div>
+        </Popover.Content>
+      </Popover>
+    );
+
+    return popover;
+  }
+
+
   render() {
     const { t } = this.props;
 
@@ -246,9 +295,14 @@ export class TeamComponentRaw extends React.Component<TeamComponentProps, TeamCo
                             />
                           </InputGroup>
                         </div>
-                        <div className="set-button-line">
+                        {/* <div className="set-button-line">
                           <Button variant="outline-dark" size="sm" onClick={() => this.onModalOpen(slotNum)}>{t('team.set')}</Button>
-                        </div>
+                        </div> */}
+                        <div className="details-line">
+                          <OverlayTrigger trigger={['focus']} placement="bottom" overlay={this.pokemonDetailsPopover(slot.poke)}>
+                            <Button variant="outline-dark" size="sm" disabled={!slot.poke}>{t('team.detail')}</Button>
+                          </OverlayTrigger>
+                        </div>                        
                       </div>
                       )
                     }

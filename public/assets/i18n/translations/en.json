@@ -23,7 +23,8 @@
       "title": "Select Pokemon ({num}th slot)",
       "cancel": "Cancel",
       "apply": "Apply"
-    }
+    },
+    "detail": "detail"
   },
   "search": {
     "settingsTitle": "Search Settings",

@@ -23,7 +23,8 @@
       "title": "ポケモンを選択 ({num}番目)",
       "cancel": "キャンセル",
       "apply": "OK"
-    }
+    },
+    "detail": "詳細"
   },
   "search": {
     "settingsTitle": "検索設定",
