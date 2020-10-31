@@ -124,8 +124,9 @@ export class TeamBuilderComponent extends React.Component<TeamBuilderComponentPr
         <Row className="mt-3">
           <Col>
             <h4>{t('overview.title')}</h4>
-            <p>{t('overview.textline1')}</p>
-            <p>{t('overview.textline2')}</p>
+            <div className="description-box mb-4">
+              <div dangerouslySetInnerHTML={{__html: t('overview.textline1')}} />
+            </div>            
           </Col>
         </Row>
         <Row className="mt-3">
