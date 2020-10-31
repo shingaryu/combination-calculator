@@ -20,7 +20,8 @@ export const App: React.FunctionComponent = () => {
       <I18nextProvider i18n={i18n}>
         <div className="App">
         <Navbar bg="light">
-          <Navbar.Brand className="nowrap-navbar">Pokémon VGC Team Performance Evaluator</Navbar.Brand>
+          {/* <Navbar.Brand className="nowrap-navbar">Pokémon VGC Team Performance Evaluator</Navbar.Brand> */}
+          <Navbar.Brand className="nowrap-navbar" style={{fontSize: 18}}>ポケモン剣盾 パーティバランス計算機</Navbar.Brand>
         </Navbar>
         <Container fluid>
           <Suspense fallback={<span>Loading master data...</span>}>

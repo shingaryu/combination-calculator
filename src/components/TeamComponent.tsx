@@ -284,7 +284,7 @@ export class TeamComponentRaw extends React.Component<TeamComponentProps, TeamCo
             this.state.pokemonSlots && this.state.pokemonSlots.map((slot, slotNum) => 
             <div className="inputgroup-container" key={slotNum} >
               <div>
-                <InputGroup className="mb-2 mr-2" style={{width: 190}}>
+                <InputGroup className="mb-2 mr-2" style={{width: 200}}>
                   <InputGroup.Prepend>
                     <InputGroup.Checkbox checked={slot.enabled} onChange={(e) => this.onCheckboxChange(slotNum, e)}/>
                   </InputGroup.Prepend>

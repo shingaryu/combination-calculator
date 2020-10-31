@@ -234,21 +234,34 @@ class StatisticalEvaluationRaw extends React.Component<StatisticalEvaluationProp
       <>
         <Row className="mt-5">
           <Col>
-            <h4>{t('graph.titleSelectionUnit')}</h4>
+            <h4>{t('graph.selectionUnit.title')}</h4>
+            <div className="description-box mb-4" >
+              <div dangerouslySetInnerHTML={{__html: t('graph.selectionUnit.description')}} />
+              <div className="tips">・{t('graph.selectionUnit.tips1')}</div>
+            </div>            
             <GraphComponent labels={opponentGraphlabels} datasets={opponentDatasets}
               valueMin={-128} valueMax={128} valueStep={64} />          
           </Col>
         </Row>
         <Row className="mt-5">
           <Col>
-            <h4>{t('graph.titleSelectionEvaluation')}</h4>
+            <h4>{t('graph.selectionEvaluation.title')}</h4>
+            <div className="description-box mb-4" >
+              <div dangerouslySetInnerHTML={{__html: t('graph.selectionEvaluation.description')}} />
+              <div className="tips">・{t('graph.selectionEvaluation.tips1')}</div>
+              <div className="tips">・{t('graph.selectionEvaluation.tips2')}</div>
+            </div>
             <GraphComponent labels={graphLabels} datasets={graphDataSets} heightVertical={300} widthVertical={800}
               valueMin={-256} valueMax={256} valueStep={128} optionsBar={toolTipOptions(true)} optionsHorizontal={toolTipOptions(false)} />
           </Col>
         </Row>
         <Row className="mt-5">
           <Col>
-            <h4>{t('graph.titleIndividualEvaluation')}</h4>
+            <h4>{t('graph.individualEvaluation.title')}</h4>
+            <div className="description-box mb-4" >
+              <div dangerouslySetInnerHTML={{__html: t('graph.individualEvaluation.description')}} />
+              <div className="tips">・{t('graph.individualEvaluation.tips1')}</div>
+            </div>
             <GraphComponent labels={graphLabelsInd} datasets={graphDataSetsInd} heightVertical={300} widthVertical={800} 
               valueMin={-128} valueMax={128} valueStep={64} xTicksRotation={0}/>
           </Col>
