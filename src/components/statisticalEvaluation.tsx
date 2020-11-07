@@ -54,6 +54,50 @@ class StatisticalEvaluationRaw extends React.Component<StatisticalEvaluationProp
 
   }
 
+  expectationOfMyTeamSelections(mmopResults: BattleTeamSearchResult[][]) {
+    type battleTeamResult = {
+      mySelection: PokemonStrategy[],
+      value: number
+    }
+
+    const battleTeamMap = new Map<string, battleTeamResult[]>();
+    mmopResults.forEach(thisRepetition => {
+      const bestSelection = thisRepetition[0];
+
+      const key = this.battleTeamKey(bestSelection.pokemons);
+      const value = battleTeamMap.get(key)
+      if (!value) {
+        battleTeamMap.set(key, [{ mySelection: bestSelection.pokemons, value: bestSelection.value}]);
+      } else {
+        value.push({ mySelection: bestSelection.pokemons, value: bestSelection.value});
+        battleTeamMap.set(key, value);
+      }
+    });
+
+    const statistics: any[] = [];
+    battleTeamMap.forEach((value, key) => {
+      const pokemons = value[0].mySelection;
+      let sum = 0.0;
+      value.forEach(v => sum += v.value);
+      const expectation = sum / mmopResults.length;
+      const mySelectionStr = pokemons.map(x => translateSpeciesIfPossible(x.species, this.props.t).substring(0, 2)).join(', ');
+      const mySelectionFullStr = pokemons.map(x => translateSpeciesIfPossible(x.species, this.props.t)).join(', ');
+      statistics.push({mySelection: pokemons, mySelectionStr: mySelectionStr, mySelectionFullStr: mySelectionFullStr,  expectation: expectation, appears: value.length});
+    })
+
+    statistics.sort((a, b) => {
+      if (b.mySelectionStr < a.mySelectionStr) {
+        return -1;
+      } else if (a.mySelectionStr < b.mySelectionStr) {
+        return 1;
+      } else {
+        return 0;
+      }
+    });
+
+    return statistics;
+  }
+
   averageRateOfMyTeamSelections(mmopResults: BattleTeamSearchResult[][]) {
     type battleTeamResult = {
       mySelection: PokemonStrategy[],
@@ -104,9 +148,9 @@ class StatisticalEvaluationRaw extends React.Component<StatisticalEvaluationProp
     this.props.myTeam.forEach(myPoke => {
       const myPokeValues: number[] = [];
       mmopResults.forEach(thisRepetition => {
-        thisRepetition.sort((a, b) => {
-          return b.value - a.value;
-        })
+        // thisRepetition.sort((a, b) => {
+        //   return b.value - a.value;
+        // })
 
         const bestSelection = thisRepetition[0];
         if (bestSelection.tacticsPattern?.matchups.find(x => x.player.id === myPoke.id)) {
@@ -220,11 +264,40 @@ class StatisticalEvaluationRaw extends React.Component<StatisticalEvaluationProp
       }
     ];
 
+    const statisticsExp = this.expectationOfMyTeamSelections(mmopResults);
+    const graphLabelsExp = statisticsExp.map(x => x.mySelectionStr);
+    const fullStrListExp = statisticsExp.map(x => x.mySelectionFullStr);
+    const graphDataSetsExp = [
+      {
+        dataLabel: t('graph.averageValueAmongAllSelections'),
+        values: statisticsExp.map(x => x.expectation.toFixed(0)),
+        colorRGB: [200, 99, 132]
+      }
+    ];
+
+
     const toolTipOptions = (isVertical: boolean) => ({
       tooltips: {
         callbacks: {
           label: (tooltipItem: any, data: any) => {
             const fullLabel = fullStrList[tooltipItem.index];
+            var label = data.datasets[tooltipItem.datasetIndex].label || '';
+
+            if (label) {
+                label += ': ';
+            }
+            label += isVertical? tooltipItem.yLabel: tooltipItem.xLabel;
+            return [fullLabel, label];
+        }
+        }
+      }
+    });
+
+    const toolTipOptionsExp = (isVertical: boolean) => ({
+      tooltips: {
+        callbacks: {
+          label: (tooltipItem: any, data: any) => {
+            const fullLabel = fullStrListExp[tooltipItem.index];
             var label = data.datasets[tooltipItem.datasetIndex].label || '';
 
             if (label) {
@@ -316,6 +389,18 @@ class StatisticalEvaluationRaw extends React.Component<StatisticalEvaluationProp
         </Row>
         <Row className="mt-5">
           <Col>
+            <h4>{t('graph.selectionEvaluation.title')}</h4>
+            <div className="description-box mb-4" >
+              <div dangerouslySetInnerHTML={{__html: t('graph.selectionEvaluation.description')}} />
+              <div className="tips">・{t('graph.selectionEvaluation.tips1')}</div>
+              <div className="tips">・{t('graph.selectionEvaluation.tips2')}</div>
+            </div>
+            <GraphComponent labels={graphLabelsExp} datasets={graphDataSetsExp} heightVertical={300} widthVertical={800}
+              valueMin={-64} valueMax={128} valueStep={64} optionsBar={toolTipOptionsExp(true)} optionsHorizontal={toolTipOptionsExp(false)} />
+          </Col>
+        </Row>        
+        {/* <Row className="mt-5">
+          <Col>
             <h4>{t('graph.individualEvaluation.title')}</h4>
             <div className="description-box mb-4" >
               <div dangerouslySetInnerHTML={{__html: t('graph.individualEvaluation.description')}} />
@@ -324,7 +409,7 @@ class StatisticalEvaluationRaw extends React.Component<StatisticalEvaluationProp
             <GraphComponent labels={graphLabelsInd} datasets={graphDataSetsInd} heightVertical={300} widthVertical={800} 
               valueMin={-128} valueMax={128} valueStep={64} xTicksRotation={0}/>
           </Col>
-        </Row>
+        </Row> */}
         <Row className="mt-5">
           <Col>
             <h4>{t('graph.individualEvaluation.title')}</h4>
