@@ -30,7 +30,7 @@ class StatisticalEvaluationRaw extends React.Component<StatisticalEvaluationProp
     const fullStrListExp = statisticsExp.map(x => x.selectionFullName);
     const graphDataSetsExp = [
       {
-        dataLabel: t('graph.averageValueAmongAllSelections'),
+        dataLabel: t('graph.selectionEvaluation.legend'),
         values: statisticsExp.map(x => parseInt(x.value.toFixed(0))),
         colorRGB: [200, 99, 132]
       }
@@ -57,7 +57,7 @@ class StatisticalEvaluationRaw extends React.Component<StatisticalEvaluationProp
     const graphLabelsIndExp = staticticsIndExp.map(x => translateSpeciesIfPossible(x.pokemon.species, t));
     const graphDataSetsIndExp = [
       {
-        dataLabel: t('graph.averageValueAmongAllSelections'),
+        dataLabel: t('graph.individualEvaluation.legend'),
         values: staticticsIndExp.map(x => parseInt(x.value.toFixed(0))),
         colorRGB: [32, 99, 132]
       }
@@ -78,7 +78,7 @@ class StatisticalEvaluationRaw extends React.Component<StatisticalEvaluationProp
     const maximumxGraphLabels = opponentMaximums.matchups.map(x => translateSpeciesIfPossible(x.opponent.species, t));
     const maximumDatasets = [
       {
-        dataLabel: t('graph.averageValueAmongAllSelections'),
+        dataLabel: t('graph.selectionUnit.legend'),
         values: opponentMaximums.matchups.map(x => parseInt(x.value.toFixed(0))),
         colorRGB: [76, 34, 32]
       }
