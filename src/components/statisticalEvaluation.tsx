@@ -98,6 +98,33 @@ class StatisticalEvaluationRaw extends React.Component<StatisticalEvaluationProp
     return statistics;
   }
 
+  expectationOfMyTeamIndivisuals(mmopResults: BattleTeamSearchResult[][]) {
+    const staticticsInd: any[] = [];
+
+    this.props.myTeam.forEach(myPoke => {
+      const myPokeValues: number[] = [];
+      mmopResults.forEach(thisRepetition => {
+        thisRepetition.sort((a, b) => {
+          return b.value - a.value;
+        })
+
+        const bestSelection = thisRepetition[0];
+        if (bestSelection.tacticsPattern?.matchups.find(x => x.player.id === myPoke.id)) {
+          myPokeValues.push(bestSelection.value);
+        }
+      });
+
+      let sum = 0.0;
+      myPokeValues.forEach(v => sum += v);
+      const expectation = sum / mmopResults.length;
+      // const expectation = sum / myPokeValues.length;
+
+      staticticsInd.push({myPoke: myPoke, expectation: expectation, appears: myPokeValues.length});
+    })
+
+    return staticticsInd;
+  }
+
   averageRateOfMyTeamIndivisuals(mmopResults: BattleTeamSearchResult[][]) {
     const staticticsInd: any[] = [];
 
@@ -220,6 +247,16 @@ class StatisticalEvaluationRaw extends React.Component<StatisticalEvaluationProp
       }
     ];
 
+    const staticticsIndExp = this.expectationOfMyTeamIndivisuals(mmopResults);
+    const graphLabelsIndExp = staticticsIndExp.map(x => translateSpeciesIfPossible(x.myPoke.species, t) + ` (${x.appears})`);
+    const graphDataSetsIndExp = [
+      {
+        dataLabel: t('graph.averageValueAmongAllSelections'),
+        values: staticticsIndExp.map(x => x.expectation.toFixed(0)),
+        colorRGB: [32, 99, 132]
+      }
+    ];
+
     const opponentAverages = this.averageImmunitiesOfAllTargets(mmopResults);
     const opponentGraphlabels = opponentAverages.map((x: any) => translateSpeciesIfPossible(x.oppPoke.species, t));
     const opponentDatasets = [
@@ -230,6 +267,28 @@ class StatisticalEvaluationRaw extends React.Component<StatisticalEvaluationProp
       }
     ];
 
+    const opponentMaximums = mmopCalculator.maximumImmunitiesListOfMyTeam(this.props.myTeam, this.props.sortedPokemonList);
+    opponentMaximums.matchups.sort((a, b) => {
+      const translatedA = translateSpeciesIfPossible(a.opponent.species, this.props.t);
+      const translatedB = translateSpeciesIfPossible(b.opponent.species, this.props.t);
+        if (translatedA < translatedB) {
+          return -1;
+        } else if (translatedB < translatedA) {
+          return 1;
+        } else {
+          return 0;
+        }
+    })
+    const maximumxGraphLabels = opponentMaximums.matchups.map(x => translateSpeciesIfPossible(x.opponent.species, t));
+    const maximumDatasets = [
+      {
+        dataLabel: t('graph.averageValueAmongAllSelections'),
+        values: opponentMaximums.matchups.map(x => parseInt(x.value.toFixed(0))),
+        colorRGB: [76, 34, 32]
+      }
+    ];
+
+
     return (
       <>
         <Row className="mt-5">
@@ -239,8 +298,8 @@ class StatisticalEvaluationRaw extends React.Component<StatisticalEvaluationProp
               <div dangerouslySetInnerHTML={{__html: t('graph.selectionUnit.description')}} />
               <div className="tips">・{t('graph.selectionUnit.tips1')}</div>
             </div>            
-            <GraphComponent labels={opponentGraphlabels} datasets={opponentDatasets}
-              valueMin={-128} valueMax={128} valueStep={64} />          
+            <GraphComponent labels={maximumxGraphLabels} datasets={maximumDatasets}
+              valueMin={-256} valueMax={1024} valueStep={256} />          
           </Col>
         </Row>
         <Row className="mt-5">
@@ -266,6 +325,17 @@ class StatisticalEvaluationRaw extends React.Component<StatisticalEvaluationProp
               valueMin={-128} valueMax={128} valueStep={64} xTicksRotation={0}/>
           </Col>
         </Row>
+        <Row className="mt-5">
+          <Col>
+            <h4>{t('graph.individualEvaluation.title')}</h4>
+            <div className="description-box mb-4" >
+              <div dangerouslySetInnerHTML={{__html: t('graph.individualEvaluation.description')}} />
+              <div className="tips">・{t('graph.individualEvaluation.tips1')}</div>
+            </div>
+            <GraphComponent labels={graphLabelsIndExp} datasets={graphDataSetsIndExp} heightVertical={300} widthVertical={800} 
+              valueMin={-128} valueMax={512} valueStep={128} xTicksRotation={0}/>
+          </Col>
+        </Row>        
       </>
     )
 

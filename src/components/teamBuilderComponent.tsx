@@ -144,7 +144,7 @@ export class TeamBuilderComponent extends React.Component<TeamBuilderComponentPr
           <Col>
             <Tabs id="function-tabs" defaultActiveKey="graph" className="mt-3">
               <Tab eventKey="graph" title={t('tab.titleGraph')}>
-                <Row className="mt-3">
+                {/* <Row className="mt-3">
                   <Col>
                     <h4>{t('graph.title')}</h4>
                     <div className="description-box mb-4" >
@@ -153,7 +153,7 @@ export class TeamBuilderComponent extends React.Component<TeamBuilderComponentPr
                     </div>
                   <GraphComponent labels={graphLabels} datasets={graphDatasets}/>
                   </Col>
-                </Row>
+                </Row> */}
                 <Row className="mt-2">
                   <Col>
                     <StatisticalEvaluation myTeam={this.state.teamPokemons} sortedPokemonList={sortedTargets} />

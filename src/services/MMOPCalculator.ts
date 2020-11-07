@@ -52,6 +52,13 @@ export class MMOPCalculator extends SelectionEvaluator {
     return results;
   }
 
+  public maximumImmunitiesListOfMyTeam(teamPokemons: PokemonStrategy[], allTargets: PokemonStrategy[]): TacticsPattern {
+    const matchups = this.allMatchupValues(teamPokemons, allTargets);
+    const tactics = this.maximumImmunitiesTactics(matchups);
+
+    return tactics;
+  }
+
   private maximumImmunitiesTactics(matchups: Matchup[]): TacticsPattern {
     const tacticsMatchups: Matchup[] = [];
 
