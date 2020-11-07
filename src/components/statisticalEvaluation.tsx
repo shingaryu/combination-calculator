@@ -26,12 +26,12 @@ class StatisticalEvaluationRaw extends React.Component<StatisticalEvaluationProp
     const mmopCalculator = new MMOPCalculator();
 
     const statisticsExp = mmopCalculator.evaluateTeamSelections(this.props.myTeam, this.props.sortedPokemonList, t);
-    const graphLabelsExp = statisticsExp.map(x => x.mySelectionStr);
-    const fullStrListExp = statisticsExp.map(x => x.mySelectionFullStr);
+    const graphLabelsExp = statisticsExp.map(x => x.selectionShortName);
+    const fullStrListExp = statisticsExp.map(x => x.selectionFullName);
     const graphDataSetsExp = [
       {
         dataLabel: t('graph.averageValueAmongAllSelections'),
-        values: statisticsExp.map(x => x.expectation.toFixed(0)),
+        values: statisticsExp.map(x => parseInt(x.value.toFixed(0))),
         colorRGB: [200, 99, 132]
       }
     ];
@@ -54,11 +54,11 @@ class StatisticalEvaluationRaw extends React.Component<StatisticalEvaluationProp
     });
 
     const staticticsIndExp = mmopCalculator.evaluateTeamIndividuals(this.props.myTeam, this.props.sortedPokemonList);
-    const graphLabelsIndExp = staticticsIndExp.map(x => translateSpeciesIfPossible(x.myPoke.species, t) + ` (${x.appears})`);
+    const graphLabelsIndExp = staticticsIndExp.map(x => translateSpeciesIfPossible(x.pokemon.species, t));
     const graphDataSetsIndExp = [
       {
         dataLabel: t('graph.averageValueAmongAllSelections'),
-        values: staticticsIndExp.map(x => x.expectation.toFixed(0)),
+        values: staticticsIndExp.map(x => parseInt(x.value.toFixed(0))),
         colorRGB: [32, 99, 132]
       }
     ];

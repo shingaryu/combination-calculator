@@ -86,7 +86,15 @@ export class MMOPCalculator extends SelectionEvaluator {
       }
     });
 
-    const statistics: any[] = [];
+    type SelectionEvaluationResult = {
+      selection: PokemonStrategy[], 
+      selectionShortName: string, 
+      selectionFullName: string,  
+      value: number, 
+      appearanceRate: number
+    }
+
+    const statistics: SelectionEvaluationResult[] = [];
     battleTeamMap.forEach((value, key) => {
       const pokemons = value[0].mySelection;
       let sum = 0.0;
@@ -94,13 +102,13 @@ export class MMOPCalculator extends SelectionEvaluator {
       const expectation = sum / mmopResults.length;
       const mySelectionStr = pokemons.map(x => translateSpeciesIfPossible(x.species, t).substring(0, 2)).join(', ');
       const mySelectionFullStr = pokemons.map(x => translateSpeciesIfPossible(x.species, t)).join(', ');
-      statistics.push({mySelection: pokemons, mySelectionStr: mySelectionStr, mySelectionFullStr: mySelectionFullStr,  expectation: expectation, appears: value.length});
+      statistics.push({selection: pokemons, selectionShortName: mySelectionStr, selectionFullName: mySelectionFullStr,  value: expectation, appearanceRate: value.length / mmopResults.length});
     })
 
     statistics.sort((a, b) => {
-      if (b.mySelectionStr < a.mySelectionStr) {
+      if (b.selectionShortName < a.selectionShortName) {
         return -1;
-      } else if (a.mySelectionStr < b.mySelectionStr) {
+      } else if (a.selectionShortName < b.selectionShortName) {
         return 1;
       } else {
         return 0;
@@ -111,7 +119,13 @@ export class MMOPCalculator extends SelectionEvaluator {
   }
 
   evaluateTeamIndividuals(teamPokemons: PokemonStrategy[], allTargets: PokemonStrategy[]) {
-    const staticticsInd: any[] = [];
+    type IndividualsEvaluationResult = {
+      pokemon: PokemonStrategy, 
+      value: number, 
+      appearanceRate: number      
+    }
+
+    const staticticsInd: IndividualsEvaluationResult[] = [];
 
     const mmopResults = this.resultsWithRandomOpp(teamPokemons, allTargets)
 
@@ -132,7 +146,7 @@ export class MMOPCalculator extends SelectionEvaluator {
       myPokeValues.forEach(v => sum += v);
       const expectation = sum / mmopResults.length;
 
-      staticticsInd.push({myPoke: myPoke, expectation: expectation, appears: myPokeValues.length});
+      staticticsInd.push({pokemon: myPoke, value: expectation, appearanceRate: myPokeValues.length / mmopResults.length});
     })
 
     return staticticsInd;
