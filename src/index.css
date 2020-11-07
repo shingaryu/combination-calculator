@@ -11,3 +11,20 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+.description-box {
+  border: 1px solid rgba(0, 0, 0, .125);
+  border-radius: 8px;
+  font-size: 16px;
+  line-height: 30px;
+  margin-top: 14px;
+  padding: 14px;
+}
+
+.tips {
+  font-size: 12px;
+  /* margin-left: 10px; */
+  margin-bottom: 10px;
+  margin-top: 12px;
+  line-height: 24px;
+}

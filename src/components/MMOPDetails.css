@@ -1,0 +1,25 @@
+body > div.fade.modal.show > div > div > div.modal-body > table > thead > tr > th.font-initial {
+  font-weight: initial;
+  width: 100px;
+}
+
+body > div.fade.modal.show > div > div > div.modal-body > table > tbody > tr > td {
+  width: 100px;
+}
+
+.in-tactics {
+  /* font-weight: 600; */
+  background-color: lightskyblue;
+}
+
+.color-red {
+  color: red;
+}
+
+.color-blue {
+  color: blue;
+}
+
+.color-lightgray {
+  color: lightgray
+}

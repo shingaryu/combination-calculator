@@ -1,0 +1,38 @@
+.result-card {
+  display: inline-block;
+  width: 95%;
+  padding: 10px;  
+  margin-bottom: 15px;
+  border: 1px solid lightgray;
+  border-radius: 10px;
+  box-shadow: gray 1px 1px;
+  cursor: pointer;
+  width: 300px;
+  height: 130px;
+  margin: 10px;
+  vertical-align: middle;
+}
+
+.text-area {
+  height: 72px;
+}
+
+.value-text {
+  font-weight: 600;
+}
+
+.color-red {
+  color: red;
+}
+
+.color-blue {
+  color: blue;
+}
+
+.pokemon-name {
+  font-weight: 600;
+}
+
+.button-area {
+  text-align: center;
+}

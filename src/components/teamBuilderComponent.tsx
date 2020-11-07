@@ -1,5 +1,5 @@
 import React from 'react';
-import { Container, Row, Col, Tabs, Tab } from 'react-bootstrap'
+import { Container, Row, Col, Tabs, Tab, Card } from 'react-bootstrap'
 import { SearchComponent } from './searchComponent';
 import { GraphComponent } from './graphComponent';
 import { TeamComponent } from './TeamComponent';
@@ -15,6 +15,7 @@ import PokemonStrategy from '../models/PokemonStrategy';
 import { TFunction } from 'i18next';
 import SearchResult from '../models/searchResult';
 import { defaultTeam, defaultTeamList, defaultTargets } from '../defaultList';
+import { StatisticalEvaluation } from './statisticalEvaluation';
 
 type TeamBuilderComponentProps = {
 
@@ -120,83 +121,94 @@ export class TeamBuilderComponent extends React.Component<TeamBuilderComponentPr
 
     return (
       <>
-        <Container fluid className="mt-3">
-          <Row>
-            <Col>
-              <Container style={{marginLeft: 0}}>
-                <Row>
+        <Row className="mt-3">
+          <Col>
+            <h4>{t('overview.title')}</h4>
+            <div className="description-box mb-4">
+              <div dangerouslySetInnerHTML={{__html: t('overview.textline1')}} />
+            </div>            
+          </Col>
+        </Row>
+        <Row className="mt-3">
+          <Col>
+            <h4>{t('team.title')}</h4>
+            <div className="description-box mb-4">
+              <div dangerouslySetInnerHTML={{__html: t('team.description')}} />
+              <div className="tips">・{t('team.tips1')}</div>
+              <div className="tips">・{t('team.tips2')}</div>
+            </div>            
+            <TeamComponent num={6} pokemonList={sortedTeamList} onChange={(pokemons: PokemonStrategy[]) => this.onChangeTeamPokemons(pokemons)}></TeamComponent>
+          </Col>
+        </Row>
+        <Row>
+          <Col>
+            <Tabs id="function-tabs" defaultActiveKey="graph" className="mt-3">
+              <Tab eventKey="graph" title={t('tab.titleGraph')}>
+                {/* <Row className="mt-3">
                   <Col>
-                    <h4>{t('overview.title')}</h4>
-                    <p>{t('overview.textline1')}</p>
-                    <p>{t('overview.textline2')}</p>
-                  </Col>
-                </Row>
-            </Container>
-            </Col>
-          </Row>
-          <Row className="mt-3">
-            <Col>
-              <TeamComponent num={6} pokemonList={sortedTeamList} onChange={(pokemons: PokemonStrategy[]) => this.onChangeTeamPokemons(pokemons)}></TeamComponent>
-            </Col>
-          </Row>
-          <Row>
-            <Col>
-              <Tabs id="function-tabs" defaultActiveKey="graph" className="mt-3">
-                <Tab eventKey="graph" title={t('tab.titleGraph')}>
+                    <h4>{t('graph.title')}</h4>
+                    <div className="description-box mb-4" >
+                      <div dangerouslySetInnerHTML={{__html: t('graph.description')}} />
+                      <div className="tips">・{t('graph.tips1')}</div>
+                    </div>
                   <GraphComponent labels={graphLabels} datasets={graphDatasets}/>
-                </Tab>
-                <Tab eventKey="search" title={t('tab.titleSearch')}>
-                  <SearchComponent targetsList={sortedTargets} onChange={(settings: SearchSettings) => this.onSearchSettingsChange(settings)}></SearchComponent>
-                  <SearchResultComponent searchResult={results} />
-                </Tab>
-                <Tab eventKey="team-list-select" title={t('tab.titleTeamListSelect')}>
-                  <Row className="mt-3 ml-2">
-                    <Col>
-                    <h4>{t('teamListSelect.title')}</h4>
-                    </Col>
-                  </Row>
-                  <Row className="mt-3 ml-2">
-                    <Col>
-                      <TargetSelectComponent pokemonList={sortedAllStrategies} defaultList={defaultTeamList(this.state.allStrategies)} onChange={(pokemons: PokemonStrategy[]) => this.onChangeSelectedTeamList(pokemons)} />
-                    </Col>
-                  </Row>
-                </Tab>
-                <Tab eventKey="target-select" title={t('tab.titleTargetSelect')}>
-                  <Row className="mt-3 ml-2">
-                    <Col>
-                    <h4>{t('targetSelect.title')}</h4>
-                    </Col>
-                  </Row>
-                  <Row className="mt-3 ml-2">
-                    <Col>
-                      <TargetSelectComponent pokemonList={sortedAllStrategies} defaultList={defaultTargets(this.state.allStrategies)} onChange={(pokemons: PokemonStrategy[]) => this.onChangeSelectedTargets(pokemons)} />
-                    </Col>
-                  </Row>
-                </Tab>
-                {/* <Tab eventKey="battle-team" title="Battle Team">
-                  <BattleTeamComponent sortedPokemonList={sortedAllStrategies} masterDataService={masterDataService} />
-                </Tab> */}
-              </Tabs>    
-            </Col>
-          </Row>
-          <Row className="reference-row">
-            <Col>
-              <Container style={{marginLeft: 0}}>
-                <Row>
+                  </Col>
+                </Row> */}
+                <Row className="mt-2">
                   <Col>
-                    <h5>{t('reference.title')}</h5>
-                    <span>{t('reference.blogTitle')}</span>
-                    <p>
-                      <a href="https://shingaryu.hatenablog.com/entry/2020/02/16/020640" target="_blank" rel="noopener noreferrer">
-                        https://shingaryu.hatenablog.com/entry/2020/02/16/020640
-                      </a>
-                    </p>
+                    <StatisticalEvaluation myTeam={this.state.teamPokemons} sortedPokemonList={sortedTargets} />
                   </Col>
                 </Row>
-            </Container>
-            </Col>
-          </Row>
-        </Container>
+              </Tab>
+              <Tab eventKey="search" title={t('tab.titleSearch')}>
+                <SearchComponent targetsList={sortedTargets} onChange={(settings: SearchSettings) => this.onSearchSettingsChange(settings)}></SearchComponent>
+                <SearchResultComponent searchResult={results} />
+              </Tab>
+              <Tab eventKey="team-list-select" title={t('tab.titleTeamListSelect')}>
+                <Row className="mt-3">
+                  <Col>
+                  <h4>{t('teamListSelect.title')}</h4>
+                  </Col>
+                </Row>
+                <Row className="mt-3">
+                  <Col>
+                    <TargetSelectComponent pokemonList={sortedAllStrategies} defaultList={defaultTeamList(this.state.allStrategies)} onChange={(pokemons: PokemonStrategy[]) => this.onChangeSelectedTeamList(pokemons)} />
+                  </Col>
+                </Row>
+              </Tab>
+              <Tab eventKey="target-select" title={t('tab.titleTargetSelect')}>
+                <Row className="mt-3">
+                  <Col>
+                  <h4>{t('targetSelect.title')}</h4>
+                  </Col>
+                </Row>
+                <Row className="mt-3">
+                  <Col>
+                    <TargetSelectComponent pokemonList={sortedAllStrategies} defaultList={defaultTargets(this.state.allStrategies)} onChange={(pokemons: PokemonStrategy[]) => this.onChangeSelectedTargets(pokemons)} />
+                  </Col>
+                </Row>
+              </Tab>
+              <Tab eventKey="battle-team" title={t('tab.titleBattleTeam')}>
+                <BattleTeamComponent myTeam={this.state.teamPokemons} sortedPokemonList={sortedAllStrategies} />
+              </Tab>                
+            </Tabs>    
+          </Col>
+        </Row>
+        <Row className="reference-row">
+          <Col>
+            <Row>
+              <Col>
+                <h5>{t('reference.title')}</h5>
+                <span>{t('reference.blogTitle')}</span>
+                <p>
+                  <a href="https://shingaryu.hatenablog.com/entry/2020/02/16/020640" target="_blank" rel="noopener noreferrer">
+                    https://shingaryu.hatenablog.com/entry/2020/02/16/020640
+                  </a>
+                </p>
+              </Col>
+            </Row>
+          </Col>
+        </Row>
       </>
     )
   };
