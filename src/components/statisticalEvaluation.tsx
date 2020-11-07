@@ -2,7 +2,6 @@ import React from 'react';
 import { translateSpeciesIfPossible } from '../services/stringSanitizer';
 import { GraphComponent } from './graphComponent';
 import PokemonStrategy from '../models/PokemonStrategy';
-import BattleTeamSearchResult from '../models/BattleTeamSearchResult';
 import { MMOPCalculator } from '../services/MMOPCalculator';
 import { withTranslation, WithTranslation } from 'react-i18next';
 import { Col, Row } from 'react-bootstrap';
@@ -25,15 +24,8 @@ class StatisticalEvaluationRaw extends React.Component<StatisticalEvaluationProp
     const t = this.props.t;
 
     const mmopCalculator = new MMOPCalculator();
-    const repetition = 1000;
-    const mmopResults: BattleTeamSearchResult[][] = [];
-    for (let i = 0; i < repetition; i++) {
-      const randomOpp = mmopCalculator.randomOppTeam(this.props.sortedPokemonList);
-      const mmopResult = mmopCalculator.evaluate(this.props.myTeam, randomOpp);
-      mmopResults.push(mmopResult);
-    }
 
-    const statisticsExp = mmopCalculator.evaluateSelections(mmopResults, t);
+    const statisticsExp = mmopCalculator.evaluateTeamSelections(this.props.myTeam, this.props.sortedPokemonList, t);
     const graphLabelsExp = statisticsExp.map(x => x.mySelectionStr);
     const fullStrListExp = statisticsExp.map(x => x.mySelectionFullStr);
     const graphDataSetsExp = [
@@ -61,7 +53,7 @@ class StatisticalEvaluationRaw extends React.Component<StatisticalEvaluationProp
       }
     });
 
-    const staticticsIndExp = mmopCalculator.evaluateTeamIndividuals(this.props.myTeam, mmopResults);
+    const staticticsIndExp = mmopCalculator.evaluateTeamIndividuals(this.props.myTeam, this.props.sortedPokemonList);
     const graphLabelsIndExp = staticticsIndExp.map(x => translateSpeciesIfPossible(x.myPoke.species, t) + ` (${x.appears})`);
     const graphDataSetsIndExp = [
       {

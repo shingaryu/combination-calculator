@@ -9,6 +9,9 @@ import { TFunction } from "i18next";
 
 // Minimum Maximum to Opponent Pokemon
 export class MMOPCalculator extends SelectionEvaluator {
+
+  private randomOppGeneration = 1000;
+
   evaluate(teamPokemons: PokemonStrategy[], opponentPokemons: PokemonStrategy[]) {
     const battleTeamCombinations = Utils.threeOfSixCombinations(teamPokemons);
 
@@ -61,11 +64,13 @@ export class MMOPCalculator extends SelectionEvaluator {
     return tactics;
   }
 
-  evaluateSelections(mmopResults: BattleTeamSearchResult[][], t: TFunction) {
+  evaluateTeamSelections(teamPokemons: PokemonStrategy[], allTargets: PokemonStrategy[], t: TFunction) {
     type battleTeamResult = {
       mySelection: PokemonStrategy[],
       value: number
     }
+
+    const mmopResults = this.resultsWithRandomOpp(teamPokemons, allTargets)
 
     const battleTeamMap = new Map<string, battleTeamResult[]>();
     mmopResults.forEach(thisRepetition => {
@@ -105,10 +110,12 @@ export class MMOPCalculator extends SelectionEvaluator {
     return statistics;
   }
 
-  evaluateTeamIndividuals(myTeam: PokemonStrategy[], mmopResults: BattleTeamSearchResult[][]) {
+  evaluateTeamIndividuals(teamPokemons: PokemonStrategy[], allTargets: PokemonStrategy[]) {
     const staticticsInd: any[] = [];
 
-    myTeam.forEach(myPoke => {
+    const mmopResults = this.resultsWithRandomOpp(teamPokemons, allTargets)
+
+    teamPokemons.forEach(myPoke => {
       const myPokeValues: number[] = [];
       mmopResults.forEach(thisRepetition => {
         // thisRepetition.sort((a, b) => {
@@ -131,7 +138,18 @@ export class MMOPCalculator extends SelectionEvaluator {
     return staticticsInd;
   }
 
-  public randomOppTeam(allTargets: PokemonStrategy[]) {
+  private resultsWithRandomOpp(myTeam: PokemonStrategy[], allTargets: PokemonStrategy[]) {
+    const mmopResults: BattleTeamSearchResult[][] = [];
+    for (let i = 0; i < this.randomOppGeneration; i++) {
+      const randomOpp = this.randomOppTeam(allTargets);
+      const mmopResult = this.evaluate(myTeam, randomOpp);
+      mmopResults.push(mmopResult);
+    }
+
+    return mmopResults;
+  }
+
+  private randomOppTeam(allTargets: PokemonStrategy[]) {
     let pokeList = allTargets.concat();
     const teamNum = 6;
     const team = [];
