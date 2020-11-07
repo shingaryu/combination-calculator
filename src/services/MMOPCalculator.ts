@@ -54,7 +54,14 @@ export class MMOPCalculator extends SelectionEvaluator {
     return results;
   }
 
-  expectationOfMyTeamSelections(mmopResults: BattleTeamSearchResult[][], t: TFunction) {
+  evaluateTeamToTargetIndividuals(teamPokemons: PokemonStrategy[], allTargets: PokemonStrategy[]): TacticsPattern {
+    const matchups = this.allMatchupValues(teamPokemons, allTargets);
+    const tactics = this.maximumImmunitiesTactics(matchups);
+
+    return tactics;
+  }
+
+  evaluateSelections(mmopResults: BattleTeamSearchResult[][], t: TFunction) {
     type battleTeamResult = {
       mySelection: PokemonStrategy[],
       value: number
@@ -98,51 +105,7 @@ export class MMOPCalculator extends SelectionEvaluator {
     return statistics;
   }
 
-  averageRateOfMyTeamSelections(mmopResults: BattleTeamSearchResult[][], t: TFunction) {
-    type battleTeamResult = {
-      mySelection: PokemonStrategy[],
-      value: number
-    }
-
-    const battleTeamMap = new Map<string, battleTeamResult[]>();
-    mmopResults.forEach(thisRepetition => {
-      thisRepetition.forEach(thisSelection => {
-        const key = this.battleTeamKey(thisSelection.pokemons);
-        const value = battleTeamMap.get(key)
-        if (!value) {
-          battleTeamMap.set(key, [{ mySelection: thisSelection.pokemons, value: thisSelection.value}]);
-        } else {
-          value.push({ mySelection: thisSelection.pokemons, value: thisSelection.value});
-          battleTeamMap.set(key, value);
-        }
-      })
-    });
-
-    const statistics: any[] = [];
-    battleTeamMap.forEach((value, key) => {
-      const pokemons = value[0].mySelection;
-      let sum = 0.0;
-      value.forEach(v => sum += v.value);
-      const average = sum / value.length;
-      const mySelectionStr = pokemons.map(x => translateSpeciesIfPossible(x.species, t).substring(0, 2)).join(', ');
-      const mySelectionFullStr = pokemons.map(x => translateSpeciesIfPossible(x.species, t)).join(', ');
-      statistics.push({mySelection: pokemons, mySelectionStr: mySelectionStr, mySelectionFullStr: mySelectionFullStr,  average: average, appears: value.length});
-    })
-
-    statistics.sort((a, b) => {
-      if (b.mySelectionStr < a.mySelectionStr) {
-        return -1;
-      } else if (a.mySelectionStr < b.mySelectionStr) {
-        return 1;
-      } else {
-        return 0;
-      }
-    });
-
-    return statistics;
-  }
-
-  expectationOfMyTeamIndivisuals(myTeam: PokemonStrategy[], mmopResults: BattleTeamSearchResult[][]) {
+  evaluateTeamIndividuals(myTeam: PokemonStrategy[], mmopResults: BattleTeamSearchResult[][]) {
     const staticticsInd: any[] = [];
 
     myTeam.forEach(myPoke => {
@@ -161,84 +124,11 @@ export class MMOPCalculator extends SelectionEvaluator {
       let sum = 0.0;
       myPokeValues.forEach(v => sum += v);
       const expectation = sum / mmopResults.length;
-      // const expectation = sum / myPokeValues.length;
 
       staticticsInd.push({myPoke: myPoke, expectation: expectation, appears: myPokeValues.length});
     })
 
     return staticticsInd;
-  }
-
-  averageRateOfMyTeamIndivisuals(myTeam: PokemonStrategy[], mmopResults: BattleTeamSearchResult[][]) {
-    const staticticsInd: any[] = [];
-
-    myTeam.forEach(myPoke => {
-      const myPokeValues: number[] = [];
-      mmopResults.forEach(thisRepetition => {
-        thisRepetition.forEach(thisSelection => {
-          // myPoke is contributing to this opponents team in this my team selection
-          if (thisSelection.tacticsPattern?.matchups.find(x => x.player.id === myPoke.id)) {
-            myPokeValues.push(thisSelection.value);
-          }
-        })
-      });
-
-      let sum = 0.0;
-      myPokeValues.forEach(v => sum += v);
-      const average = sum / myPokeValues.length;
-
-      staticticsInd.push({myPoke: myPoke, average: average, appears: myPokeValues.length});
-    })
-
-    return staticticsInd;
-  }
-
-  averageImmunitiesOfAllTargets(results: BattleTeamSearchResult[][], t: TFunction) {
-    // all results for each target = all battles the target appears in
-    const allTargets = new Map<string, PokemonStrategy>(); 
-    const allResultsByTargets = new Map<string, BattleTeamSearchResult[]>();
-    results.forEach(thisOppTeam => {
-      thisOppTeam.forEach(thisSelection => {
-        thisSelection.tacticsPattern?.matchups.forEach(thisMatchup => {
-          const key = thisMatchup.opponent.id;
-          const value = allResultsByTargets.get(key);
-          if (!value) {
-            allResultsByTargets.set(key, [thisSelection]);
-            allTargets.set(key, thisMatchup.opponent);
-          } else {
-            value.push(thisSelection);
-            allResultsByTargets.set(key, value);
-          }   
-        })
-      })
-    });
-
-    const averages: any[] = [];
-    allResultsByTargets.forEach((value, key) => {
-      const oppPoke = allTargets.get(key);
-      if (!oppPoke) {
-        throw new Error('opponent pokemon not found!');
-      }
-
-      let sum = 0.0;
-      value.forEach(x => sum += x.value);
-      const average = sum / value.length;
-      averages.push({ oppPoke, average});
-    })
-
-    averages.sort((a, b) => {
-      const translatedA = translateSpeciesIfPossible(a.oppPoke.species, t);
-      const translatedB = translateSpeciesIfPossible(b.oppPoke.species, t);
-        if (translatedA < translatedB) {
-          return -1;
-        } else if (translatedB < translatedA) {
-          return 1;
-        } else {
-          return 0;
-        }
-    })
-
-    return averages;
   }
 
   public randomOppTeam(allTargets: PokemonStrategy[]) {
@@ -272,13 +162,6 @@ export class MMOPCalculator extends SelectionEvaluator {
 
     return pokemons.map(x => x.id).join(":");
 
-  }
-
-  public maximumImmunitiesListOfMyTeam(teamPokemons: PokemonStrategy[], allTargets: PokemonStrategy[]): TacticsPattern {
-    const matchups = this.allMatchupValues(teamPokemons, allTargets);
-    const tactics = this.maximumImmunitiesTactics(matchups);
-
-    return tactics;
   }
 
   private maximumImmunitiesTactics(matchups: Matchup[]): TacticsPattern {
