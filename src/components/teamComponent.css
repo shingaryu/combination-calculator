@@ -58,6 +58,7 @@
 @media (max-width: 575px) {
   body .modal-body {
     overflow-y: auto;
+    height: 100%;
   }
 }
 
