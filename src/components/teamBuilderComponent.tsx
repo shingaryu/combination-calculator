@@ -1,7 +1,6 @@
 import React from 'react';
-import { Container, Row, Col, Tabs, Tab, Card } from 'react-bootstrap'
+import { Row, Col, Tabs, Tab } from 'react-bootstrap'
 import { SearchComponent } from './searchComponent';
-import { GraphComponent } from './graphComponent';
 import { TeamComponent } from './TeamComponent';
 import { masterDataService, loadMasterDataResource } from '../services/masterDataService';
 import { SearchResultComponent } from './searchResultComponent';
@@ -96,16 +95,6 @@ export class TeamBuilderComponent extends React.Component<TeamBuilderComponentPr
     const sortedTeam = this.sortByTranslatedName(t, this.state.teamPokemons);
     const sortedTeamList = this.sortByTranslatedName(t, this.state.selectedTeamList);
     const sortedTargets = this.sortByTranslatedName(t, this.state.selectedTargets);
-    const graphLabels = sortedTargets.map(x => translateSpeciesIfPossible(x.species, t));
-
-    let teamStrengthValues = masterDataService.strValuesOfTeamStrategies(sortedTeam, sortedTargets);
-    const graphDatasets = [
-      {
-        dataLabel: t('graph.teamStrengthValue'),
-        values: teamStrengthValues.map(x => Math.round(x)),
-        colorRGB: [255, 99, 132]
-      }
-    ]
 
     let results: SearchResult[] = [];
     if (this.state.searchSettings.evaluationMethod === 0) {
@@ -144,17 +133,7 @@ export class TeamBuilderComponent extends React.Component<TeamBuilderComponentPr
           <Col>
             <Tabs id="function-tabs" defaultActiveKey="graph" className="mt-3">
               <Tab eventKey="graph" title={t('tab.titleGraph')}>
-                {/* <Row className="mt-3">
-                  <Col>
-                    <h4>{t('graph.title')}</h4>
-                    <div className="description-box mb-4" >
-                      <div dangerouslySetInnerHTML={{__html: t('graph.description')}} />
-                      <div className="tips">・{t('graph.tips1')}</div>
-                    </div>
-                  <GraphComponent labels={graphLabels} datasets={graphDatasets}/>
-                  </Col>
-                </Row> */}
-                <Row className="mt-2">
+                <Row className="mt-3">
                   <Col>
                     <StatisticalEvaluation myTeam={this.state.teamPokemons} sortedPokemonList={sortedTargets} />
                   </Col>

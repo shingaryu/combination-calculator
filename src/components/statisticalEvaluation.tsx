@@ -87,7 +87,7 @@ class StatisticalEvaluationRaw extends React.Component<StatisticalEvaluationProp
 
     return (
       <>
-        <Row className="mt-5">
+        <Row>
           <Col>
             <h4>{t('graph.selectionUnit.title')}</h4>
             <div className="description-box mb-4" >
