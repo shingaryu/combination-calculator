@@ -107,7 +107,7 @@ class StatisticalEvaluationRaw extends React.Component<StatisticalEvaluationProp
               <div className="tips">・{t('graph.selectionEvaluation.tips2')}</div>
             </div>
             <GraphComponent labels={graphLabelsExp} datasets={graphDataSetsExp} heightVertical={300} widthVertical={800}
-              valueMin={-64} valueMax={128} valueStep={64} optionsBar={toolTipOptionsExp(true)} optionsHorizontal={toolTipOptionsExp(false)} />
+              valueMin={-32} valueMax={64} valueStep={32} optionsBar={toolTipOptionsExp(true)} optionsHorizontal={toolTipOptionsExp(false)} />
           </Col>
         </Row>        
         <Row className="mt-5">
@@ -118,7 +118,7 @@ class StatisticalEvaluationRaw extends React.Component<StatisticalEvaluationProp
               <div className="tips">・{t('graph.individualEvaluation.tips1')}</div>
             </div>
             <GraphComponent labels={graphLabelsIndExp} datasets={graphDataSetsIndExp} heightVertical={300} widthVertical={800} 
-              valueMin={-128} valueMax={512} valueStep={128} xTicksRotation={0}/>
+              valueMin={-128} valueMax={256} valueStep={128} xTicksRotation={0}/>
           </Col>
         </Row>        
       </>
