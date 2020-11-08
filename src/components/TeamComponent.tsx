@@ -211,10 +211,10 @@ export class TeamComponentRaw extends React.Component<TeamComponentProps, TeamCo
           <div className='name-line'>
             {translateSpeciesIfPossible(poke.species, t)} {poke.gender ? poke.gender + ' ': ''} {poke.item ? '@ ' + poke.item: ''}
           </div>
-          <div>
+          <div className='strategy-line'>
             {poke.ability}, {poke.nature}, {poke.ev_hp}-{poke.ev_atk}-{poke.ev_def}-{poke.ev_spa}-{poke.ev_spd}-{poke.ev_spe}
           </div>
-          <div>
+          <div className='strategy-line'>
             {poke.move1}, {poke.move2}, {poke.move3}, {poke.move4}
           </div>
         </div>

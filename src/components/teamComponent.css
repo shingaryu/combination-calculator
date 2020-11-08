@@ -29,6 +29,10 @@
   font-weight: 600;
 }
 
+.strategy-line {
+  font-size: 14px;
+}
+
 .str-list {
   height: 500px;
   overflow-x: auto;
