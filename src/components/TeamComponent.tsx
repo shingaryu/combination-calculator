@@ -112,7 +112,7 @@ export class TeamComponentRaw extends React.Component<TeamComponentProps, TeamCo
   }
 
   validTeamPokemons() {
-    console.log(this.state.pokemonSlots.filter(x => x.enabled && x.poke).map(y => translateSpeciesIfPossible(y.poke? y.poke.species: "", this.props.t)));
+    // console.log(this.state.pokemonSlots.filter(x => x.enabled && x.poke).map(y => translateSpeciesIfPossible(y.poke? y.poke.species: "", this.props.t)));
     return this.state.pokemonSlots.filter(x => x.enabled && x.poke).map(y => y.poke as PokemonStrategy);
   }
 
@@ -160,23 +160,22 @@ export class TeamComponentRaw extends React.Component<TeamComponentProps, TeamCo
   };
 
   onSuggestionSelectedOnSlot = (slotNum: number, event: React.FormEvent<any>, data: SuggestionSelectedEventData<PokeNameSuggestion>) => {
-    console.log(data);
-
     const pokemons = this.state.pokemonSlots.concat();
-    pokemons[slotNum].poke = data.suggestion.strategy;
-    this.setState({ pokemonSlots: pokemons });
-    this.props.onChange(this.validTeamPokemons());
 
-    // it calls onChange method twice everytime when a suggestion is selected
-    // in onChangeInput() and onSuggestionSelectedOnSlot()
+    // input text is unchanged but the user select a different strategy from suggestions
+    // onChangeInput() is not called in this case
+    if ((pokemons[slotNum].inputText === data.suggestionValue) && (pokemons[slotNum].poke?.id !== data.suggestion.strategy.id)) {
+      // console.log('changed to other strategy with same name')
+      pokemons[slotNum].poke = data.suggestion.strategy;
+      this.setState({ pokemonSlots: pokemons });
+      this.props.onChange(this.validTeamPokemons());
+    }
   }
 
   // called when input control is actually updated
   onChangeInput = (slotNum: number, event: any, { newValue }: any) => {
-    console.log(`onchange: slot ${slotNum} value ${newValue}`);
-
-    const currentValids = this.validTeamPokemons();
-
+    // console.log(`onchange: slot ${slotNum} value ${newValue}`);
+  
     const pokemons = this.state.pokemonSlots.concat();
     const isPreviousInvalid = !pokemons[slotNum].poke;
     pokemons[slotNum].inputText = newValue;
@@ -184,7 +183,7 @@ export class TeamComponentRaw extends React.Component<TeamComponentProps, TeamCo
     const matchedSuggestion = this.allSuggestions.find(x => x.name === newValue);
     let isCurrentInvalid = false;
     if (matchedSuggestion) {
-      console.log('matched ' + matchedSuggestion.name);
+      // console.log('matched ' + matchedSuggestion.name);
       pokemons[slotNum].poke = matchedSuggestion.strategy;
       isCurrentInvalid = false;
     } else {
