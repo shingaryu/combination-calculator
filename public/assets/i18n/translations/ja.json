@@ -5,11 +5,11 @@
   },
   "overview": {
     "title": "概要",
-    "textline1": "ポケモン対戦シミュレーターの計算結果を元にして、パーティのバランスを努力値・技・持ち物などを考慮した現実的なモデルで計算します。",
+    "textline1": "ポケモン対戦シミュレーターの計算結果をもとにして、パーティのバランスを努力値・技・持ち物などを考慮した現実的なモデルで計算します。",
     "textline2": ""
   },
   "tab": {
-    "titleGraph": "グラフ",
+    "titleGraph": "PT評価",
     "titleSearch": "検索",
     "titleTeamListSelect": "PT候補選択",
     "titleTargetSelect": "仮想敵選択",
