@@ -125,8 +125,9 @@ export class TeamBuilderComponent extends React.Component<TeamBuilderComponentPr
               <div dangerouslySetInnerHTML={{__html: t('team.description')}} />
               <div className="tips">・{t('team.tips1')}</div>
               <div className="tips">・{t('team.tips2')}</div>
+              <div className="tips">・{t('team.tips3')}</div>
             </div>            
-            <TeamComponent num={6} pokemonList={sortedTeamList} onChange={(pokemons: PokemonStrategy[]) => this.onChangeTeamPokemons(pokemons)}></TeamComponent>
+            <TeamComponent num={6} pokemonList={sortedTeamList} selectedTargets={sortedTargets} onChange={(pokemons: PokemonStrategy[]) => this.onChangeTeamPokemons(pokemons)}></TeamComponent>
           </Col>
         </Row>
         <Row>

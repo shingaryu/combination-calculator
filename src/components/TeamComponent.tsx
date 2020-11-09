@@ -7,10 +7,14 @@ import PokemonStrategy from '../models/PokemonStrategy';
 import { defaultTeam } from '../defaultList';
 import Autosuggest, { SuggestionSelectedEventData } from 'react-autosuggest';
 import { withTranslation } from 'react-i18next';
+import { GraphComponent } from './graphComponent';
+import { masterDataService } from '../services/masterDataService';
+import { TFunction } from 'i18next';
 
 type TeamComponentProps = {
   num: number,
   pokemonList: PokemonStrategy[],
+  selectedTargets: PokemonStrategy[],
   onChange: (pokemons: PokemonStrategy[]) => void,
 } & WithTranslation
 
@@ -20,6 +24,7 @@ type TeamComponentState = {
   editingSlot: number,
   selectedPoke: PokemonStrategy | null,
   modalShow: boolean,
+  detailShow: boolean,
   suggestions: any[],
   pokeValue: string
 }
@@ -52,6 +57,7 @@ export class TeamComponentRaw extends React.Component<TeamComponentProps, TeamCo
       editingSlot: -1,
       selectedPoke: null,
       modalShow: false,
+      detailShow: false,
       suggestions: [],
       pokeValue: ""
     }
@@ -103,6 +109,22 @@ export class TeamComponentRaw extends React.Component<TeamComponentProps, TeamCo
     });
 
     this.props.onChange(this.validTeamPokemons());
+  }
+
+  onDetailOpen(slotToShow: number) {
+    this.setState({
+      detailShow: true,
+      editingSlot: slotToShow,
+      selectedPoke: this.state.pokemonSlots[slotToShow].poke
+    });    
+  }
+
+  onDetailClose() {
+    this.setState({
+      detailShow: false,
+      // editingSlot: -1,
+      selectedPoke: null
+    });
   }
 
   onClickPokemonCard(poke: PokemonStrategy) {
@@ -272,6 +294,28 @@ export class TeamComponentRaw extends React.Component<TeamComponentProps, TeamCo
     return popover;
   }
 
+  pokemonIndividualStrDataset = (poke: PokemonStrategy | null, t: TFunction) => {
+    if (!poke) {
+      return [
+        {
+          dataLabel: t('team.detailModal.strengthFromThisPoke'),
+          values: [...Array(this.props.selectedTargets.length)].map(x => 0),
+          colorRGB: [255, 99, 132]
+        }
+      ];
+    }
+    
+    const teamStrengthValues = masterDataService.strValuesOfTeamStrategies([poke], this.props.selectedTargets);
+    const graphDatasets = [
+      {
+        dataLabel: t('team.detailModal.strengthFromThisPoke').replace('{name}', translateSpeciesIfPossible(poke.species, t)),
+        values: teamStrengthValues.map(x => Math.round(x)),
+        colorRGB: [255, 99, 132]
+      }
+    ];
+
+    return graphDatasets;
+  }
 
   render() {
     const { t } = this.props;
@@ -305,9 +349,10 @@ export class TeamComponentRaw extends React.Component<TeamComponentProps, TeamCo
                 <Button variant="outline-dark" size="sm" onClick={() => this.onModalOpen(slotNum)}>{t('team.set')}</Button>
               </div>
               <div className="details-line">
-                <OverlayTrigger trigger={['hover', 'focus']} placement="bottom" overlay={this.pokemonDetailsPopover(slot.poke)}>
+                {/* <OverlayTrigger trigger={['hover', 'focus']} placement="bottom" overlay={this.pokemonDetailsPopover(slot.poke)}>
                   <Button variant="outline-dark" size="sm" disabled={!slot.poke}>{t('team.detail')}</Button>
-                </OverlayTrigger>
+                </OverlayTrigger> */}
+                <Button variant="outline-dark" size="sm" disabled={!slot.poke} onClick={() => this.onDetailOpen(slotNum)}>{t('team.detail')}</Button>
               </div>                        
             </div>
             )
@@ -332,6 +377,26 @@ export class TeamComponentRaw extends React.Component<TeamComponentProps, TeamCo
           </Button>
           <Button variant="primary" onClick={() => this.onModalApply()}>
             {t('team.modal.apply')}
+          </Button>
+        </Modal.Footer>
+      </Modal>
+      <Modal size="lg" show={this.state.detailShow} onHide={() => this.onDetailClose()}>
+        <Modal.Header closeButton>
+          <Modal.Title>{t('team.detailModal.title').replace('{num}', (this.state.editingSlot + 1).toString())}</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <div className='str-list'>
+            {this.state.selectedPoke? this.pokemonStrategyCard(this.state.selectedPoke, false): ''}
+            <div className="description-box mb-4">
+              <div dangerouslySetInnerHTML={{__html: t('team.detailModal.description')}} />
+            </div>                       
+            <GraphComponent labels={this.props.selectedTargets.map(x => translateSpeciesIfPossible(x.species, t))} datasets={this.pokemonIndividualStrDataset(this.state.selectedPoke, t)}
+              valueMin={-1024} valueMax={1024} />
+          </div>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="primary" onClick={() => this.onDetailClose()}>
+            {t('team.detailModal.ok')}
           </Button>
         </Modal.Footer>
       </Modal>
