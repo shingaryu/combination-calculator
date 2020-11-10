@@ -41,5 +41,6 @@ export type MyTeamResultWC = {
   maximumCoveragePokemonIndex: number,
   maximumCoverage: number,
   coverageNum: number,
-  overallCoverage: number
+  overallCoverage: number,
+  evaluationValue: number
 }

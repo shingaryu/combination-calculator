@@ -2,6 +2,7 @@ import { SelectionEvaluator } from "./selectionEvaluator";
 import * as Utils from './utils';
 import PokemonStrategy from "../models/PokemonStrategy";
 import BattleTeamSearchResult from "../models/BattleTeamSearchResult";
+import { masterDataService } from "./masterDataService";
 
 // Minimum Average to Opponent Pokemon
 export class MAOPCalculator extends SelectionEvaluator {
@@ -10,7 +11,7 @@ export class MAOPCalculator extends SelectionEvaluator {
 
     const results: BattleTeamSearchResult[] = [];
     battleTeamCombinations.forEach(pokemons => {
-      const strValues = this.combinationService.strValuesOfTeamStrategies(pokemons, opponentPokemons);
+      const strValues = masterDataService.strValuesOfTeamStrategies(pokemons, opponentPokemons);
       const minimumValue = Math.min(...strValues);
       const minimumValueIndex = strValues.findIndex(x => x === minimumValue);
       const minimumValueOppPoke = opponentPokemons[minimumValueIndex];

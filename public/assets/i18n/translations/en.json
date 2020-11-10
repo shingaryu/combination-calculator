@@ -12,17 +12,19 @@
     "titleGraph": "Chart",
     "titleSearch": "Search",
     "titleTeamListSelect": "Team(List)",
-    "titleTargetSelect": "Targets"
+    "titleTargetSelect": "Targets",
+    "titleBattleTeam": "Battle Team"
   },
   "team": {
     "title": "Your Team",
     "slotPlaceholder": "",
-    "set": "Set",
+    "set": "List",
     "modal": {
       "title": "Select Pokemon ({num}th slot)",
       "cancel": "Cancel",
       "apply": "Apply"
-    }
+    },
+    "detail": "detail"
   },
   "search": {
     "settingsTitle": "Search Settings",
@@ -38,15 +40,39 @@
     "columnValue": "Value"
   },
   "graph": {
-    "title": "Strength Values to Targets",
+    "title": "Strength Values to Targets (Total)",
     "teamStrengthValue": "Team strength value",
-    "selectedPokemonStrengthValue": "Selected pokemon strength value"
+    "selectedPokemonStrengthValue": "Selected pokemon strength value",
+    "titleSelectionUnit": "Strength Values to Targets (Among Selections)",
+    "averageValueAmongAllSelections": "Average among all selections",
+    "titleSelectionEvaluation": "Average Evaluations of Each Selection",
+    "titleIndividualEvaluation": "Average Evaluations of Each Pokemon"
   },
   "teamListSelect": {
     "title": "Select candidates you can set as team members"
   },
   "targetSelect": {
     "title": "Select targets to show"
+  },
+  "battleTeam": {
+    "selectOpponentTeam": "Set opponent's team",
+    "tab": {
+      "titleMAOP": "Minimum Average",
+      "titleMMOP": "Minimum Maximum",
+      "titleCVRG": "Coverage"
+    },
+    "evaluation": "Evaluation",
+    "detail": "detail",
+    "MAOP": {
+      "title": "Selections (Minimum Average to Opponent Pokemon)"
+    },
+    "MMOP": {
+      "title": "Selections (Minimum Maximum to Opponent Pokemon)",
+      "overused": "overused"
+    },
+    "CVRG": {
+      "title": "Selections (Coverage)"
+    }
   },
   "reference": {
     "title": "Reference (evaluation method of matchups)",
@@ -799,6 +825,8 @@
       "ribombee": "Ribombee",
       "rockruff": "Rockruff",
       "lycanroc": "Lycanroc",
+      "lycanrocdusk": "lycanroc-Dusk",
+      "lycanrocmidnight": "lycanroc-Midnight",
       "wishiwashi": "Wishiwashi",
       "mareanie": "Mareanie",
       "toxapex": "Toxapex",

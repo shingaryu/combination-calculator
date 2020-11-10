@@ -1,4 +1,4 @@
-import { CombinationService } from "./combination-service";
+import { masterDataService } from "./masterDataService";
 import PokemonStrategy from "../models/PokemonStrategy";
 import Matchup from "../models/Matchup";
 import StrengthRow from "./StrengthRow";
@@ -6,26 +6,24 @@ import * as Utils from './utils';
 import TacticsPattern from "../models/TacticsPattern";
 
 export class SelectionEvaluator {
-  protected combinationService: CombinationService;
   protected strengthRows: StrengthRow[]
 
-  constructor(combinationService: CombinationService) {
-    this.combinationService = combinationService;
-    this.strengthRows = combinationService.getStrengthRows();
+  constructor() {
+    this.strengthRows = masterDataService.getStrengthRows();
   }
 
   evaluate(teamPokemons: PokemonStrategy[], opponentPokemons: PokemonStrategy[]) {
     throw new Error('Method must be overidden by a sub class');
   }
 
-  protected allMatchupValues(teamPokemons: PokemonStrategy[], targetPokemons: PokemonStrategy[]): Matchup[] {
+  public allMatchupValues(teamPokemons: PokemonStrategy[], targetPokemons: PokemonStrategy[]): Matchup[] {
     const pokemonVectors = teamPokemons.map(pokeStrategy => {
       const row = this.strengthRows.find(x => x.strategyId === pokeStrategy.id);
       if (!row) {
         throw new Error('Error: team pokemon does not exist in strength rows');
       }
 
-      const filteredVector = this.combinationService.filterAndSortStrVectorByTargets(row.vector, targetPokemons);
+      const filteredVector = masterDataService.filterAndSortStrVectorByTargets(row.vector, targetPokemons);
       
       return filteredVector;
     });
@@ -105,7 +103,7 @@ export class SelectionEvaluator {
 
     if (advantageousMatchups.length === 0) {
       const myTeamResultWC = { myTeam, advantageousMatchups, maximumCoveragePokemonIndex: 0, maximumCoverage: 0, 
-        coverageNum: 0, overallCoverage: 0 };
+        coverageNum: 0, overallCoverage: 0, evaluationValue: 0 };
       return myTeamResultWC;
     }
 
@@ -119,7 +117,8 @@ export class SelectionEvaluator {
     const maximumCoverage = advantageousMatchups[maximumCoveragePokemonIndex].matchups.length;
     let coverageNum = 0;
     advantageousMatchups.forEach(x => coverageNum += x.matchups.length);
-    const myTeamResultWC = { myTeam, advantageousMatchups, maximumCoveragePokemonIndex, maximumCoverage, coverageNum, overallCoverage };
+    const evaluationValue = overallCoverage * 1000 + coverageNum * 10 + maximumCoverage * 1;
+    const myTeamResultWC = { myTeam, advantageousMatchups, maximumCoveragePokemonIndex, maximumCoverage, coverageNum, overallCoverage, evaluationValue };
 
     // const myTeamResultWC = this.myTeamResultWCFromAdvantageousMatchups(myTeam, opponentPokemons, advantageousMatchups);
 

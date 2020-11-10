@@ -3,26 +3,35 @@ import PokemonStrategy from '../models/PokemonStrategy';
 import StrengthTableLoader from './strengthTableLoader';
 import StrengthRow from './StrengthRow';
 import * as Utils from './utils';
+import { getPokemonStrategies } from '../api/pokemonStrategiesApi';
+import { wrapPromise } from './wrapPromise';
+import { MMOPCalculator } from './MMOPCalculator';
 
-export class CombinationService {
+// used like singleton
+class MasterDataService {
   private strengthRows: StrengthRow[];
   private targetPokeNames: string[];
   private targetPokeIds: string[];
+  private allPokemonStrategies: PokemonStrategy[];
 
   constructor() {
     this.strengthRows = [];
     this.targetPokeNames = [];
     this.targetPokeIds = [];
+    this.allPokemonStrategies = [];
   }
 
+  // needs to be called manually, before using any of class methods
   async loadMasterData() {
     const loader = new StrengthTableLoader();
     await loader.loadMasterData();
     this.strengthRows = loader.getStrengthRows();
     this.targetPokeNames = loader.getTargetPokeNames();
     this.targetPokeIds = loader.getTargetPokeIds();
+
+    this.allPokemonStrategies = (await getPokemonStrategies()).data;
   }
-  
+
   getStrengthRows() {
     return this.strengthRows;
   }
@@ -36,6 +45,10 @@ export class CombinationService {
 
   getAllTargetPokemonNames() {
     return this.targetPokeNames;
+  }
+
+  getAllPokemonStrategies() {
+    return this.allPokemonStrategies;
   }
 
   strValuesOfTeamStrategies(teamPokemons: PokemonStrategy[], selectedTargets: PokemonStrategy[]) {
@@ -61,6 +74,30 @@ export class CombinationService {
     const combinedVector = Utils.addVectors(...pokemonVectors);
 
     return combinedVector;
+  }
+
+  mmopValuesOfTeamStrategies(teamPokemons: PokemonStrategy[], selectedTargets: PokemonStrategy[]) {
+    if (!teamPokemons || teamPokemons.length === 0) {
+      const allZero = [];
+      for (let i = 0; i < selectedTargets.length; i++) {
+        allZero.push(0);
+      }
+      return allZero;
+    }
+
+    const mmop = new MMOPCalculator();
+    const tactics = mmop.evaluateTeamToTargetIndividuals(teamPokemons, selectedTargets);
+
+    const teamStrVector: number[] = [];
+    selectedTargets.forEach(target => {
+      const matchup = tactics.matchups.find(x => x.opponent.id === target.id);
+      if (!matchup) {
+        throw new Error('Error: target is missing in tactics');
+      }
+      teamStrVector.push(matchup.value);
+    })
+
+    return teamStrVector;
   }
 
   calcTargetStrengthsComplement(teamPokemons: PokemonStrategy[], teamList: PokemonStrategy[], selectedTargets: PokemonStrategy[], compatibleStrTypes: string[]) {
@@ -95,10 +132,10 @@ export class CombinationService {
       return [];
     }
 
-    const combinedVector = this.strValuesOfTeamStrategies(teamPokemons, selectedTargets);
+    const immunityVector = this.mmopValuesOfTeamStrategies(teamPokemons, selectedTargets);
     let targetStrengthRows = this.strengthRows.filter(x => !teamPokemons.find(y => y.id === x.strategyId));
 
-    const weakestSpot = combinedVector.indexOf(Math.min(...combinedVector));
+    const weakestSpot = immunityVector.indexOf(Math.min(...immunityVector));
     console.log(`weakest spot: ${weakestSpot} (${selectedTargets[weakestSpot].species})`);
 
     const results: SearchResult[] = [];
@@ -163,25 +200,22 @@ export class CombinationService {
       return [];
     }
 
-    const combinedVector = this.strValuesOfTeamStrategies(teamPokemons, selectedTargets);
-    let targetStrengthRows = this.strengthRows.filter(x => !teamPokemons.find(y => y.id === x.strategyId));
-
     const results: SearchResult[] = [];
-    targetStrengthRows.forEach(row => {
-      if (teamList.find(x => x.id === row.strategyId) === undefined) {
+    teamList.forEach(candidate => {
+      if (teamPokemons.find(x => x.id === candidate.id)) {
         return;
       }
-      const filteredVector = this.filterAndSortStrVectorByTargets(row.vector, selectedTargets);
-      const overallVector = Utils.addVectors(combinedVector, filteredVector);
-      let minusSum = 0.0;
-      overallVector.filter(val => val < 0).forEach(val => minusSum += val);
 
+      const immunityOfNewTeam = this.mmopValuesOfTeamStrategies([...teamPokemons, candidate], selectedTargets);
+      let negativeSum = 0.0;
+      const negativeThreshold = 256; // to be considered
+      immunityOfNewTeam.filter(val => val < negativeThreshold).forEach(val => negativeSum += val - negativeThreshold);
       results.push({
-        pokemonIds: [ row.index.toString() ],
-        pokemonNames: [ row.species ],
-        value: minusSum,
+        pokemonIds: [ candidate.id ],
+        pokemonNames: [ candidate.species ],
+        value: negativeSum,
       })
-    });
+    })
 
     results.sort((a, b) => b.value - a.value); // higher values come first
 
@@ -201,3 +235,8 @@ export class CombinationService {
     return newVector;
   }
 }
+
+const instance = new MasterDataService();
+const loadMasterDataResource = wrapPromise(instance.loadMasterData());
+
+export { instance as masterDataService, loadMasterDataResource };

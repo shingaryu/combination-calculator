@@ -1,5 +1,5 @@
 import React from 'react';
-import { Container, Row, Col, Form } from 'react-bootstrap'
+import { Row, Col, Form } from 'react-bootstrap'
 import { I18nContext } from 'react-i18next';
 import { translateSpeciesIfPossible } from '../services/stringSanitizer';
 import PokemonStrategy from '../models/PokemonStrategy';
@@ -55,47 +55,45 @@ export class SearchComponent extends React.Component<SearchComponentProps, Searc
 
     return (
     <>
-      <Container fluid className="mt-3">
-        <Row>
-          <Col>
-            <h4>{t('search.settingsTitle')}</h4>
-          </Col>
-        </Row>
-        <Row>
-          <Col>
-            <Form>
-              <Form.Group controlId="evaluation-method">
-                <Form.Label>{t('search.evaluationMethod')}</Form.Label>
-                <Form.Control as="select" onChange={(e: React.ChangeEvent<HTMLInputElement>) => this.onChangeSearchSettings(e)}>
-                  <option value="0">{t('search.targetStrenthComplement')}</option>
-                  <option value="1">{t('search.weakestPointImmunity')}</option>
-                  <option value="2">{t('search.toCustomTargets')}</option>
-                  <option value="3">{t('search.negativesTotal')}</option>
-                </Form.Control>
-              </Form.Group>
-              {
-                this.state.evaluationMethod === 2 && <div className="mb-2">{t('search.selectTargetUpToN').replace('{n}', this.state.numOfTargetHolders)}</div>
-              }
-              {
-                this.state.evaluationMethod === 2 && [...Array(this.state.numOfTargetHolders)].map((x, i) => {
-                  return (
-                    <Form.Group key={`fg-${i}`} controlId={`target-list-${i}`}>
-                      {/* <Form.Label>Targets</Form.Label> */}
-                      <Form.Control as="select" onChange={(e: React.ChangeEvent<HTMLInputElement>) => this.onSelectTargets(i, e.target.value)}>
-                        <option key={`op-${i}-empty`} />
-                        { this.props.targetsList.map((poke) => (
-                          <option key={`op-${i}-${poke.id}`} 
-                            value={poke.id}>{translateSpeciesIfPossible(poke.species, t)}</option>
-                        ))}
-                      </Form.Control>
-                    </Form.Group>
-                  )
-                })
-              }
-            </Form>          
-          </Col>
-        </Row>
-      </Container>
+      <Row className="mt-3">
+        <Col>
+          <h4>{t('search.settingsTitle')}</h4>
+        </Col>
+      </Row>
+      <Row>
+        <Col>
+          <Form>
+            <Form.Group controlId="evaluation-method">
+              <Form.Label>{t('search.evaluationMethod')}</Form.Label>
+              <Form.Control as="select" onChange={(e: React.ChangeEvent<HTMLInputElement>) => this.onChangeSearchSettings(e)}>
+                <option value="0">{t('search.targetStrenthComplement')}</option>
+                <option value="1">{t('search.weakestPointImmunity')}</option>
+                <option value="2">{t('search.toCustomTargets')}</option>
+                <option value="3">{t('search.negativesTotal')}</option>
+              </Form.Control>
+            </Form.Group>
+            {
+              this.state.evaluationMethod === 2 && <div className="mb-2">{t('search.selectTargetUpToN').replace('{n}', this.state.numOfTargetHolders)}</div>
+            }
+            {
+              this.state.evaluationMethod === 2 && [...Array(this.state.numOfTargetHolders)].map((x, i) => {
+                return (
+                  <Form.Group key={`fg-${i}`} controlId={`target-list-${i}`}>
+                    {/* <Form.Label>Targets</Form.Label> */}
+                    <Form.Control as="select" onChange={(e: React.ChangeEvent<HTMLInputElement>) => this.onSelectTargets(i, e.target.value)}>
+                      <option key={`op-${i}-empty`} />
+                      { this.props.targetsList.map((poke) => (
+                        <option key={`op-${i}-${poke.id}`} 
+                          value={poke.id}>{translateSpeciesIfPossible(poke.species, t)}</option>
+                      ))}
+                    </Form.Control>
+                  </Form.Group>
+                )
+              })
+            }
+          </Form>          
+        </Col>
+      </Row>
     </>
     )};
 }
