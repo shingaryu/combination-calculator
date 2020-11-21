@@ -7,6 +7,13 @@ import TacticsPattern from "../models/TacticsPattern";
 import { translateSpeciesIfPossible } from '../services/stringSanitizer';
 import { TFunction } from "i18next";
 
+export type IndividualsEvaluationResult = {
+  pokemon: PokemonStrategy, 
+  value: number, 
+  appearanceRate: number,
+  responsibleTargets: { poke: PokemonStrategy, appearanceRate: number, immunity: number }[]
+}
+
 // Minimum Maximum to Opponent Pokemon
 export class MMOPCalculator extends SelectionEvaluator {
 
@@ -119,11 +126,12 @@ export class MMOPCalculator extends SelectionEvaluator {
   }
 
   evaluateTeamIndividuals(teamPokemons: PokemonStrategy[], allTargets: PokemonStrategy[]) {
-    type IndividualsEvaluationResult = {
-      pokemon: PokemonStrategy, 
-      value: number, 
-      appearanceRate: number      
-    }
+    // type IndividualsEvaluationResult = {
+    //   pokemon: PokemonStrategy, 
+    //   value: number, 
+    //   appearanceRate: number,
+    //   responsibleTargets: { poke: PokemonStrategy, appearanceRate: number, immunity: number }[]
+    // }
 
     const staticticsInd: IndividualsEvaluationResult[] = [];
 
@@ -131,14 +139,23 @@ export class MMOPCalculator extends SelectionEvaluator {
 
     teamPokemons.forEach(myPoke => {
       const myPokeValues: number[] = [];
+      const myPokeResponsibilities = new Map<string, Matchup[]>();
       mmopResults.forEach(thisRepetition => {
         // thisRepetition.sort((a, b) => {
         //   return b.value - a.value;
         // })
 
         const bestSelection = thisRepetition[0];
-        if (bestSelection.tacticsPattern?.matchups.find(x => x.player.id === myPoke.id)) {
+        const responsibleMatchup = bestSelection.tacticsPattern?.matchups.find(x => x.player.id === myPoke.id);
+        if (responsibleMatchup) {
           myPokeValues.push(bestSelection.value);
+          const mapValue = myPokeResponsibilities.get(responsibleMatchup.opponent.id);
+          if (!mapValue) {
+            myPokeResponsibilities.set(responsibleMatchup.opponent.id, [responsibleMatchup]);
+          } else {
+            mapValue.push(responsibleMatchup);
+            myPokeResponsibilities.set(responsibleMatchup.opponent.id, mapValue);
+          }
         }
       });
 
@@ -146,7 +163,20 @@ export class MMOPCalculator extends SelectionEvaluator {
       myPokeValues.forEach(v => sum += v);
       const expectation = sum / mmopResults.length;
 
-      staticticsInd.push({pokemon: myPoke, value: expectation, appearanceRate: myPokeValues.length / mmopResults.length});
+      const responsibleTargets: { poke: PokemonStrategy, appearanceRate: number, immunity: number }[] = []
+      myPokeResponsibilities.forEach((value, key) => {
+        const poke = allTargets.find(x => x.id === key);
+        if (!poke) {
+          throw new Error('target poke not found');
+        }
+        const immunity = value[0].value;
+        const appearanceRate = value.length / myPokeValues.length; // probability for one best selection
+        responsibleTargets.push({poke, appearanceRate, immunity});
+      })
+
+      responsibleTargets.sort((a, b) => b.appearanceRate - a.appearanceRate);
+
+      staticticsInd.push({pokemon: myPoke, value: expectation, appearanceRate: myPokeValues.length / mmopResults.length, responsibleTargets});
     })
 
     return staticticsInd;

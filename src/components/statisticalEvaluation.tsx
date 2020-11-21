@@ -2,9 +2,9 @@ import React from 'react';
 import { translateSpeciesIfPossible } from '../services/stringSanitizer';
 import { GraphComponent } from './graphComponent';
 import PokemonStrategy from '../models/PokemonStrategy';
-import { MMOPCalculator } from '../services/MMOPCalculator';
+import { IndividualsEvaluationResult, MMOPCalculator } from '../services/MMOPCalculator';
 import { withTranslation, WithTranslation } from 'react-i18next';
-import { Col, Row } from 'react-bootstrap';
+import { Col, Row, Table } from 'react-bootstrap';
 
 type StatisticalEvaluationProps = {
   myTeam: PokemonStrategy[],
@@ -48,6 +48,7 @@ class StatisticalEvaluationRaw extends React.Component<StatisticalEvaluationProp
 
     let graphLabelsIndExp: string[] = [];
     let graphDataSetsIndExp: any[] = [];
+    let staticticsIndExp: IndividualsEvaluationResult[] = [];
     
     if (this.props.myTeam.length >= 3) {
       const statisticsExp = mmopCalculator.evaluateTeamSelections(this.props.myTeam, this.props.sortedPokemonList, t);
@@ -78,7 +79,7 @@ class StatisticalEvaluationRaw extends React.Component<StatisticalEvaluationProp
         }
       });
   
-      const staticticsIndExp = mmopCalculator.evaluateTeamIndividuals(this.props.myTeam, this.props.sortedPokemonList);
+      staticticsIndExp = mmopCalculator.evaluateTeamIndividuals(this.props.myTeam, this.props.sortedPokemonList);
       graphLabelsIndExp = staticticsIndExp.map(x => translateSpeciesIfPossible(x.pokemon.species, t));
       graphDataSetsIndExp = [
         {
@@ -126,7 +127,29 @@ class StatisticalEvaluationRaw extends React.Component<StatisticalEvaluationProp
                 <GraphComponent labels={graphLabelsIndExp} datasets={graphDataSetsIndExp} heightVertical={300} widthVertical={800} 
                   valueMin={-128} valueMax={256} valueStep={128} xTicksRotation={0}/>
               </Col>
-            </Row>       
+            </Row>
+            <Table>
+              <thead>
+                <tr>
+                  { graphLabelsIndExp.map(x => <th key={x}>{x}</th>)}
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                { staticticsIndExp.map(x => (
+                  <td>
+                    {x.responsibleTargets.map(y => (
+                      <div style={{ fontSize: 12 }} key={y.poke.id}>
+                        <span style={{ display: 'inline-block', width: 90, height: 15, overflow: 'hidden' }}>{translateSpeciesIfPossible(y.poke.species, t)}</span>
+                        <span style={{ display: 'inline-block', width: 50, height: 15 }}>{' ' + (y.appearanceRate * 100).toFixed(2)}%</span>
+                        <span style={{ display: 'inline-block', width: 30, height: 15 }}>{' ' + y.immunity.toFixed(0)}</span>
+                      </div>
+                    ))}
+                  </td>
+                ))}
+                </tr>
+              </tbody>
+            </Table> 
           </> 
         }
       </>
