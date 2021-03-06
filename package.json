@@ -16,7 +16,7 @@
     "@types/react-autosuggest": "^10.0.0",
     "@types/react-dom": "^16.9.8",
     "@types/react-responsive": "^8.0.2",
-    "axios": "^0.19.2",
+    "axios": "^0.21.1",
     "bootstrap": "^4.4.1",
     "chart.js": "^2.9.3",
     "i18next": "^19.4.5",
