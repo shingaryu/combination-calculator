@@ -137,7 +137,7 @@ class StatisticalEvaluationRaw extends React.Component<StatisticalEvaluationProp
               <tbody>
                 <tr>
                 { staticticsIndExp.map(x => (
-                  <td>
+                  <td key={x.pokemon.id}>
                     {x.responsibleTargets.map(y => (
                       <div style={{ fontSize: 12 }} key={y.poke.id}>
                         <span style={{ display: 'inline-block', width: 90, height: 15, overflow: 'hidden' }}>{translateSpeciesIfPossible(y.poke.species, t)}</span>
