@@ -13,6 +13,7 @@ import { TFunction } from 'i18next';
 
 type TeamComponentProps = {
   num: number,
+  defaultTeam: PokemonStrategy[],
   pokemonList: PokemonStrategy[],
   selectedTargets: PokemonStrategy[],
   onChange: (pokemons: PokemonStrategy[]) => void,
@@ -41,7 +42,7 @@ export class TeamComponentRaw extends React.Component<TeamComponentProps, TeamCo
       throw new Error ('Error: team length must be more than 0');
     }
 
-    const defaultTeamPokemons = defaultTeam(this.props.pokemonList);
+    const defaultTeamPokemons = this.props.defaultTeam;
     const pokemonSlots = [];
     for (let i = 0; i < this.props.num; i++) {
       pokemonSlots[i] = {

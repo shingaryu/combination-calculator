@@ -13,7 +13,7 @@ import SearchSettings from '../models/searchSettings';
 import PokemonStrategy from '../models/PokemonStrategy';
 import { TFunction } from 'i18next';
 import SearchResult from '../models/searchResult';
-import { defaultTeam, defaultTeamList, defaultTargets } from '../defaultList';
+import { defaultTeam, defaultTeamList, defaultTargets, teamFromLocalStrage } from '../defaultList';
 import { StatisticalEvaluation } from './statisticalEvaluation';
 
 type TeamBuilderComponentProps = {
@@ -38,9 +38,9 @@ export class TeamBuilderComponent extends React.Component<TeamBuilderComponentPr
 
     const pokemonStrategies = masterDataService.getAllPokemonStrategies();
     const targetPokemonNames = masterDataService.getAllTargetPokemonNames();
-
+    
     this.state = { 
-      teamPokemons: defaultTeam(pokemonStrategies),
+      teamPokemons: teamFromLocalStrage(pokemonStrategies) || defaultTeam(pokemonStrategies),
       searchSettings: { evaluationMethod: 0 },
       strVectorColumns: targetPokemonNames,
       selectedTeamList: defaultTeamList(pokemonStrategies),
@@ -54,6 +54,7 @@ export class TeamBuilderComponent extends React.Component<TeamBuilderComponentPr
   onChangeTeamPokemons(pokemons: PokemonStrategy[]) {
     console.log('Team selection changed');
     console.log(pokemons.map(x => x.id));
+    localStorage.setItem('teamPokemonId', JSON.stringify(pokemons.map(p => p.id)))
     this.setState({ teamPokemons: pokemons });
   }
 
@@ -127,7 +128,7 @@ export class TeamBuilderComponent extends React.Component<TeamBuilderComponentPr
               <div className="tips">・{t('team.tips2')}</div>
               <div className="tips">・{t('team.tips3')}</div>
             </div>            
-            <TeamComponent num={6} pokemonList={sortedTeamList} selectedTargets={sortedTargets} onChange={(pokemons: PokemonStrategy[]) => this.onChangeTeamPokemons(pokemons)}></TeamComponent>
+            <TeamComponent num={6} defaultTeam={sortedTeam} pokemonList={sortedTeamList} selectedTargets={sortedTargets} onChange={(pokemons: PokemonStrategy[]) => this.onChangeTeamPokemons(pokemons)}></TeamComponent>
           </Col>
         </Row>
         <Row>
