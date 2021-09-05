@@ -10,13 +10,16 @@ import { withTranslation } from 'react-i18next';
 import { GraphComponent } from './graphComponent';
 import { masterDataService } from '../services/masterDataService';
 import { TFunction } from 'i18next';
+import { setTeamPokemons } from '../redux/actions';
+import { connect } from 'react-redux';
 
 type TeamComponentProps = {
   num: number,
   defaultTeam: PokemonStrategy[],
   pokemonList: PokemonStrategy[],
   selectedTargets: PokemonStrategy[],
-  onChange: (pokemons: PokemonStrategy[]) => void,
+  // onChange: (pokemons: PokemonStrategy[]) => void,
+  setTeamPokemons: (pokemons: PokemonStrategy[]) => void,
 } & WithTranslation
 
 type TeamComponentState = {
@@ -76,7 +79,7 @@ export class TeamComponentRaw extends React.Component<TeamComponentProps, TeamCo
       pokemonSlots: pokemons
     });
 
-    this.props.onChange(this.validTeamPokemons());
+    this.props.setTeamPokemons(this.validTeamPokemons());
   }
 
   onModalOpen(slotToBeEdited: number) {
@@ -109,7 +112,7 @@ export class TeamComponentRaw extends React.Component<TeamComponentProps, TeamCo
       selectedPoke: null
     });
 
-    this.props.onChange(this.validTeamPokemons());
+    this.props.setTeamPokemons(this.validTeamPokemons());
   }
 
   onDetailOpen(slotToShow: number) {
@@ -191,7 +194,7 @@ export class TeamComponentRaw extends React.Component<TeamComponentProps, TeamCo
       // console.log('changed to other strategy with same name')
       pokemons[slotNum].poke = data.suggestion.strategy;
       this.setState({ pokemonSlots: pokemons });
-      this.props.onChange(this.validTeamPokemons());
+      this.props.setTeamPokemons(this.validTeamPokemons());
     }
   }
 
@@ -221,7 +224,7 @@ export class TeamComponentRaw extends React.Component<TeamComponentProps, TeamCo
     if (isPreviousInvalid && isCurrentInvalid) {
       return;
     } else {
-      this.props.onChange(this.validTeamPokemons());
+      this.props.setTeamPokemons(this.validTeamPokemons());
     }
   };
 
@@ -405,4 +408,15 @@ export class TeamComponentRaw extends React.Component<TeamComponentProps, TeamCo
   )};
 }
 
-export const TeamComponent = withTranslation()(TeamComponentRaw);
+const TeamComponent = withTranslation()(TeamComponentRaw);
+
+const mapStateToProps = (state: any) => {
+  return {};
+};
+const mapDispatchToProps = {
+  setTeamPokemons, 
+};
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(TeamComponent);

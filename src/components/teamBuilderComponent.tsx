@@ -1,7 +1,7 @@
 import React from 'react';
 import { Row, Col, Tabs, Tab } from 'react-bootstrap'
 import { SearchComponent } from './searchComponent';
-import { TeamComponent } from './TeamComponent';
+import TeamComponent from './TeamComponent';
 import { masterDataService, loadMasterDataResource } from '../services/masterDataService';
 import { SearchResultComponent } from './searchResultComponent';
 import { I18nContext } from 'react-i18next';
@@ -13,20 +13,20 @@ import SearchSettings from '../models/searchSettings';
 import PokemonStrategy from '../models/PokemonStrategy';
 import { TFunction } from 'i18next';
 import SearchResult from '../models/searchResult';
-import { defaultTeam, defaultTeamList, defaultTargets, teamFromLocalStrage } from '../defaultList';
+import { defaultTeamList, defaultTargets } from '../defaultList';
 import { StatisticalEvaluation } from './statisticalEvaluation';
-import { getSearchSettings } from '../redux/selectors';
-import { setSearchSettings, loadMasterData } from '../redux/actions'
+import { getSearchSettings, getTeamPokemons } from '../redux/selectors';
+import { setSearchSettings, loadMasterData, setTeamPokemons } from '../redux/actions'
 import { connect } from 'react-redux';
 
 type TeamBuilderComponentProps = {
   searchSettings: SearchSettings,
   setSearchSettings: (value: SearchSettings) => void,
-  loadMasterData: () => void
+  loadMasterData: () => void,
+  teamPokemons: PokemonStrategy[]
 }
 
 type TeamBuilderComponentState = {
-  teamPokemons: PokemonStrategy[],
   strVectorColumns: string[],
   selectedTeamList: PokemonStrategy[],
   selectedTargets: PokemonStrategy[],
@@ -44,7 +44,6 @@ class TeamBuilderComponent extends React.Component<TeamBuilderComponentProps, Te
     const targetPokemonNames = masterDataService.getAllTargetPokemonNames();
     
     this.state = { 
-      teamPokemons: teamFromLocalStrage(pokemonStrategies) || defaultTeam(pokemonStrategies),
       strVectorColumns: targetPokemonNames,
       selectedTeamList: defaultTeamList(pokemonStrategies),
       selectedTargets: defaultTargets(pokemonStrategies),
@@ -56,13 +55,6 @@ class TeamBuilderComponent extends React.Component<TeamBuilderComponentProps, Te
 
   componentDidMount() {
     this.props.loadMasterData();
-  }
-
-  onChangeTeamPokemons(pokemons: PokemonStrategy[]) {
-    console.log('Team selection changed');
-    console.log(pokemons.map(x => x.id));
-    localStorage.setItem('teamPokemonId', JSON.stringify(pokemons.map(p => p.id)))
-    this.setState({ teamPokemons: pokemons });
   }
 
   onSearchSettingsChange(settings: SearchSettings) {
@@ -97,10 +89,14 @@ class TeamBuilderComponent extends React.Component<TeamBuilderComponentProps, Te
   }
 
   render() {
+    if (this.props.teamPokemons.length === 0) {
+      return <></>
+    }
+
     const t = this.context.i18n.t.bind(this.context.i18n);
 
     const sortedAllStrategies = this.sortByTranslatedName(t, this.state.allStrategies);
-    const sortedTeam = this.sortByTranslatedName(t, this.state.teamPokemons);
+    const sortedTeam = this.sortByTranslatedName(t, this.props.teamPokemons);
     const sortedTeamList = this.sortByTranslatedName(t, this.state.selectedTeamList);
     const sortedTargets = this.sortByTranslatedName(t, this.state.selectedTargets);
 
@@ -135,7 +131,7 @@ class TeamBuilderComponent extends React.Component<TeamBuilderComponentProps, Te
               <div className="tips">・{t('team.tips2')}</div>
               <div className="tips">・{t('team.tips3')}</div>
             </div>            
-            <TeamComponent num={6} defaultTeam={sortedTeam} pokemonList={sortedTeamList} selectedTargets={sortedTargets} onChange={(pokemons: PokemonStrategy[]) => this.onChangeTeamPokemons(pokemons)}></TeamComponent>
+            <TeamComponent num={6} defaultTeam={sortedTeam} pokemonList={sortedTeamList} selectedTargets={sortedTargets} ></TeamComponent>
           </Col>
         </Row>
         <Row>
@@ -144,7 +140,7 @@ class TeamBuilderComponent extends React.Component<TeamBuilderComponentProps, Te
               <Tab eventKey="graph" title={t('tab.titleGraph')}>
                 <Row className="mt-3">
                   <Col>
-                    <StatisticalEvaluation myTeam={this.state.teamPokemons} sortedPokemonList={sortedTargets} />
+                    <StatisticalEvaluation myTeam={this.props.teamPokemons} sortedPokemonList={sortedTargets} />
                   </Col>
                 </Row>
               </Tab>
@@ -177,7 +173,7 @@ class TeamBuilderComponent extends React.Component<TeamBuilderComponentProps, Te
                 </Row>
               </Tab>
               <Tab eventKey="battle-team" title={t('tab.titleBattleTeam')}>
-                <BattleTeamComponent myTeam={this.state.teamPokemons} sortedPokemonList={sortedAllStrategies} />
+                <BattleTeamComponent myTeam={this.props.teamPokemons} sortedPokemonList={sortedAllStrategies} />
               </Tab>
             </Tabs>    
           </Col>
@@ -204,9 +200,15 @@ class TeamBuilderComponent extends React.Component<TeamBuilderComponentProps, Te
 
 const mapStateToProps = (state: any) => {
   const searchSettings = getSearchSettings(state);
-  return { searchSettings };
+  const teamPokemons = getTeamPokemons(state);
+  return { searchSettings, teamPokemons };
+};
+const mapDispatchToProps = {
+  setSearchSettings, 
+  loadMasterData,
+  setTeamPokemons, 
 };
 export default connect(
   mapStateToProps,
-  { setSearchSettings, loadMasterData }
+  mapDispatchToProps,
 )(TeamBuilderComponent);
