@@ -16,12 +16,13 @@ import SearchResult from '../models/searchResult';
 import { defaultTeam, defaultTeamList, defaultTargets, teamFromLocalStrage } from '../defaultList';
 import { StatisticalEvaluation } from './statisticalEvaluation';
 import { getSearchSettings } from '../redux/selectors';
-import { setSearchSettings } from '../redux/actions'
+import { setSearchSettings, loadMasterData } from '../redux/actions'
 import { connect } from 'react-redux';
 
 type TeamBuilderComponentProps = {
   searchSettings: SearchSettings,
-  setSearchSettings: (value: SearchSettings) => void
+  setSearchSettings: (value: SearchSettings) => void,
+  loadMasterData: () => void
 }
 
 type TeamBuilderComponentState = {
@@ -52,6 +53,10 @@ class TeamBuilderComponent extends React.Component<TeamBuilderComponentProps, Te
   }
 
   static contextType = I18nContext;
+
+  componentDidMount() {
+    this.props.loadMasterData();
+  }
 
   onChangeTeamPokemons(pokemons: PokemonStrategy[]) {
     console.log('Team selection changed');
@@ -203,5 +208,5 @@ const mapStateToProps = (state: any) => {
 };
 export default connect(
   mapStateToProps,
-  { setSearchSettings }
+  { setSearchSettings, loadMasterData }
 )(TeamBuilderComponent);
