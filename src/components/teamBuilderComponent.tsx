@@ -15,21 +15,24 @@ import { TFunction } from 'i18next';
 import SearchResult from '../models/searchResult';
 import { defaultTeam, defaultTeamList, defaultTargets, teamFromLocalStrage } from '../defaultList';
 import { StatisticalEvaluation } from './statisticalEvaluation';
+import { getSearchSettings } from '../redux/selectors';
+import { setSearchSettings } from '../redux/actions'
+import { connect } from 'react-redux';
 
 type TeamBuilderComponentProps = {
-
+  searchSettings: SearchSettings,
+  setSearchSettings: (value: SearchSettings) => void
 }
 
 type TeamBuilderComponentState = {
   teamPokemons: PokemonStrategy[],
-  searchSettings: SearchSettings,
   strVectorColumns: string[],
   selectedTeamList: PokemonStrategy[],
   selectedTargets: PokemonStrategy[],
   allStrategies: PokemonStrategy[]
 }
 
-export class TeamBuilderComponent extends React.Component<TeamBuilderComponentProps, TeamBuilderComponentState> {
+class TeamBuilderComponent extends React.Component<TeamBuilderComponentProps, TeamBuilderComponentState> {
   constructor(props: TeamBuilderComponentProps) {
     super(props);
 
@@ -41,7 +44,6 @@ export class TeamBuilderComponent extends React.Component<TeamBuilderComponentPr
     
     this.state = { 
       teamPokemons: teamFromLocalStrage(pokemonStrategies) || defaultTeam(pokemonStrategies),
-      searchSettings: { evaluationMethod: 0 },
       strVectorColumns: targetPokemonNames,
       selectedTeamList: defaultTeamList(pokemonStrategies),
       selectedTargets: defaultTargets(pokemonStrategies),
@@ -59,7 +61,7 @@ export class TeamBuilderComponent extends React.Component<TeamBuilderComponentPr
   }
 
   onSearchSettingsChange(settings: SearchSettings) {
-    this.setState({ searchSettings: settings });
+    this.props.setSearchSettings(settings);
   }
 
   onChangeSelectedTeamList(pokemons: PokemonStrategy[]) {
@@ -98,14 +100,14 @@ export class TeamBuilderComponent extends React.Component<TeamBuilderComponentPr
     const sortedTargets = this.sortByTranslatedName(t, this.state.selectedTargets);
 
     let results: SearchResult[] = [];
-    if (this.state.searchSettings.evaluationMethod === 0) {
+    if (this.props.searchSettings.evaluationMethod === 0) {
       results = masterDataService.calcTargetStrengthsComplement(sortedTeam, sortedTeamList, sortedTargets, ['Sweeper', 'Tank', 'Wall']);
-    } else if (this.state.searchSettings.evaluationMethod === 1) {
+    } else if (this.props.searchSettings.evaluationMethod === 1) {
       results = masterDataService.calcWeakestPointImmunity(sortedTeam, sortedTeamList, sortedTargets);
-    } else if (this.state.searchSettings.evaluationMethod === 2 && this.state.searchSettings.targets) {
+    } else if (this.props.searchSettings.evaluationMethod === 2 && this.props.searchSettings.targets) {
       results = masterDataService.calcImmunityToCustomTargets(sortedTeam, sortedTeamList, sortedTargets, 
-        this.state.searchSettings.targets.filter(idStr => idStr));
-    } else if (this.state.searchSettings.evaluationMethod === 3) {
+        this.props.searchSettings.targets.filter(idStr => idStr));
+    } else if (this.props.searchSettings.evaluationMethod === 3) {
       results = masterDataService.calcNegativesTotal(sortedTeam, sortedTeamList, sortedTargets);
     }
 
@@ -194,3 +196,12 @@ export class TeamBuilderComponent extends React.Component<TeamBuilderComponentPr
     )
   };
 }
+
+const mapStateToProps = (state: any) => {
+  const searchSettings = getSearchSettings(state);
+  return { searchSettings };
+};
+export default connect(
+  mapStateToProps,
+  { setSearchSettings }
+)(TeamBuilderComponent);
